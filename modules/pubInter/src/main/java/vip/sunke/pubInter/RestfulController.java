@@ -21,7 +21,7 @@ public abstract class RestfulController<
         , TS extends BaseSearch
         , DomainVO extends AbstractVO<String>
         , DetailVO extends AbstractDomainVO<DomainVO>
-        , ListVO extends PageVO<DetailVO>> extends BaseController {
+        , ListVO extends PageVO<DomainVO>> extends BaseController {
 
     public abstract IBaseService<T, TS, String> getBaseService() throws SkException;
 
