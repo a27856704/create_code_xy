@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.sunke.template.dao.mapper.NewsMapper">
+  <resultMap id="oneResultMap" type="News">
+    <id column="n_id" property="id" />
+    <result column="n_create_time" javaType="java.util.Date" property="createTime" />
+    <result column="n_update_time" javaType="java.util.Date" property="updateTime" />
+    <result column="n_title" property="title" />
+    <result column="n_type" property="type" />
+    <result column="n_status" property="status" />
+    <result column="n_author" property="author" />
+    <result column="n_show" property="show" />
+    <result column="n_send_time" javaType="java.util.Date" property="sendTime" />
+    <result column="n_intro" property="intro" />
+    <result column="n_source" property="source" />
+    <result column="n_add_time" javaType="java.util.Date" property="addTime" />
+    <result column="n_info" jdbcType="LONGVARCHAR" property="info" />
+  </resultMap>
+  <sql id="oneSmallColumnList">
+    news.n_id as n_id,news.n_create_time as n_create_time,news.n_update_time as n_update_time,news.n_title as n_title,news.n_type as n_type,news.n_status as n_status,news.n_author as n_author,news.n_show as n_show,news.n_send_time as n_send_time,news.n_intro as n_intro,news.n_source as n_source,news.n_add_time as n_add_time
+  </sql>
+  <sql id="oneColumnList">
+    <include refid="vip.sunke.template.dao.mapper.NewsMapper.oneSmallColumnList"/>
+    ,news.n_info as n_info
+  </sql>
+  <insert id="insert" parameterType="News">
+    insert into news
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+		<if test="id!=null">
+			n_id,
+		</if>
+		<if test="createTime!=null">
+			n_create_time,
+		</if>
+		<if test="updateTime!=null">
+			n_update_time,
+		</if>
+		<if test="title!=null">
+			n_title,
+		</if>
+		<if test="type!=null">
+			n_type,
+		</if>
+		<if test="status!=null">
+			n_status,
+		</if>
+		<if test="author!=null">
+			n_author,
+		</if>
+		<if test="show!=null">
+			n_show,
+		</if>
+		<if test="sendTime!=null">
+			n_send_time,
+		</if>
+		<if test="intro!=null">
+			n_intro,
+		</if>
+		<if test="source!=null">
+			n_source,
+		</if>
+		<if test="addTime!=null">
+			n_add_time,
+		</if>
+		<if test="info!=null">
+			n_info,
+		</if>
+	</trim>
+	<trim prefix=" values (" suffix=")" suffixOverrides=",">
+		<if test="id!=null">
+			#{id},
+		</if>
+		<if test="createTime!=null">
+			#{createTime},
+		</if>
+		<if test="updateTime!=null">
+			#{updateTime},
+		</if>
+		<if test="title!=null">
+			#{title},
+		</if>
+		<if test="type!=null">
+			#{type},
+		</if>
+		<if test="status!=null">
+			#{status},
+		</if>
+		<if test="author!=null">
+			#{author},
+		</if>
+		<if test="show!=null">
+			#{show},
+		</if>
+		<if test="sendTime!=null">
+			#{sendTime},
+		</if>
+		<if test="intro!=null">
+			#{intro},
+		</if>
+		<if test="source!=null">
+			#{source},
+		</if>
+		<if test="addTime!=null">
+			#{addTime},
+		</if>
+		<if test="info!=null">
+			#{info,jdbcType=LONGVARCHAR},
+		</if>
+	</trim>
+  </insert>
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into news
+	<trim prefix="(" suffix=")" suffixOverrides=",">
+			n_id,
+			n_create_time,
+			n_update_time,
+			n_title,
+			n_type,
+			n_status,
+			n_author,
+			n_show,
+			n_send_time,
+			n_intro,
+			n_source,
+			n_add_time,
+			n_info,
+	</trim>
+	<foreach collection="list" item="item" index="index" separator="," open=" VALUES ">
+		<trim prefix="  (" suffix=")" suffixOverrides=",">
+				#{item.id},
+				#{item.createTime},
+				#{item.updateTime},
+				#{item.title},
+				#{item.type},
+				#{item.status},
+				#{item.author},
+				#{item.show},
+				#{item.sendTime},
+				#{item.intro},
+				#{item.source},
+				#{item.addTime},
+				#{item.info,jdbcType=LONGVARCHAR},
+		</trim>
+	</foreach>
+  </insert>
+  <update id="update" parameterType="News">
+    update news
+	<set>
+		<if test="createTime!=null">
+			n_create_time=#{createTime},
+		</if>
+		<if test="updateTime!=null">
+			n_update_time=#{updateTime},
+		</if>
+		<if test="title!=null">
+			n_title=#{title},
+		</if>
+		<if test="type!=null">
+			n_type=#{type},
+		</if>
+		<if test="status!=null">
+			n_status=#{status},
+		</if>
+		<if test="author!=null">
+			n_author=#{author},
+		</if>
+		<if test="show!=null">
+			n_show=#{show},
+		</if>
+		<if test="sendTime!=null">
+			n_send_time=#{sendTime},
+		</if>
+		<if test="intro!=null">
+			n_intro=#{intro},
+		</if>
+		<if test="source!=null">
+			n_source=#{source},
+		</if>
+		<if test="addTime!=null">
+			n_add_time=#{addTime},
+		</if>
+		<if test="info!=null">
+			n_info=#{info,jdbcType=LONGVARCHAR},
+		</if>
+	</set>
+	 where n_id=#{id}
+  </update>
+  <delete id="delete">
+    delete from news where n_id=#{0}
+  </delete>
+  <delete id="batchDelete">
+    delete from news
+    <where>
+        n_id in 
+        <foreach collection="list"  item="deleteId" separator="," open="(" close=")">
+            #{deleteId}
+        </foreach>
+    </where>
+  </delete>
+  <select id="getDetail" resultMap="vip.sunke.template.dao.mapperExt.NewsMapperExt.baseResultMap">
+    select 
+ 		<include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.baseColumnList"></include>
+ 		<include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.fromTable"></include>
+ 		where news.n_id=#{0}
+  </select>
+  <select id="getAllList" parameterType="NewsSearch" resultMap="vip.sunke.template.dao.mapperExt.NewsMapperExt.baseResultMap">
+    <include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.getListSql"></include>
+  </select>
+  <select id="getList" parameterType="NewsSearch" resultMap="vip.sunke.template.dao.mapperExt.NewsMapperExt.baseResultMap">
+    <include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.getListSql"></include>
+		limit #{start},#{limit}
+  </select>
+  <select id="getListCount" parameterType="NewsSearch" resultType="java.lang.Integer">
+    select count(DISTINCT n_id)  
+ 		<include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.fromTable"></include>
+ 		<include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.whereSql"></include>
+		<include refid="vip.sunke.pubInter.SearchMapper.searchGroupByAndOrderBy"></include>
+  </select>
+</mapper>

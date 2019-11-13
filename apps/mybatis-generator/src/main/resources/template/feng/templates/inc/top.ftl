@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="top">
+    <div class="header_container">
+        <div class="header-content">
+            <div class="header_module">
+                <ul>
+                    <li class="active"><a href="#">员工管理</a></li>
+                    <li><a href="#">会员管理</a></li>
+                </ul>
+            </div>
+            <div class="header_nav">
+                <ul id="adminInfo">
+                    <li>
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQBAMAAAB8P++eAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAYUExURcHBwb+/v7+/v76+vujo6OHh4cnJydTU1IOqnXYAAAADdFJOUxPppyMYpxkAAAD6SURBVEjH7dfbDYIwFAbguoHRCYwTKLcBOIUBaHQAIAxQwvwSEQpyaH/FFxP+5y89vacV4uQBOQix86DsxRmDV3HE4EV4YDa4QQRWSjYILKnNzQ0jekY7Yd3B1AVDeiV3wKCHsQPWPUwdkIbYYWSgtsLAwMwKfQNjFCZWWPwBhEcNz+NoZfLfrLXZPYkD+gtd/H6H97UT5+EK0FPY1ZbABaDYygysuTEvtqg9sI9AiyV/o8xgRNj0DLtHaiuszOahxgJLGueeL8Gpa8vnPHx30yEZGKo5lBwMiEnGwIKDKQMVB+UaSGzWwO2psMGPIfxgh78A8KcC/aY8ACmMo3JtJ3ljAAAAAElFTkSuQmCC">
+                    </li>
+                    <li>
+                        <p th:if="${r'${session.user_session}'}" th:text="${r'${session.user_session}'}">admin</p>
+                        <p>技术部</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="balloon_box">
+        <ul>
+            <li><a th:href="${r'@{/modPsw}'}"><i class="icon_font">&#xe62f;</i>修改密码</a></li>
+            <li><a th:href="${r'@{/logout}'}"><i class="icon_font">&#xe658;</i>退出</a></li>
+        </ul>
+    </div>
+</div>
+
+
+
+
+
+

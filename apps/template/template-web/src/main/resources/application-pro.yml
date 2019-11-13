@@ -1,0 +1,72 @@
+server:
+  port: 8092
+spring:
+  datasource:
+    url:  jdbc:mysql://127.0.0.1:3306/sk_nbrc?useSSL=true&useUnicode=true
+    username: root
+    password: 123456
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: utf-8
+    cache: false
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password: 123456
+    timeout: 100000
+    database: 0
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+
+
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 10000MB
+
+mybatis:
+  type-aliases-package: vip.sunke.template.model,vip.sunke.template.search
+  mapper-locations: classpath*:mapper/*.xml
+logging:
+  level:
+    root: INFO
+    vip.sunke.template: DEBUG
+
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file: ./apps/template/template-web/api.log
+  file.max-size: 20MB
+
+
+
+
+
+sk:
+  dozer.path: classpath*:dozer/**/*.xml
+file:
+  upload:
+    root:  /upload/seal
+    tempRoot: /upload/temp
+    website:  http://localhost:${server.port}/files
+debug: true
+
+
+
+
+
+
+
+
+
+
+

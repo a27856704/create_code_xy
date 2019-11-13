@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="inc/header::header"/>
+<style>
+    label.layui-form-label {
+        width: 300px;
+    }
+
+    .layui-input-inline input {
+        width: 300px;
+    }
+
+
+</style>
+
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div th:replace="inc/top::top"/>
+
+    <div th:replace="inc/menu::menu('create','file')"/>
+    <div class="layui-body min-auto">
+        <div class="my-btn-box">
+            <form class="layui-form" action="" id="dataForm" style="padding: 15px;" method="post">
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">数据库名称</label>
+                    <div class="layui-input-inline">
+
+
+                        <select name="db" lay-search="" lay-verify="required" lay-filter="db">
+
+                            <option value="">请选择</option>
+                            <option th:each="item:${databaseList}" th:value="${item}"
+                                    th:text="${item}"
+                                    th:selected="${item==db}"
+                            ></option>
+
+                        </select>
+
+                    </div>
+
+                    <label class="layui-form-label">数据库连接URL</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="connectionUrl" id="connectionUrl"
+                               th:value="${url}">
+                    </div>
+
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">数据库连接字符串</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="param" id="param"
+                               value="">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">数据库用户名</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="userId" id="userId"
+                               th:value="${username}">
+                    </div>
+                    <label class="layui-form-label">数据库密码</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="password" id="password"
+                               th:value="${password}">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">驱动类</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="driverClass" id="driverClass"
+                               value="com.mysql.jdbc.Driver">
+                    </div>
+
+
+                    <label class="layui-form-label">驱动Jar(服务器)</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" style="width: 300px;" name="driveJar"
+                               id="driveJar"
+                               th:value="${driver}">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">项目名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="projectName" id="projectName"
+                               value="后台管理系统">
+                    </div>
+                    <label class="layui-form-label">版权</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="copyright" id="copyright"
+                               value="vip.sunke">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">根package</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="packageProject" id="packageProject"
+                               placeholder="xxx.xxx">
+                    </div>
+
+                    <label class="layui-form-label">项目App</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="packageAppProject" id="packageAppProject"
+                               placeholder="xxx.xxx.xxx">
+                    </div>
+                </div>
+
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">生成的目录(服务器)</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="targetProject" id="targetProject"
+                               th:value="${createDir}">
+                    </div>
+                    <label class="layui-form-label">作者</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="author" id="author"
+                              placeholder="author">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">页面模块路径</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" name="templateDir" id="templateDir"
+                                   style="width: 600px;"
+                                   value="/template/feng/templates">
+                        </div>
+                    </div>
+                </div>
+                <!--<div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">页面模块根</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" name="templateRoot" id="templateRoot"
+                                   style="width: 600px;"
+                                   value="/work/vip-sunke/apps/mybatis-generator/src/main/resources/template">
+                        </div>
+                    </div>
+                </div>-->
+
+
+               <!-- <div class="layui-form-item">
+                    <label class="layui-form-label">mapper文件生成的目录</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="mapperTargetProject" id="mapperTargetProject"
+                               th:value="${createDir}">
+                    </div>
+                    <label class="layui-form-label">生成Model目录</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="modelTargetProject" id="modelTargetProject"
+                               th:value="${createDir}">
+                    </div>
+
+                </div>-->
+
+
+                <div class="layui-form-item">
+
+
+                    <!--<label class="layui-form-label">mapper接口文件生成的目录</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="mapperInterfaceTargetProject"
+                               id="mapperInterfaceTargetProject"
+                               th:value="${createDir}">
+                    </div>-->
+                    <label class="layui-form-label">Model父类</label>
+                    <div class="layui-input-inline">
+
+
+                        <select name="modelRootClass" lay-search="" lay-verify="required" lay-filter="db">
+
+                            <option value="">请选择</option>
+                            <option th:each="item:${modelTemplateList}" th:value="${item}"
+                                    th:text="${item}"
+                                    th:selected="${item==modelRootClass}"
+                            ></option>
+
+                        </select>
+
+
+                        <!--  <input type="text" class="layui-input" name="modelRootClass"
+                                 id="modelRootClass" style="width: 400px;"
+                                 th:value="${modelRootClass}">-->
+                    </div>
+
+                    <label class="layui-form-label">Search类模板</label>
+                    <div class="layui-input-inline">
+
+                        <select name="searchTemplate" lay-search="" lay-verify="required" lay-filter="db">
+
+                            <option value="">请选择</option>
+                            <option th:each="item:${searchTemplateList}" th:value="${item}"
+                                    th:text="${item}"
+                                    th:selected="${item==searchTemplate}"
+                            ></option>
+
+                        </select>
+
+
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+
+
+                    <label class="layui-form-label">Controller类模板</label>
+                    <div class="layui-input-inline">
+
+                        <select name="controllerTemplate" lay-search="" lay-verify="required" lay-filter="controller">
+
+                            <option value="">请选择</option>
+                            <option th:each="item:${controllerTemplateList}" th:value="${item}"
+                                    th:text="${item}"
+                                    th:selected="${item==controllerTemplate}"
+                            ></option>
+
+                        </select>
+
+
+                    </div>
+
+                    <label class="layui-form-label">根路由</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="route" id="route"
+                              placeholder="xxx"/>
+                    </div>
+
+
+
+                </div>
+
+                <!--<div class="layui-form-item">
+                    <label class="layui-form-label">根路由</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="route" id="route"
+                               value="back"/>
+                    </div>
+
+                    &lt;!&ndash;<div>(controller按这个叫名加model名组合生成，默认backController按back apiController 按api)</div>&ndash;&gt;
+
+                </div>-->
+
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label"></label>
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <button class="layui-btn" lay-submit="" lay-filter="go">生成</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="inc/footer::footer"/>
+</div>
+
+<script>
+    layui.use(['form'], function () {
+
+        $('#param').val('useSSL=false&amp;useUnicode=true');
+
+
+        var form = layui.form;
+
+        form.render();
+
+
+        form.on("select(db)", function (data) {
+
+
+        });
+
+        form.on("select(controller)", function (data) {
+            var routeName = $("#route").val();
+            if (data.value == "ApiController.ftl" && routeName == "back") {
+                $("#route").val("api");
+            }
+            if (data.value == "BackController.ftl" && routeName == "api") {
+                $("#route").val("back");
+            }
+
+        });
+
+
+        form.on('submit(go)', function (data) {
+
+
+
+
+
+            $("#dataForm").attr("action", "[[${action}]]");
+            $("#dataForm").attr("target", "_blank");
+            $("#dataForm").submit();
+            $("#dataForm").attr("action", "");
+            $("#dataForm").attr("target", "");
+
+
+
+
+
+          /*  // console.log(json);
+            postData("[[${action}]]", data.field, function (res, request) {
+
+                layer.msg("生成成功", {time: 2000}, function () {
+                    top.location.href = "/create/file";
+                });
+
+
+            });*/
+
+
+            /*  postData("[[${action}]]", data.field, function (res, request) {
+
+
+
+
+                });*/
+
+            /*   $(".layui-form").attr("action", "[[${action}]]");
+               $(".layui-form").attr("target", "_blank");
+               $(".layui-form").submit();
+               $(".layui-form").attr("action", "");
+               $(".layui-form").attr("target", "");
+   */
+            return false;
+
+
+        });
+
+
+    });
+
+
+</script>
+
+
+</body>
+</html>

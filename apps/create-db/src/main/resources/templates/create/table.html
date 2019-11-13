@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="inc/header::header"/>
+
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div th:replace="inc/top::top"/>
+
+    <div th:replace="inc/menu::menu('create','table')"/>
+    <div class="layui-body min-auto">
+        <div class="my-btn-box">
+            <form class="layui-form" action="" style="padding: 15px;">
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">数据库名称</label>
+                        <div class="layui-input-block">
+
+
+                            <select name="db" lay-search="" lay-verify="required">
+
+                                <option th:each="item:${databaseList}" th:value="${item}"
+                                        th:text="${item}"
+                                        th:selected="${item==db}"
+                                ></option>
+
+                            </select>
+
+                        </div>
+                    </div>
+
+
+                </div>
+
+
+                <div class="layui-form-item">
+
+
+                    <label class="layui-form-label">数据表名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="tableName" id="tableName" autocomplete="off"
+                               placeholder="请输入数据表名"
+                               class="layui-input">
+                    </div>
+
+
+                </div>
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">字段前缀</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="fieldPrefix" id="fieldPrefix" autocomplete="off"
+                               placeholder="请输入数据表字段前缀"
+                               class="layui-input">
+                    </div>
+
+                </div>
+
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">表描述</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="tableDesc" id="tableDesc" autocomplete="off"
+                               placeholder="请输入数据表描述"
+                               class="layui-input">
+                    </div>
+
+                </div>
+
+
+                <div class="layui-form-item">
+
+
+                    <div class="layui-input-block">
+                        默认会添加主键前缀加id、create_time、update_time的字段
+                    </div>
+
+                </div>
+
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="go">建表</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="inc/footer::footer"/>
+</div>
+
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form;
+
+        form.render();
+
+
+        form.on('submit(go)', function (data) {
+
+            postData("[[${action}]]", data.field, function (res, request) {
+
+                top.location.href = "/create/field";
+
+
+            });
+
+            return false;
+
+
+        });
+
+
+    });
+
+
+</script>
+
+
+</body>
+</html>

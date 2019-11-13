@@ -1,0 +1,21 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div class="layui-header" th:fragment="top">
+    <div class="layui-logo">数据库生成管理平台</div>
+
+    <ul class="layui-nav layui-layout-right">
+        <li class="layui-nav-item">
+            <a href="javascript:;">
+
+                <span th:if="${session.user_session}" th:text="${session.user_session}"></span>
+            </a>
+
+        </li>
+        <li class="layui-nav-item"><a th:href="@{/logout}">退了</a></li>
+    </ul>
+</div>
+
+
+
+
+
+

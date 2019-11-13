@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="vip.sunke.pubInter.SearchMapper">
+
+
+    <sql id="searchWhere">
+
+
+        <if test="likeMap!=null">
+            <foreach collection="likeMap" index="likeFiled" item="likeItem">
+                and ${likeFiled} like CONCAT(CONCAT('%',#{likeItem}), '%')
+            </foreach>
+        </if>
+        <if test="equalMap!=null">
+            <foreach collection="equalMap" index="equalFiled" item="equalItem">
+                and ${equalFiled} =#{equalItem}
+            </foreach>
+        </if>
+        <if test="numberGreaterMap!=null">
+            <foreach collection="numberGreaterMap" index="numberGreaterFiled" item="numberGreaterItem">
+                and ${numberGreaterFiled} >=#{numberGreaterItem}
+            </foreach>
+        </if>
+        <if test="numberLessMap!=null">
+            <foreach collection="numberLessMap" index="numberLessFiled" item="numberLessItem">
+                and ${numberLessFiled} &lt;=#{numberLessItem}
+            </foreach>
+        </if>
+        <if test="inMap!=null">
+            <foreach collection="inMap" index="inFiled" item="inListItem">
+                and ${inFiled} in
+                <foreach collection="inListItem" item="inItem" separator="," open="(" close=")">
+                    #{inItem}
+                </foreach>
+            </foreach>
+        </if>
+        <if test="notInMap!=null">
+            <foreach collection="notInMap" index="notInFiled" item="notInListItem">
+                and ${notInFiled} in
+                <foreach collection="notInListItem" item="notInItem" separator="," open="(" close=")">
+                    #{notInItem}
+                </foreach>
+            </foreach>
+        </if>
+        <if test="dateStartMap!=null">
+            <foreach collection="dateStartMap" index="dateStartFiled" item="dateStartItem">
+                and ${dateStartFiled} >=#{dateStartItem}
+            </foreach>
+        </if>
+        <if test="dateEndMap!=null">
+            <foreach collection="dateEndMap" index="dateEndFiled" item="dateEndItem">
+                and ${dateEndFiled} &lt;=#{dateEndItem}
+            </foreach>
+        </if>
+        <if test="bitMap!=null">
+            <foreach collection="bitMap" index="bitFiled" item="bitItem">
+                and (${bitFiled} &amp; #{bitItem})=#{bitItem}
+            </foreach>
+        </if>
+    </sql>
+
+
+    <sql id="searchGroupByAndOrderBy">
+
+
+        <if test="groupBy!=null and groupBy!=''">
+            GROUP by ${groupBy}
+
+        </if>
+
+
+        ORDER BY
+        <if test="orderBy!=null and orderBy!=''">
+            ${orderBy}
+        </if>
+        <if test="orderBy==null or orderBy==''">
+            ${defaultOrderField}
+        </if>
+        ${orderDesc}
+
+
+        <if test="orderBy1!=null and orderBy1!=''">
+            ,${orderBy1} ${orderDesc1}
+        </if>
+        <if test="orderBy2!=null and orderBy2!=''">
+            ,${orderBy2} ${orderDesc2}
+        </if>
+
+
+    </sql>
+
+
+    <sql id="searchOtherOrder">
+
+        <include refid="com.dnalink.pubInter.SearchMapper.searchGroupByAndOrderBy"></include>
+
+
+    </sql>
+
+
+</mapper>

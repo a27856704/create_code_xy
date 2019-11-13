@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="inc/header::header"/>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+
+    <div th:replace="inc/top::top"/>
+
+    <div th:replace="inc/menu::menu('error','error')"/>
+
+
+    <div class="layui-body">
+        <div class="layui-layout layui-layout-admin">
+            <form class="layui-form" action="" style="padding: 15px;">
+
+                <h2>
+                    <div th:text="${message}">dddd</div>
+                </h2>
+
+
+            </form>
+        </div>
+
+    </div>
+    <div th:replace="inc/footer::footer"/>
+
+</div>
+
+
+</body>
+</html>

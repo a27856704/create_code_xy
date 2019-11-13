@@ -1,0 +1,57 @@
+server:
+  port: 8089
+spring:
+  datasource:
+    url:  jdbc:mysql://127.0.0.1:3306/mysql?useSSL=true&useUnicode=true
+    username: root
+    password: 123456
+    driver-class-name:  com.mysql.jdbc.Driver
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: utf-8
+    cache: false
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+  mvc:
+    static-path-pattern: /**
+file:
+  upload:
+    root: /Users/upload
+    tempRoot: /Users/upload/temp
+xmlDir: /Users/upload/createdb
+datasource:
+  url:  127.0.0.1:3306
+  username: root
+  password: 123456
+  driver: /Users/upload/createdb/lib/mysql-connector-java-5.1.20-bin.jar
+controllerTemplate: BackController.ftl
+searchTemplate: Search.ftl
+modelRootClass: BaseTimeDoMain
+
+
+
+
+
+
+
+debug: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+

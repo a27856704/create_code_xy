@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="inc/header::header"/>
+
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div th:replace="inc/top::top"/>
+
+    <div th:replace="inc/menu::menu('create','tableList')"/>
+    <div class="layui-body min-auto">
+        <div class="my-btn-box">
+
+
+            <div class="layui-form" style="margin-left: 5px;" th:if="${fieldList!=null}">
+                <table class="layui-table" lay-even lay-size="sm">
+                    <thead>
+                    <tr>
+
+                        <th>序号</th>
+                        <th>字段名</th>
+                        <th>类型</th>
+                        <th>说明</th>
+                        <th>值描述</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item,stat:${fieldList}">
+                        <td th:text="${stat.count}">序号</td>
+                        <td th:text="${item.name}">表名</td>
+                        <td th:text="${item.type}">类型</td>
+                        <td th:text="${item.info}">说明</td>
+                        <td th:text="${item.valueString}">值描述</td>
+                        <td>
+
+                            <a th:if="${!(#strings.contains(item.name,'_id') || #strings.contains(item.name,'_create_time')|| #strings.contains(item.name,'_update_time'))}"
+                               href="javascript:void(0);" class="delField" th:attr="table=${table},field=${item.name}">删除字段</a>
+                        </td>
+
+                    </tr>
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <div th:replace="inc/footer::footer"/>
+</div>
+
+<script>
+
+    layui.use(['layer'], function () {
+
+        var layer = layui.layer;
+
+        $(".delField").click(function () {
+
+            var _that = $(this);
+            layer.confirm('是否要删除字段吗？', {
+
+                    btn: ['确定', '取消']
+                }, function (index, layero) {
+
+                    postData("/create/postDelField", {table: _that.attr("table"), field: _that.attr("field")})
+
+                    //移除元素
+                    $(this).parent().parent().remove();
+                    //无法关闭这个消息框
+                    layer.closeAll('dialog');  //加入这个信息点击确定 会关闭这个消息框
+                    layer.msg("删除成功!", function () {
+
+                        location.reload();
+
+                    }, {icon: 1, time: 1000});
+
+
+                }
+            );
+
+
+        });
+
+    })
+
+</script>
+
+
+</body>
+</html>

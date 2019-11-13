@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="inc/header::header"/>
+
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div th:replace="inc/top::top"/>
+
+    <div th:replace="inc/menu::menu('create','tableList')"/>
+    <div class="layui-body min-auto">
+        <div class="my-btn-box">
+            <form class="layui-form" action="" style="padding: 15px;">
+                <div class="layui-form-item">
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">数据库名称</label>
+                        <div class="layui-input-inline">
+                            <select name="db" lay-search="" lay-verify="required">
+                                <option th:each="item:${databaseList}" th:value="${item}"
+                                        th:text="${item}"
+                                        th:selected="${item==db}"
+                                ></option>
+                            </select>
+                        </div>
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" lay-submit="" lay-filter="go">查询</button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="layui-form" style="margin-left: 5px;" th:if="${tableList!=null}">
+                <table class="layui-table" lay-even lay-size="sm">
+                    <thead>
+                    <tr>
+
+                        <th>序号</th>
+                        <th>表名</th>
+                        <th>表描述</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item,stat:${tableList}">
+                        <td th:text="${stat.count}">序号</td>
+                        <td th:text="${item.name}">表名</td>
+                        <td th:text="${item.comment}">表描述</td>
+                        <td><a th:href="${'/create/fieldList?table='+item.name}">查看字段</a></td>
+
+                    </tr>
+                    </tbody>
+
+
+                </table>
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <div th:replace="inc/footer::footer"/>
+</div>
+
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form;
+
+        form.render();
+
+
+        form.on('submit(go)', function (data) {
+
+
+            $(".layui-form").submit();
+
+
+            return false;
+
+
+        });
+
+
+    });
+
+
+</script>
+
+
+</body>
+</html>

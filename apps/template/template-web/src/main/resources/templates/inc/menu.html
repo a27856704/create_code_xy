@@ -1,0 +1,29 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div class="left_menu" th:fragment="menu(menuName,currPage)">
+    <div class="left_logo">
+        <ul>
+            <li><img src="/images/icon_logo.png"></li>
+            <li>后台管理系统</li>
+        </ul>
+    </div>
+    <div class="left_menu_list" id="leftMenu">
+        <dl>
+            <dt class="second"><a class="icon_font no_child" href="#"><i class="icon_font home"></i>系统首页</a></dt>
+        </dl>
+
+            <dl>
+                <dt th:class="${menuName=='news'}?'second active':'second'"><a class="icon_font"
+                                                                                                     href="#"><i
+                                class="icon_font shop"></i>新闻管理</a></dt>
+                <dd th:class="${menuName=='news'}?'second active':'second'">
+                    <ul>
+                            <li th:class="${currPage=='list'&& menuName=='news'}?'active'">
+                                <a href="/back/news/list"><i>●</i>新闻列表</a></li>
+
+                    </ul>
+                </dd>
+            </dl>
+    </div>
+</div>
+
+

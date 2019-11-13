@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<div class="layui-side layui-bg-black" th:fragment="menu(menuName,currPage)">
+
+    <script type="text/javascript" src="/frame/layui/layui.js"></script>
+    <script type="text/javascript" src="/js/index.js"></script>
+
+    <div class="layui-side-scroll">
+
+        <ul class="layui-nav layui-nav-tree" lay-filter="test">
+
+
+            <li class="layui-nav-item" th:classappend="${menuName=='create'}?'layui-nav-itemed'">
+                <a class="" href="javascript:;">数据库管理</a>
+
+
+                <dl class="layui-nav-child">
+
+                    <dd><a href="/create/db"
+                           th:classappend="${currPage=='db' && menuName=='create'}?'layui-this'">创建数据库</a></dd>
+                    <dd><a href="/create/table"
+                           th:classappend="${currPage=='table' && menuName=='create'}?'layui-this'">创建数据表</a>
+                    </dd>
+
+                    <dd>
+                        <a href="/create/tableList"
+                           th:classappend="${currPage=='tableList' && menuName=='create'}?'layui-this'">表列表</a>
+                    </dd>
+                    <dd>
+                        <a href="/create/field"
+                           th:classappend="${currPage=='field' && menuName=='create'}?'layui-this'">添加字段</a>
+                    </dd>
+
+
+                    <dd>
+                        <a href="/create/file"
+                           th:classappend="${currPage=='file' && menuName=='create'}?'layui-this'">生成类</a>
+                    </dd>
+
+
+                    <dd>
+                        <a href="/create/doc"
+                           th:classappend="${currPage=='doc' && menuName=='create'}?'layui-this'">导出文档</a>
+                    </dd>
+
+                </dl>
+
+            </li>
+
+
+            -->
+        </ul>
+
+    </div>
+
+    <script>
+        //JavaScript代码区域
+        layui.use('element', function () {
+            var element = layui.element;
+
+        });
+    </script>
+</div>
+
+

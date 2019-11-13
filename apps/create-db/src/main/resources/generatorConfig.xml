@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~
+  -->
+
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+<generatorConfiguration>
+    <classPathEntry location="/sk/lib/mysql-connector-java-5.1.20-bin.jar"/>
+    <!--
+         <classPathEntry location="/sk/lib/sqljdbc4.jar"/>
+    -->
+
+    <!--
+            <locationclassPathEntry location="/Users/sunke/.m2/repository/com/oracle/ojdbc14/10.2.0.4.0/ojdbc14-10.2.0.4.0.jar"/>
+    -->
+
+
+    <context id="default" defaultModelType="flat" targetRuntime="MyBatis3">
+
+        <plugin type="vip.sunke.mybatis.SkPlugin">
+            <property name="projectName" value="后台管理系统"></property>
+            <property name="copyright" value="sunsssske.vip"></property>
+
+            <property name="packageProject" value="vip.sunke.template"></property>
+            <property name="packagePubInterProject" value="vip.sunke"></property>
+            <property name="targetProject" value="/work/levo-lee.com/create"></property>
+            <property name="dbType" value="mysql"></property>
+            <property name="author" value="sunke"></property>
+            <property name="templateDir"
+                      value="/work/vip-sunke/apps/mybatis-generator/src/main/resources/template/layui/templates"></property>
+            <!--
+                        <property name="dbType" value="msserver"></property>
+            -->
+        </plugin>
+
+
+        <commentGenerator>
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+        <!--
+                <jdbcConnection driverClass="com.microsoft.sqlserver.jdbc.SQLServerDriver" connectionURL="jdbc:sqlserver://www.levo-lee.com:1433;databasename=ynkzb"
+                                userId="sa" password="Sunke118"></jdbcConnection>-->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/smart_make" userId="root"
+                        password="123456"></jdbcConnection>
+        <!--        <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"
+                                connectionURL="jdbc:oracle:thin:@192.168.68.220:1521:rcwdb" userId="rcw" password="sysrcw"/>-->
+
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+
+        <!--生成model-->
+        <javaModelGenerator targetPackage="vip.sunke.template.model" targetProject="/work/levo-lee.com/create">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+            <property name="rootClass" value="vip.sunke.pubInter.BaseTimeDoMain"></property>
+
+        </javaModelGenerator>
+
+        <!--生成mapper xml-->
+        <sqlMapGenerator targetPackage="resources/mapper" targetProject="/work/levo-lee.com/create">
+            <property name="enableSubPackages" value="false"/>
+        </sqlMapGenerator>
+        <!--1，ANNOTATEDMAPPER：会生成使用Mapper接口+Annotation的方式创建（SQL生成在annotation中），不会生成对应的XML；-->
+        <!--2，MIXEDMAPPER：使用混合配置，会生成Mapper接口，并适当添加合适的Annotation，但是XML会生成在XML中；-->
+        <!--3，XMLMAPPER：会生成Mapper接口，接口完全依赖XML；-->
+
+        <!--生成mapper 接口-->
+        <javaClientGenerator targetPackage="vip.sunke.template.dao.mapper" targetProject="/work/levo-lee.com/create"
+                             type="XMLMAPPER">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>
+
+
+        <table tableName="activity" domainObjectName="Activity">
+            <generatedKey column="a_id" sqlStatement="JDBC" identity="true"/>
+            <columnRenamingRule searchString="^a_" replaceString=""/>
+
+        </table>
+
+
+    </context>
+
+</generatorConfiguration>

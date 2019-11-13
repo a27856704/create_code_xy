@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="inc/header::header"/>
+
+
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div th:replace="inc/top::top"/>
+
+    <div th:replace="inc/menu::menu('create','db')"/>
+    <div class="layui-body min-auto">
+        <div class="my-btn-box">
+            <form class="layui-form" action="" style="padding: 15px;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">数据库名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="dbName" id="dbName" lay-verify="required" autocomplete="off"
+                               placeholder="请输入数据库名"
+                               class="layui-input">
+                    </div>
+
+
+                </div>
+
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit="" lay-filter="go">建库</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="inc/footer::footer"/>
+</div>
+
+<script>
+    layui.use(['form'], function () {
+        var form = layui.form;
+
+        form.render();
+
+
+        form.on('submit(go)', function (data) {
+
+            postData("[[${action}]]", data.field, function (res, request) {
+
+                top.location.href = "/create/table";
+
+
+            });
+
+            return false;
+
+
+        });
+
+
+    });
+
+
+</script>
+
+
+</body>
+</html>

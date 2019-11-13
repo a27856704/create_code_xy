@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.sunke.template.dao.mapperExt.NewsMapperExt">
+    <resultMap extends="vip.sunke.template.dao.mapper.NewsMapper.oneResultMap" id="baseResultMap" type="NewsExt">
+
+    </resultMap>
+    <sql id="fromTable">
+        from news
+    </sql>
+
+    <sql id="baseSmallColumnList">
+        <include refid="vip.sunke.template.dao.mapper.NewsMapper.oneSmallColumnList"/>
+    </sql>
+
+    <sql id="baseColumnList">
+        <include refid="vip.sunke.template.dao.mapper.NewsMapper.oneColumnList"/>
+    </sql>
+
+    <sql id="includeWhereSql">
+        <include refid="vip.sunke.pubInter.SearchMapper.searchWhere"></include>
+    </sql>
+    <sql id="whereSql">
+        <where>
+            <include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.includeWhereSql"></include>
+        </where>
+    </sql>
+
+    <sql id="getListSql">
+        select
+        <include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.baseSmallColumnList"/>
+        <include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.fromTable"></include>
+        <include refid="vip.sunke.template.dao.mapperExt.NewsMapperExt.whereSql"></include>
+        <include refid="vip.sunke.pubInter.SearchMapper.searchGroupByAndOrderBy"></include>
+    </sql>
+
+</mapper>
