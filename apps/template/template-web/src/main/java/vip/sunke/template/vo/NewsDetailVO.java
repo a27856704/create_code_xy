@@ -1,7 +1,7 @@
 package vip.sunke.template.vo;
 
 import lombok.Data;
-import vip.sunke.pubInter.AbstractDomainVO;
+import vip.sunke.pubInter.AbstractDataVO;
 
 /**
 *    @author sunke
@@ -9,7 +9,7 @@ import vip.sunke.pubInter.AbstractDomainVO;
 *    @description NewsVO      新闻
 */
 @Data
-public class NewsDetailVO extends AbstractDomainVO<NewsVO> {
+public class NewsDetailVO extends AbstractDataVO<NewsVO> {
 
 
 }

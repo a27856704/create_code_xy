@@ -12,11 +12,13 @@ import java.util.List;
  * @description  分类
  */
 @Data
-public class PageVO<VO> implements Serializable {
+public abstract class AbstractPageVO<VO> implements Serializable {
 
 
     private PageBean page;
 
     private List<VO> list;
+
+
 
 }

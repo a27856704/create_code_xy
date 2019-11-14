@@ -15,7 +15,6 @@ import vip.sunke.template.vo.NewsListVO;
 import vip.sunke.template.vo.NewsVO;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author sunke
@@ -26,13 +25,15 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/back/newsApi/")
 
-public class NewsApiController extends RestfulController<NewsDTO, NewsExt, NewsSearch,NewsVO, NewsDetailVO, NewsListVO> {
+public class NewsApiController extends RestfulController<NewsDTO, NewsExt, NewsSearch, NewsVO, NewsDetailVO, NewsListVO> {
+
 
     @Resource(name = "newsService")
     private INewsService newsService;
 
+
     @Override
-    public IBaseService<NewsExt, NewsSearch, String> getBaseService() throws SkException {
+    public IBaseService getBaseService() throws SkException {
         return newsService;
     }
 
@@ -42,10 +43,4 @@ public class NewsApiController extends RestfulController<NewsDTO, NewsExt, NewsS
     }
 
 
-    @Override
-    public void detailExtend(NewsExt newsExt, NewsDetailVO newsDetailVO, HttpServletRequest request) {
-        super.detailExtend(newsExt, newsDetailVO, request);
-
-
-    }
 }

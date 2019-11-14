@@ -1,6 +1,6 @@
 package vip.sunke.template.vo;
 
-import vip.sunke.pubInter.PageVO;
+import vip.sunke.pubInter.AbstractPageVO;
 
 /**
 *    @author sunke
@@ -8,7 +8,7 @@ import vip.sunke.pubInter.PageVO;
 *    @description NewsVO      新闻
 */
 
-public class NewsListVO extends PageVO<NewsDetailVO> {
+public class NewsListVO extends AbstractPageVO<NewsVO> {
 
 
 }

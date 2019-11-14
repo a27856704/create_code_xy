@@ -261,7 +261,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
             return SkMap.fail("beforePostMod false;");
         }
         T oldDomain = getBaseService().getDetail(id);
-        org.springframework.beans.BeanUtils.copyProperties(domain, oldDomain, postModNoUpdate(domain));
+        org.springframework.beans.BeanUtils.copyProperties(domain, oldDomain, postModNoUpdate(oldDomain));
         getBaseService().update(oldDomain);
         afterPostMod(oldDomain, model, request, session);
         return SkMap.ok();
@@ -333,7 +333,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
-    public boolean beforePostDel(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public boolean beforePostDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         return true;
     }
 
@@ -345,7 +345,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @param session
      * @throws SkException
      */
-    public void afterPostDel(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -358,12 +358,12 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      */
     @PostMapping("postDelete")
     @ResponseBody
-    public SkMap postDel(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
-        if (!beforePostDel(id, model, request, session)) {
+    public SkMap postDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+        if (!beforePostDelete(id, model, request, session)) {
             return SkMap.fail("beforePostDelete false");
         }
         getBaseService().delete(id);
-        afterPostDel(id, model, request, session);
+        afterPostDelete(id, model, request, session);
         return SkMap.ok();
     }
 
@@ -377,7 +377,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
-    public boolean beforePostDelAll(List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public boolean beforePostDeleteAll(List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         return true;
     }
 
@@ -389,7 +389,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @param session
      * @throws SkException
      */
-    public void afterPostDelAll(List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostDeleteAll(List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -407,11 +407,11 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
 
         if (ids == null || ids.size() == 0)
             return SkMap.fail("删除的条目为空");
-        if (beforePostDelAll(ids, model, request, session)) {
+        if (beforePostDeleteAll(ids, model, request, session)) {
             return SkMap.fail("beforePostDeleteAll false");
         }
         getBaseService().batchDelete(ids);
-        afterPostDelAll(ids, model, request, session);
+        afterPostDeleteAll(ids, model, request, session);
         return SkMap.ok();
     }
 

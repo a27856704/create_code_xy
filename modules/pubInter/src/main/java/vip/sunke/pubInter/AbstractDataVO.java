@@ -10,6 +10,8 @@ import java.io.Serializable;
  * @description
  */
 @Data
-public abstract class AbstractDomainVO<DetailVO> implements Serializable {
-    private DetailVO domain;
+public abstract class AbstractDataVO<DomainVO> implements Serializable {
+
+    private DomainVO domain;
+
 }

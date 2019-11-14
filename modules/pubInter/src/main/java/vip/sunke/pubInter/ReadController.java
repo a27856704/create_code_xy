@@ -32,7 +32,7 @@ public abstract class ReadController<T extends BaseIdDoMain, TS extends BaseSear
     }
 
     @Override
-    public SkMap postDel(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkMap postDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 
