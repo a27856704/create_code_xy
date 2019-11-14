@@ -56,7 +56,7 @@ public class BeanName {
     }
 
     public static String BACK_CONTROLLER_TEMPLATE = "BackController.ftl";
-    public static String API_CONTROLLER_TEMPLATE = "ApiController.ftl";
+    public static String API_CONTROLLER_TEMPLATE = "RestfulController.ftl";
 
     public static String getControllerTemplate() {
         return controllerTemplate;
@@ -365,6 +365,17 @@ public class BeanName {
         return getPackageAppProject() + ".controller."+StringUtil.replaceAll(BeanName.getRoute(),"/",".");
     }
 
+    public static String getShortApiController(){
+        return "RestfulController";
+    }
+
+    public static String getFullApiController(){
+
+        return getPubInterPackage()+"."+getShortApiController();
+    }
+
+
+
     public static String getControllerPath() {
         return getTargetProject() + "/" + getTargetDir(getControllerPackage());
     }
@@ -542,6 +553,8 @@ public class BeanName {
         return getPackageAppProject() + ".vo";
     }
 
+
+
     public static String getDTOPackage() {
         return getPackageAppProject() + ".dto";
     }
@@ -551,8 +564,23 @@ public class BeanName {
         return getPubInterPackage() + "." + getShortBaseVOClass();
     }
 
+    public static String getFullBaseDetailVOClass() {
+        return getPubInterPackage() + "." + getShortBaseDetailVOClass();
+    }
+
+    public static String getFullBaseListVOClass() {
+        return getPubInterPackage() + "." + getShortBaseListVOClass();
+    }
+    public static String getShortBaseListVOClass() {
+        return "AbstractPageVO";
+    }
+
+    public static String getShortBaseDetailVOClass() {
+        return "AbstractDataVO";
+    }
+
     public static String getShortBaseVOClass() {
-        return "AbstractVO";
+        return "AbstractDomainVO";
     }
 
     public static String getFullBaseDTOClass() {
@@ -612,7 +640,13 @@ public class BeanName {
     public static String getFullModelVOClassName(String modelName) {
         return getVOPackage() + "." + getShortVOClassName(modelName);
     }
+    public static String getFullListVOClassName(String modelName) {
+        return getVOPackage() + "." + getShortListVOClassName(modelName);
+    }
 
+    public static String getFullDetailVOClassName(String modelName) {
+        return getVOPackage() + "." + getShortDetailVOClassName(modelName);
+    }
 
     public static String getFullModelExtClassName(String modelName) {
         return getExtPackage() + "." + getShortModelExtClassName(modelName);
@@ -631,6 +665,8 @@ public class BeanName {
         return getFirstUpperCase(modelName) + "DO";
     }
 
+
+
     public static String getShortModelExtClassName(String modelName) {
         return getFirstUpperCase(modelName) + "Ext";
     }
@@ -640,6 +676,18 @@ public class BeanName {
 
         return getFirstUpperCase(modelName) + "VO";
     }
+
+    public static String getShortListVOClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "ListVO";
+    }
+
+    public static String getShortDetailVOClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "DetailVO";
+    }
+
+
 
     public static String getShortDTOClassName(String modelName) {
 
@@ -747,11 +795,11 @@ public class BeanName {
         return getTargetProject() + "/" + getTargetDir(getDTOPackage());
     }
 
-    public String getFullDaoImplClassName(String modelName) {
+    public static String getFullDaoImplClassName(String modelName) {
         return getDaoImplPackage() + "." + getShortDaoImplClassName(modelName);
     }
 
-    public String getFullServiceImplClassName(String modelName) {
+    public static String getFullServiceImplClassName(String modelName) {
         return getServiceImplPackage() + "." + getShortServiceImplClassName(modelName);
     }
 

@@ -9,11 +9,11 @@ import ${modelClass};
 *    @description ${description}
 */
 
-public class ${shortSearch} extends ${shortBaseSearch} {
+public class ${modelSearch} extends ${baseSearch} {
 
 ${searchField}
-    public static ${shortSearch} getInstance() {
-        return new ${shortSearch}();
+    public static ${modelSearch} getInstance() {
+        return new ${modelSearch}();
     }
 
     @Override
@@ -23,7 +23,7 @@ ${searchField}
 
     @Override
     public String  toString() {
-        return "${shortSearch}{}"+super.toString();
+        return "${modelSearch}{}"+super.toString();
     }
 ${searchFieldMethod}
 }

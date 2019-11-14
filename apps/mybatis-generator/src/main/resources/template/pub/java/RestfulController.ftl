@@ -1,15 +1,16 @@
-package vip.sunke.pubInter;
+package ${pubPackage}.pubInter;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import vip.sunke.common.BeanUtils;
-import vip.sunke.pubInter.common.PageBean;
-import vip.sunke.pubInter.common.PubConst;
-import vip.sunke.pubInter.exception.SkException;
-import vip.sunke.web.common.SkJsonResult;
+import ${pubPackage}.common.BeanUtils;
+import ${pubPackage}.pubInter.common.PageBean;
+import ${pubPackage}.pubInter.common.PubConst;
+import ${pubPackage}.pubInter.exception.SkException;
+import ${pubPackage}.web.common.SkJsonResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -19,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author sunke
- * @Date 2019/11/13 14:09
- * @description api 接口需要的继承在类
- */
+* @author ${author}
+* @Date ${createTime}
+* @description 接口需要的继承在类
+*/
 @Api("通用接口")
 @RestController
 public abstract class RestfulController<

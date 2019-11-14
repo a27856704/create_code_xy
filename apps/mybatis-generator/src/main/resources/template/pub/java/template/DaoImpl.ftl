@@ -1,11 +1,12 @@
 package ${package};
 
 import ${modelExtClass};
-import ${searchClass};
-import ${abstractBaseDao};
+import ${modelSearchClass};
+import ${abstractBaseDaoClass};
 import ${mapperExtClass};
-import ${iDao};
-import ${baseMapper};
+import ${iDaoClass};
+import ${iBaseMapperClass};
+
 import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 
@@ -14,14 +15,14 @@ import javax.annotation.Resource;
  *    @Date ${date}
  *    @description ${description}
  */
-@Repository(value = "${repositoryValue}")
-public class ${shortDaoImplClass} extends ${shortAbstractBaseDao}<${shortModelExtClass}, ${shortSearchClass},${keyType}> implements ${shortIDao} {
+@Repository(value = "${daoVar}")
+public class ${daoImpl} extends ${abstractBaseDao}<${modelExt}, ${modelSearch},String> implements ${iDao} {
 
-    @Resource(name = "${shortMapperExtName}")
-    private ${shortMapperExt} ${shortMapperExtName};
+    @Resource(name = "${mapperExtVar}")
+    private ${mapperExt} ${mapperExtVar};
 
     @Override
-    public IBaseMapper<${shortModelExtClass},  ${shortSearchClass},${keyType}> getMapper() {
-        return ${shortMapperExtName};
+    public IBaseMapper<${modelExt},  ${modelSearch},String> getMapper() {
+        return ${mapperExtVar};
     }
 }

@@ -1,5 +1,10 @@
 package ${package};
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+
+
 import ${baseVOClass};
 
 /**
@@ -8,6 +13,8 @@ import ${baseVOClass};
 *    @description ${description}
 */
 
-public class ${shortVO} extends ${shortBaseVOClass}<${keyType}> {
+@Data
+@ApiModel("${remark}")
+public class ${modelVO} extends ${baseVO}<String> {
 
 }

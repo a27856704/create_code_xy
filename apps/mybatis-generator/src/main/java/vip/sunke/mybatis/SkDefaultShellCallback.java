@@ -187,10 +187,12 @@ public class SkDefaultShellCallback extends DefaultShellCallback {
         templateList.add("AbstractBaseService");
 
         if (BeanName.isApiController()) {
-            templateList.add("ApiController");
+            templateList.add("RestfulController");
+            templateList.add("ReadRestfulController");
 
         } else {
             templateList.add("BackController");
+            templateList.add("ReadBackController");
         }
 
 
@@ -210,8 +212,13 @@ public class SkDefaultShellCallback extends DefaultShellCallback {
         templateList.add("SearchMapper");
         templateList.add("AbstractSourceBaseSearch");
         templateList.add("AbstractPageDTO");
-        templateList.add("AbstractVO");
         templateList.add("AbstractDTO");
+        templateList.add("AbstractDomainVO");
+        templateList.add("AbstractDataVO");
+        templateList.add("AbstractPageVO");
+        templateList.add("DecorateModel");
+        templateList.add("DecoratePageList");
+
 
 
         int size = templateList.size();

@@ -1,6 +1,6 @@
 package ${package};
 
-import ${baseSourceSearchClass};
+import ${sourceBaseSearchClass};
 import ${modelClass};
 
 /**
@@ -9,14 +9,14 @@ import ${modelClass};
 *    @description ${description}
 */
 
-public class ${shortSearch} extends ${shortSourceBaseSearch} {
+public class ${modelSearch} extends ${sourceBaseSearch} {
 
 ${searchField}
     public String getSourceField(){
         return ${entityName}.SOURCE;
     }
-    public static ${shortSearch} getInstance() {
-        return new ${shortSearch}();
+    public static ${modelSearch} getInstance() {
+        return new ${modelSearch}();
     }
 
     @Override
@@ -26,7 +26,7 @@ ${searchField}
 
     @Override
     public String  toString() {
-        return "${shortSearch}{}"+super.toString();
+        return "${modelSearch}{}"+super.toString();
     }
 ${searchFieldMethod}
 }

@@ -12,86 +12,25 @@ import java.util.List;
  * @description
  */
 
-public abstract class ApiManageController<DTO extends AbstractDTO, T extends BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType,VO extends AbstractVO<KeyType>> extends ApiController<DTO, T, TS, KeyType,VO> {
+public abstract class ApiManageController<DTO extends AbstractDTO
+                                              , T extends BaseIdDoMain
+                                              , TS extends BaseSearch
+                                              , DomainVO extends AbstractDomainVO<String>
+    , DataVO extends AbstractDataVO<DomainVO>
+        , ListVO extends AbstractPageVO<DomainVO>> extends RestfulController<DTO, T, TS, DomainVO, DataVO, ListVO> {
 
 
     private static boolean debug;
 
 
-    public static String getSplitMenuUrl(String menuUrl) {
 
-        if (StringUtil.isEmpty(menuUrl))
-            return "";
-
-        return menuUrl.split(";")[0];
-
-
-    }
-
-
-    public static String getMenu(String menuUrl) {
-
-        try {
-            String url = getSplitMenuUrl(menuUrl);
-
-            String[] urlArr = url.split("/");
-
-            return urlArr[1];
-        } catch (Exception e) {
-            return "";
-        }
-
-
-    }
-
-    public static String getMenuUrl(String menuUrl) {
-        try {
-            String url = getSplitMenuUrl(menuUrl);
-
-            String[] urlArr = url.split("/");
-
-            return urlArr[2] + "/" + urlArr[3];
-        } catch (Exception e) {
-            return "";
-        }
-
-
-    }
-
-
-    public static boolean contains(List<String> values, String rightsUrl) {
-
-        if (debug)
-            return true;
-
-        if (values == null || values.size() == 0 || StringUtil.isEmpty(rightsUrl))
-            return false;
-
-        for (String value : values) {
-            if (rightsUrl.toLowerCase().contains(value.toLowerCase())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     @Value("${r'${debug}'}")
     public void setDebug(boolean debug) {
         ApiManageController.debug = debug;
     }
 
-    /*public Admin getAdmin(HttpSession session) throws BusinessException {
 
-        Admin admin = (Admin) session.getAttribute(Const.ADMIN_SESSION);
-
-        if (admin == null)
-            throw new BusinessException(BusinessExceptionEnum.OBJ_NULL_ERROR);
-
-        return admin;
-
-
-    }*/
 
 
 }

@@ -7,7 +7,15 @@
     <div th:replace="inc/menu::menu('${menuName}','list')"/>
     <div class="container_box">
         <div class="container_block">
-            <div class="container_title" th:text="${r'${menuModel}'}">图书管理</div>
+            <div class="container_title" th:text="${r'${menuModel}'}">模块名称</div>
+
+            <div class="container_tab">
+                <ul>
+                    <li class="active"><a href="#" th:text="${r'${modTitle}'}">修改</a></li>
+                </ul>
+
+            </div>
+
             <div class="post_box">
                 <#assign add=false>
                 <form id="postForm" th:action="${r'${action}'}" method="post">

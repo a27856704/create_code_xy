@@ -1,14 +1,15 @@
 package ${package};
 
-import ${extModelClass};
+import lombok.Data;
+import ${modelExtClass};
 
 /**
 *    @author ${author}
 *    @Date ${date}
 *    @description ${description}
 */
-
-public class ${modelDO} extends ${shortExtModel} {
+@Data
+public class ${modelDO} extends ${modelExt} {
 
 
 

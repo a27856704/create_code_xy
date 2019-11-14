@@ -1,8 +1,8 @@
 package ${package};
 
 import ${modelExtClass};
-import ${searchClass};
-import ${baseDaoClass};
+import ${modelSearchClass};
+import ${iBaseDaoClass};
 
 
 /**
@@ -10,6 +10,7 @@ import ${baseDaoClass};
  *    @Date ${date}
  *    @description ${description}
  */
-public interface ${shortDaoClass} extends ${shortBaseDaoClass}<${shortModelExtClass}, ${shortSearchClass},${keyType}> {
+public interface ${iDao} extends ${iBaseDao}<${modelExt}, ${modelSearch},String> {
+
 
 }

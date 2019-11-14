@@ -1,5 +1,6 @@
 package vip.sunke.pubInter;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,7 +11,8 @@ import java.io.Serializable;
  * @description
  */
 @Data
-public abstract class AbstractVO<KeyType> implements Serializable {
+public abstract class AbstractDomainVO<KeyType> implements Serializable {
 
+    @ApiModelProperty("id")
     private KeyType id;
 }

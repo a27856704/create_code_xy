@@ -315,7 +315,7 @@ public class CreateController {
         model.addAttribute("modelRootClass", modelRootClass);
         model.addAttribute("searchTemplateList", new SkList<String>().addObjToList("Search.ftl").addObjToList("SourceSearch.ftl"));
         model.addAttribute("modelTemplateList", new SkList<String>().addObjToList("BaseTimeDoMain").addObjToList("BaseSourceDoMain"));
-        model.addAttribute("controllerTemplateList", new SkList<String>().addObjToList("BackController.ftl").addObjToList("ApiController.ftl"));
+        model.addAttribute("controllerTemplateList", new SkList<String>().addObjToList("BackController.ftl").addObjToList("RestfulController.ftl"));
 
 
         return getBaseView() + "file";

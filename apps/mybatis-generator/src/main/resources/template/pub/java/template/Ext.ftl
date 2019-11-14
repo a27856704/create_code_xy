@@ -1,5 +1,6 @@
 package ${package};
 
+import lombok.Data;
 import ${modelClass};
 
 /**
@@ -7,8 +8,8 @@ import ${modelClass};
 *    @Date ${date}
 *    @description ${description}
 */
-
-public class ${modelExt} extends ${entityName} {
+@Data
+public class ${modelExt} extends ${model} {
 
 
 

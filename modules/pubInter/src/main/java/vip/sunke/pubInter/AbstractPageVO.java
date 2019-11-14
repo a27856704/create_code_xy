@@ -1,5 +1,6 @@
 package vip.sunke.pubInter;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import vip.sunke.pubInter.common.PageBean;
 
@@ -14,9 +15,10 @@ import java.util.List;
 @Data
 public abstract class AbstractPageVO<VO> implements Serializable {
 
-
+    @ApiModelProperty("分页")
     private PageBean page;
 
+    @ApiModelProperty("列表数据")
     private List<VO> list;
 
 

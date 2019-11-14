@@ -18,7 +18,7 @@ import java.util.List;
  */
 
 @Controller
-public abstract class ReadController<T extends BaseIdDoMain, TS extends BaseSearch, KeyType> extends BackController<T, TS, KeyType> {
+public abstract class ReadBackController<T extends BaseIdDoMain, TS extends BaseSearch, KeyType> extends BackController<T, TS, KeyType> {
 
 
     @Override

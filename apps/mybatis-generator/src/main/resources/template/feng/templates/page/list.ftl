@@ -7,7 +7,7 @@
     <div th:replace="inc/menu::menu('${menuName}','list')"/>
     <div class="container_box">
         <div class="container_block">
-            <div class="container_title" th:text="${r'${menuModel}'}"></div>
+            <div class="container_title" th:text="${r'${menuModel}'}">模块</div>
             <div class="container_tab">
                 <ul>
                     <li class="active"><a href="#">${tableRemarks}列表</a></li>
@@ -21,6 +21,7 @@
             <div class="search_box">
                 <form id="searchForm" th:action="${r'${listPage}'}" method="post">
                     <input class="search_page" type="hidden">
+                    <input class="search_page" type="hidden" th:value="${r'${search.pageNumber}'}" id="pageNumber" name="pageNumber"/>
                     <ul class="container_fluid clear_box">
                         <#assign showSearchBtn=false>
                         <#list list as item>

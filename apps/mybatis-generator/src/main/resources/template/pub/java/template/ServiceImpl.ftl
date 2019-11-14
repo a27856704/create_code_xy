@@ -1,27 +1,28 @@
 package ${package};
 
-import ${modelExtClass};
-import ${iDao};
-import ${searchClass};
-import ${baseDaoClass};
-import ${abstractBaseService};
-import ${iService};
 import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
+import ${modelExtClass};
+import ${iDao};
+import ${modelSearchClass};
+import ${iBaseDaoClass};
+import ${abstractBaseServiceClass};
+import ${iService};
+
 
 /**
 *    @author ${author}
 *    @Date ${date}
 *    @description ${description}
 */
-@Service(value = "${serviceValue}")
-public class ${shortServiceImplClass} extends ${shortAbstractBaseService}<${shortModelExtClass}, ${shortSearchClass},${keyType}> implements ${shortIService} {
+@Service(value = "${serviceVar}")
+public class ${serviceImplClass} extends ${abstractBaseService}<${modelExt}, ${modelSearch},String> implements ${iService} {
 
-    @Resource(name = "${repositoryValue}")
-    private ${shortIDao} ${repositoryValue};
+    @Resource(name = "${daoVar}")
+    private ${iDao} ${daoVar};
 
     @Override
-    public IBaseDao<${shortModelExtClass}, ${shortSearchClass},${keyType}> getDao() {
-        return ${repositoryValue};
+    public IBaseDao<${modelExt}, ${modelSearch},String> getDao() {
+        return ${daoVar};
     }
 }

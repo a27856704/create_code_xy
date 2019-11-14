@@ -2,7 +2,10 @@ package vip.sunke.mybatis;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateHashModel;
-import org.mybatis.generator.api.*;
+import org.mybatis.generator.api.ConnectionFactory;
+import org.mybatis.generator.api.IntrospectedColumn;
+import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.PluginAdapter;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
@@ -230,6 +233,8 @@ public class SkPlugin extends PluginAdapter {
 
 
         createVO(introspectedTable, keyType);//创建VO
+        createDetailVO(introspectedTable, keyType);//创建DetailVO
+        createListVO(introspectedTable, keyType);//创建ListVO
 
         createDTO(introspectedTable, keyType);//创建DTO
         createWebSite(introspectedTable, columnRemarkList, keyType);//创建页面
@@ -253,7 +258,7 @@ public class SkPlugin extends PluginAdapter {
         try {
 
             setComment(dataMap, entityName, "MapperExt", remark);
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             dataMap.put("package", BeanName.getDaoMapperExtPackage());
             dataMap.put("mapperClass", BeanName.getFullMapperClassName(entityName));
             dataMap.put("shortMapperClassExt", BeanName.getShortMapperExtClassName(entityName));
@@ -296,7 +301,7 @@ public class SkPlugin extends PluginAdapter {
             setComment(dataMap, entityName, "Ext", remark);
             dataMap.put("package", BeanName.getExtPackage());
             dataMap.put("modelExt", BeanName.getShortModelExtClassName(entityName));
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("Ext.ftl", dataMap, BeanName.getShortModelExtClassName(entityName) + ".java", BeanName.getExtPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
         }
@@ -320,7 +325,7 @@ public class SkPlugin extends PluginAdapter {
             setComment(dataMap, entityName, "DO", remark);
             dataMap.put("package", BeanName.getDOPackage());
             dataMap.put("modelDO", BeanName.getShortDOClassName(entityName));
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             dataMap.put("extModelClass", BeanName.getFullModelExtClassName(entityName));
             dataMap.put("shortExtModel", BeanName.getShortModelExtClassName(entityName));
 
@@ -329,6 +334,61 @@ public class SkPlugin extends PluginAdapter {
         }
 
     }
+
+
+    /**
+     * 生成DetailVO
+     *
+     * @param introspectedTable
+     * @param keyType
+     */
+    private void createDetailVO(IntrospectedTable introspectedTable, String keyType) {
+
+        String entityName = getEntityName(introspectedTable);
+        String remark = introspectedTable.getRemarks();
+        entityName = BeanName.getShortModelClassName(entityName);
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "DetailVO", remark);
+            dataMap.put("package", BeanName.getVOPackage());
+
+
+            setBaseInfo(dataMap, entityName, keyType, remark);
+
+
+            BeanName.getFreeMarkerUtil().printFile("DetailVO.ftl", dataMap, BeanName.getShortDetailVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+        }
+
+    }
+
+
+    /**
+     * 生成ListVO
+     *
+     * @param introspectedTable
+     * @param keyType
+     */
+    private void createListVO(IntrospectedTable introspectedTable, String keyType) {
+
+        String entityName = getEntityName(introspectedTable);
+        String remark = introspectedTable.getRemarks();
+        entityName = BeanName.getShortModelClassName(entityName);
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "ListVO", remark);
+            dataMap.put("package", BeanName.getVOPackage());
+            dataMap.put("remark", remark);
+
+            setBaseInfo(dataMap, entityName, keyType, remark);
+
+
+            BeanName.getFreeMarkerUtil().printFile("ListVO.ftl", dataMap, BeanName.getShortListVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+        }
+
+    }
+
 
     /**
      * 生成Model VO
@@ -348,7 +408,7 @@ public class SkPlugin extends PluginAdapter {
             dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
             dataMap.put("shortVO", BeanName.getShortVOClassName(entityName));
             dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("VO.ftl", dataMap, BeanName.getShortVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
         }
@@ -370,10 +430,9 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "DTO", remark);
             dataMap.put("package", BeanName.getDTOPackage());
-            dataMap.put("baseDTOClass", BeanName.getFullBaseDTOClass());
-            dataMap.put("shortDTO", BeanName.getShortDTOClassName(entityName));
-            dataMap.put("shortBaseDTOClass", BeanName.getShortBaseDTOClass());
-            setBaseInfo(dataMap, entityName, keyType);
+
+            dataMap.put("remark", remark);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("DTO.ftl", dataMap, BeanName.getShortDTOClassName(entityName) + ".java", BeanName.getDTOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
         }
@@ -543,7 +602,7 @@ public class SkPlugin extends PluginAdapter {
         dataMap.put("entityName", entityName);
         dataMap.put("menuName", entityName);
         dataMap.put("action", "action");
-        dataMap.put("listPage", "/"+BeanName.getRoute()+"/" + entityName + "/list");
+        dataMap.put("listPage", "/" + BeanName.getRoute() + "/" + entityName + "/list");
         dataMap.put("contextPath", "pageContext.request.contextPath");
         dataMap.put("NumberUtil", BeanName.getPackageCommonProject() + ".NumberUtil");
         dataMap.put("manageController", BeanName.getFullBaseControllerClassName());
@@ -681,17 +740,17 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Controller", remark);
             dataMap.put("package", BeanName.getApiControllerPackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
 
-            dataMap.put("controllerName", BeanName.getFirstLowerCase(entityName) + "ApiController");
+            dataMap.put("controllerName", BeanName.getFirstLowerCase(entityName) + "RestfulController");
 
             dataMap.put("route", "/" + BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
             dataMap.put("baseView", BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
             dataMap.put("controllerClass", BeanName.getShortControllerClassName(entityName));
-            dataMap.put("currentMenu", remark + "列表");
-            dataMap.put("menuModel", remark + "管理");
+            dataMap.put("apiTags", remark + "相关");
+            dataMap.put("apiDesc", remark + "相关接口");
 
-            BeanName.getFreeMarkerUtil().printFile("ApiController.ftl", dataMap, BeanName.getShortControllerClassName(entityName) + ".java", BeanName.getApiControllerPath(), BeanName.getTempInPubJavaDir() + "/template");
+            BeanName.getFreeMarkerUtil().printFile("RestfulController.ftl", dataMap, BeanName.getShortControllerClassName(entityName) + ".java", BeanName.getApiControllerPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
 
         }
@@ -708,16 +767,18 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Controller", remark);
             dataMap.put("package", BeanName.getControllerPackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
 
 
-            dataMap.put("controllerName", BeanName.getFirstLowerCase(entityName) + "BackController");
+            dataMap.put("controllerName", BeanName.getFirstLowerCase(entityName) + "Controller");
 
             dataMap.put("route", "/" + BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
             dataMap.put("baseView", BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
             dataMap.put("controllerClass", BeanName.getShortControllerClassName(entityName));
-            dataMap.put("currentMenu", remark + "列表");
+
             dataMap.put("menuModel", remark + "管理");
+            dataMap.put("apiTags", remark + "相关");
+            dataMap.put("apiDesc", remark + "相关接口");
 
 
             BeanName.getFreeMarkerUtil().printFile("Controller.ftl", dataMap, BeanName.getShortControllerClassName(entityName) + ".java", BeanName.getControllerPath(), BeanName.getTempInPubJavaDir() + "/template");
@@ -898,7 +959,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Search", remark);
             dataMap.put("package", BeanName.getSearchPackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             StringBuffer sf = new StringBuffer();
             createSearchMethodOrField(entityName, columnRemarkList, true, sf);
             dataMap.put("searchField", sf.toString());
@@ -1005,54 +1066,100 @@ public class SkPlugin extends PluginAdapter {
      */
 
 
-    private void setBaseInfo(Map<String, Object> dataMap, String entityName, String keyType) {
+    private void setBaseInfo(Map<String, Object> dataMap, String entityName, String keyType, String remark) {
+
+
+        dataMap.put("remark", remark);
+        dataMap.put("entityName", entityName);
+        dataMap.put("keyType", keyType);
+        dataMap.put("pubInterPackage", BeanName.getPubInterPackage());
+        dataMap.put("daoVar", BeanName.getDaoObjectName(entityName));//dao变量名
+        dataMap.put("serviceVar", BeanName.getServiceObjectName(entityName));//server 变量名
+        dataMap.put("mapperExtVar", BeanName.getMapperExtObjectName(entityName));//mapperExt 变量名
+
 
         dataMap.put("modelClass", BeanName.getFullModelClassName(entityName));
-        dataMap.put("shortModelClass", BeanName.getShortModelClassName(entityName));
+        dataMap.put("model", BeanName.getShortModelClassName(entityName));
+
         dataMap.put("modelExtClass", BeanName.getFullModelExtClassName(entityName));
-        dataMap.put("shortModelExtClass", BeanName.getShortModelExtClassName(entityName));
-        dataMap.put("modelVOClass", BeanName.getFullModelVOClassName(entityName));
-        dataMap.put("dto", BeanName.getShortDTOClassName(entityName));
-        dataMap.put("vo", BeanName.getShortVOClassName(entityName));
+        dataMap.put("modelExt", BeanName.getShortModelExtClassName(entityName));
+
+        dataMap.put("modelDOClass", BeanName.getFullModelDOClassName(entityName));
+        dataMap.put("modelDO", BeanName.getShortDOClassName(entityName));
+
+        dataMap.put("modelSearchClass", BeanName.getFullSearchClassName(entityName));
+        dataMap.put("modelSearch", BeanName.getShortSearchClassName(entityName));
+
+
         dataMap.put("modelDTOClass", BeanName.getFullModelDTOClassName(entityName));
-        dataMap.put("baseDaoClass", BeanName.getFullBaseDaoClassName());
-        dataMap.put("searchClass", BeanName.getFullSearchClassName(entityName));
-        dataMap.put("shortDaoClass", BeanName.getShortDaoClassName(entityName));
-        dataMap.put("shortBaseDaoClass", BeanName.getShortBaseDaoClassName());
-        dataMap.put("entityName", entityName);
-        dataMap.put("shortSearchClass", BeanName.getShortSearchClassName(entityName));
-        dataMap.put("keyType", keyType);
-        dataMap.put("abstractBaseDao", BeanName.getFullAbstractDaoClassName());
+        dataMap.put("modelDTO", BeanName.getShortDTOClassName(entityName));
+
+
+        dataMap.put("modelVOClass", BeanName.getFullModelVOClassName(entityName));
+        dataMap.put("modelVO", BeanName.getShortVOClassName(entityName));
+
+        dataMap.put("detailVOClass", BeanName.getFullDetailVOClassName(entityName));
+        dataMap.put("detailVO", BeanName.getShortDetailVOClassName(entityName));
+
+        dataMap.put("listVOClass", BeanName.getFullListVOClassName(entityName));
+        dataMap.put("listVO", BeanName.getShortListVOClassName(entityName));
+
         dataMap.put("mapperClass", BeanName.getFullMapperClassName(entityName));
+        dataMap.put("mapper", BeanName.getShortMapperClassName(entityName));
         dataMap.put("mapperExtClass", BeanName.getFullMapperExtClassName(entityName));
+        dataMap.put("mapperExt", BeanName.getShortMapperExtClassName(entityName));
+
+
+        dataMap.put("iDaoClass", BeanName.getFullDaoClassName(entityName));
         dataMap.put("iDao", BeanName.getFullDaoClassName(entityName));
-        dataMap.put("baseMapper", BeanName.getFullBaseMapperClassName());
-        dataMap.put("shortDaoImplClass", BeanName.getShortDaoImplClassName(entityName));
-        dataMap.put("repositoryValue", BeanName.getDaoObjectName(entityName));
+        dataMap.put("daoImplClass", BeanName.getFullDaoImplClassName(entityName));
+        dataMap.put("daoImpl", BeanName.getShortDaoImplClassName(entityName));
 
-        dataMap.put("shortAbstractBaseDao", BeanName.getShortAbstractDaoClassName());
-        dataMap.put("shortIDao", BeanName.getShortDaoClassName(entityName));
-        dataMap.put("shortMapper", BeanName.getShortMapperClassName(entityName));
-        dataMap.put("shortMapperExt", BeanName.getShortMapperExtClassName(entityName));
-        dataMap.put("shortMapperName", BeanName.getMapperObjectName(entityName));
-        dataMap.put("shortMapperExtName", BeanName.getMapperExtObjectName(entityName));
-        dataMap.put("baseServiceClass", BeanName.getFullBaseServiceClassName());
-        dataMap.put("shortServiceClass", BeanName.getShortServiceClassName(entityName));//service接口
-        dataMap.put("shortBaseServiceClass", BeanName.getShortBaseServiceClassName());//
-        dataMap.put("iService", BeanName.getFullServiceClassName(entityName));
-        dataMap.put("abstractBaseService", BeanName.getFullAbstractServiceClassName());
-        dataMap.put("serviceValue", BeanName.getServiceObjectName(entityName));
-        dataMap.put("shortServiceImplClass", BeanName.getShortServiceImplClassName(entityName));
-        dataMap.put("shortAbstractBaseService", BeanName.getShortAbstractServiceClassName());
-        dataMap.put("shortIService", BeanName.getShortServiceClassName(entityName));
+        dataMap.put("iServiceClass", BeanName.getFullServiceClassName(entityName));
+        dataMap.put("iService", BeanName.getShortServiceClassName(entityName));
+        dataMap.put("serviceImplClass", BeanName.getFullServiceImplClassName(entityName));
+        dataMap.put("serviceImpl", BeanName.getShortServiceImplClassName(entityName));
+
+
+        dataMap.put("iBaseMapperClass", BeanName.getFullBaseMapperClassName());
+        dataMap.put("iBaseMapper", BeanName.getShortBaseMapperClassName());
+        dataMap.put("iBaseDaoClass", BeanName.getFullBaseDaoClassName());
+        dataMap.put("iBaseDao", BeanName.getShortBaseDaoClassName());
+
+        dataMap.put("iBaseServiceClass", BeanName.getFullBaseServiceClassName());
+        dataMap.put("iBaseService", BeanName.getShortBaseServiceClassName());
+
+
         dataMap.put("baseSearchClass", BeanName.getFullBaseSearchClassName());
-        dataMap.put("shortSearch", BeanName.getShortSearchClassName(entityName));
-        dataMap.put("shortBaseSearch", BeanName.getShortBaseSearchClassName());
-        dataMap.put("shortSourceBaseSearch", BeanName.getShortSourceBaseSearchClassName());
-        dataMap.put("baseSourceSearchClass", BeanName.getFullBaseSourceSearchClassName());
+        dataMap.put("baseSearch", BeanName.getShortBaseSearchClassName());
 
 
-        dataMap.put("pubInterPackage", BeanName.getPubInterPackage());
+        dataMap.put("sourceBaseSearchClass", BeanName.getFullBaseSourceSearchClassName());
+        dataMap.put("sourceBaseSearch", BeanName.getShortSourceBaseSearchClassName());
+
+
+        dataMap.put("abstractBaseServiceClass", BeanName.getFullAbstractServiceClassName());
+        dataMap.put("abstractBaseService", BeanName.getShortAbstractServiceClassName());
+
+        dataMap.put("abstractBaseDaoClass", BeanName.getFullAbstractDaoClassName());
+        dataMap.put("abstractBaseDao", BeanName.getShortAbstractDaoClassName());
+
+
+        dataMap.put("restfulControllerClass", BeanName.getFullApiController());
+        dataMap.put("restfulController", BeanName.getShortApiController());
+
+
+        dataMap.put("abstractDTOClass", BeanName.getFullBaseDTOClass());
+        dataMap.put("abstractDTO", BeanName.getShortBaseDTOClass());
+
+        dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
+        dataMap.put("baseVO", BeanName.getShortBaseVOClass());
+
+        dataMap.put("baseDataVOClass", BeanName.getFullBaseDetailVOClass());
+        dataMap.put("baseDataVO", BeanName.getShortBaseDetailVOClass());
+
+        dataMap.put("baseListVOClass", BeanName.getFullBaseListVOClass());
+        dataMap.put("baseListVO", BeanName.getShortBaseListVOClass());
 
 
     }
@@ -1067,7 +1174,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "DaoImpl", remark);
             dataMap.put("package", BeanName.getDaoImplPackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
 
             BeanName.getFreeMarkerUtil().printFile("DaoImpl.ftl", dataMap, BeanName.getShortDaoImplClassName(entityName) + ".java", daoImplPath, BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
@@ -1216,7 +1323,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Dao", remark);
             dataMap.put("package", BeanName.getDaoPackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("IDao.ftl", dataMap, BeanName.getShortDaoClassName(entityName) + ".java", daoInterfacePath, BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
 
@@ -1279,7 +1386,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Service", remark);
             dataMap.put("package", BeanName.getServicePackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
 
             BeanName.getFreeMarkerUtil().printFile("IService.ftl", dataMap, BeanName.getShortServiceClassName(entityName) + ".java", servicePath, BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
@@ -1321,7 +1428,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Service", remark);
             dataMap.put("package", BeanName.getServiceImplPackage());
-            setBaseInfo(dataMap, entityName, keyType);
+            setBaseInfo(dataMap, entityName, keyType, remark);
 
             BeanName.getFreeMarkerUtil().printFile("ServiceImpl.ftl", dataMap, BeanName.getShortServiceImplClassName(entityName) + ".java", servicePath, BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {

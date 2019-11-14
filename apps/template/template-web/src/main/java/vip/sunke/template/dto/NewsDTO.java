@@ -2,6 +2,7 @@ package vip.sunke.template.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 import vip.sunke.pubInter.AbstractDTO;
 
 /**
@@ -10,6 +11,7 @@ import vip.sunke.pubInter.AbstractDTO;
  * @description NewsDTO      新闻
  */
 @ApiModel("新闻")
+@Data
 public class NewsDTO extends AbstractDTO {
     @ApiModelProperty("新闻标题")
     private String title;

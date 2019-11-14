@@ -1,18 +1,16 @@
 package ${pubPackage}.pubInter;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
 * @author ${author}
 * @Date ${createTime}
-* @description Source search都继承此类
+* @description
 */
-
 @Data
-public class AbstractVO<KeyType> implements Serializable {
-
+public abstract class AbstractDomainVO<KeyType> implements Serializable {
 
     private KeyType id;
-
 }

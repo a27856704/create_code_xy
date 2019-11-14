@@ -1,8 +1,8 @@
 package ${package};
 
 import ${modelExtClass};
-import ${searchClass};
-import ${baseServiceClass};
+import ${modelSearchClass};
+import ${iBaseServiceClass};
 
 
 /**
@@ -10,6 +10,6 @@ import ${baseServiceClass};
 *    @Date ${date}
 *    @description ${description}
 */
-public interface ${shortServiceClass} extends ${shortBaseServiceClass}<${shortModelExtClass}, ${shortSearchClass},${keyType}> {
+public interface ${iService} extends ${iBaseService}<${modelExt}, ${modelSearch},String> {
 
 }

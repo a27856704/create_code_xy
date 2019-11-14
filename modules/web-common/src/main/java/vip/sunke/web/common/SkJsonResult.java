@@ -27,7 +27,7 @@ public class SkJsonResult<T> implements Serializable {
     @ApiModelProperty(value = "数据结果集")
     private T data;
 
-    public SkJsonResult() {
+    public  SkJsonResult() {
 
 
 
