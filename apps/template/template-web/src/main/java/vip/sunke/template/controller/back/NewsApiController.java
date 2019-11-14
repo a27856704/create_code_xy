@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.sunke.pubInter.IBaseService;
 import vip.sunke.pubInter.RestfulController;
 import vip.sunke.pubInter.exception.SkException;
+import vip.sunke.template.domain.NewsDO;
 import vip.sunke.template.dto.NewsDTO;
-import vip.sunke.template.modelExt.NewsExt;
 import vip.sunke.template.search.NewsSearch;
 import vip.sunke.template.service.INewsService;
 import vip.sunke.template.vo.NewsDetailVO;
@@ -25,7 +25,7 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/back/newsApi/")
 
-public class NewsApiController extends RestfulController<NewsDTO, NewsExt, NewsSearch, NewsVO, NewsDetailVO, NewsListVO> {
+public class NewsApiController extends RestfulController<NewsDTO, NewsDO, NewsSearch, NewsVO, NewsDetailVO, NewsListVO> {
 
 
     @Resource(name = "newsService")

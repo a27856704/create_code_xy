@@ -153,7 +153,7 @@ public abstract class RestfulController<
     }
 
     @ApiOperation(value = "通用添加接口", notes = "通用添加接口", httpMethod = "POST")
-    @PostMapping(value = "add")
+    @PostMapping(value = "postAdd")
     @ResponseBody
     public SkJsonResult<DataVO> postAdd(@ApiParam(required = true, name = "dto", value
             = "通用基础dto") @Valid DTO dto, HttpServletRequest request, HttpSession session) throws SkException {
@@ -365,8 +365,8 @@ public abstract class RestfulController<
      * @return
      * @throws SkException
      */
-    @ApiOperation(value = "通用列表接口", notes = "通用列表接口", httpMethod = "POST,GET")
-    @RequestMapping("list")
+    @ApiOperation(value = "通用列表接口", notes = "通用列表接口")
+    @RequestMapping(value = "list",method ={RequestMethod.POST, RequestMethod.GET})
     @ResponseBody
     public SkJsonResult<ListVO> list(TS search, HttpServletRequest request, HttpSession session) throws SkException {
 

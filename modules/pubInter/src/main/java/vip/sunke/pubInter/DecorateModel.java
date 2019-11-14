@@ -16,7 +16,6 @@ import lombok.Data;
 public class DecorateModel<T> {
 
 
-
     @ApiModelProperty("domain")
     private T domain;
 }
