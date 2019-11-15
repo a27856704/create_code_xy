@@ -15,10 +15,17 @@ import java.util.*;
 
 public class SkDefaultShellCallback extends DefaultShellCallback {
 
+
+    public static Map<String, List<FieldEnum>> enumMap = new HashMap<>();
+
+
     public SkDefaultShellCallback(boolean overwrite) {
         super(overwrite);
     }
 
+    public static void addFiledMap(String fieldName, List<FieldEnum> fieldEnumList) {
+        enumMap.put(fieldName, fieldEnumList);
+    }
 
     @Override
     public void refreshProject(String project) {
@@ -29,6 +36,55 @@ public class SkDefaultShellCallback extends DefaultShellCallback {
         createJava();
 
         createSearchMapper();
+
+        createEnumFile();
+
+    }
+
+
+    public void createEnumFile() {
+
+
+        FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil();
+
+        String enumDir = BeanName.getEnumPath();
+        FileUtil.mkdirs(enumDir);
+
+        String[] keys = null;
+        String filedName = null;
+        String filedDesc = null;
+        for (Map.Entry<String, List<FieldEnum>> entry : enumMap.entrySet()) {
+            try {
+
+                String key = entry.getKey();
+                keys = key.split("@@");
+                filedName = "";
+                filedDesc = "";
+                if (keys.length > 0) {
+                    filedName = key.split("@@")[0];
+                }
+                if (keys.length > 1) {
+                    filedDesc = key.split("@@")[1];
+                }
+                filedName=filedName+"Enum";
+
+                Map<String, Object> dataMap = new HashMap<String, Object>();
+                dataMap.put("package", BeanName.getPackageEnum());
+                dataMap.put("author", BeanName.getAuthor());
+                dataMap.put("description", filedDesc);
+                dataMap.put("enumName", filedName);
+                dataMap.put("createTime", YXDate.getFormatDate2String(new Date()));
+
+                dataMap.put("enumList", entry.getValue());
+
+
+
+                freeMarkerUtil.printFile("Enum.ftl", dataMap, filedName + ".java", enumDir, BeanName.getTempInPubJavaDir() + "/template");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
 
 
     }
@@ -218,7 +274,6 @@ public class SkDefaultShellCallback extends DefaultShellCallback {
         templateList.add("AbstractPageVO");
         templateList.add("DecorateModel");
         templateList.add("DecoratePageList");
-
 
 
         int size = templateList.size();

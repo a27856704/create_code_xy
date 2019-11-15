@@ -1123,6 +1123,8 @@ public class CreateController {
                 remark.append(valueObj.getValue());
                 remark.append("@");
                 remark.append(valueObj.getDesc());
+                remark.append("@");
+                remark.append(valueObj.getEnName());
                 remark.append(",");
             }
 

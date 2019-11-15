@@ -14,6 +14,8 @@ import java.util.Properties;
 
 public class BeanName {
 
+    public static String BACK_CONTROLLER_TEMPLATE = "BackController.ftl";
+    public static String API_CONTROLLER_TEMPLATE = "RestfulController.ftl";
     private static String projectName;//项目名称
     private static String copyright;//版权
     private static String packageProject;//项目根
@@ -26,7 +28,6 @@ public class BeanName {
     private static String templateDir;//页面模块目录
     private static String searchTemplate;//搜索类模板
     private static String controllerTemplate;//controller类模板
-
     private static String modelClass;
     private static String route;
     private static String mapperTargetProject;
@@ -55,19 +56,16 @@ public class BeanName {
         BeanName.modelClass = modelClass;
     }
 
-    public static String BACK_CONTROLLER_TEMPLATE = "BackController.ftl";
-    public static String API_CONTROLLER_TEMPLATE = "RestfulController.ftl";
-
     public static String getControllerTemplate() {
         return controllerTemplate;
     }
 
-    public static boolean isApiController() {
-        return BeanName.API_CONTROLLER_TEMPLATE.equalsIgnoreCase(BeanName.getControllerTemplate());
-    }
-
     public static void setControllerTemplate(String controllerTemplate) {
         BeanName.controllerTemplate = controllerTemplate;
+    }
+
+    public static boolean isApiController() {
+        return BeanName.API_CONTROLLER_TEMPLATE.equalsIgnoreCase(BeanName.getControllerTemplate());
     }
 
     public static String getSearchTemplate() {
@@ -86,6 +84,16 @@ public class BeanName {
 
     public static void setPackageAppProject(String packageAppProject) {
         BeanName.packageAppProject = packageAppProject;
+    }
+
+    /**
+     * 枚举存在的包目录
+     *
+     * @return
+     */
+    public static String getPackageEnum() {
+
+        return packageAppProject + ".enums";
     }
 
     public static void initPro(Properties properties) {
@@ -156,7 +164,7 @@ public class BeanName {
     }
 
     public static String getTemplateRoot() {
-        templateRoot="/template";
+        templateRoot = "/template";
         return templateRoot;
     }
 
@@ -358,22 +366,21 @@ public class BeanName {
     }
 
     public static String getControllerPackage() {
-        return getPackageAppProject() + ".controller."+StringUtil.replaceAll(BeanName.getRoute(),"/",".");
+        return getPackageAppProject() + ".controller." + StringUtil.replaceAll(BeanName.getRoute(), "/", ".");
     }
 
     public static String getApiControllerPackage() {
-        return getPackageAppProject() + ".controller."+StringUtil.replaceAll(BeanName.getRoute(),"/",".");
+        return getPackageAppProject() + ".controller." + StringUtil.replaceAll(BeanName.getRoute(), "/", ".");
     }
 
-    public static String getShortApiController(){
+    public static String getShortApiController() {
         return "RestfulController";
     }
 
-    public static String getFullApiController(){
+    public static String getFullApiController() {
 
-        return getPubInterPackage()+"."+getShortApiController();
+        return getPubInterPackage() + "." + getShortApiController();
     }
-
 
 
     public static String getControllerPath() {
@@ -387,6 +394,12 @@ public class BeanName {
     public static String getPubInterPath() {
 
         return getTargetProject() + "/" + getTargetDir(getPackageProject() + ".pubInter");
+    }
+
+    public static String getEnumPath(){
+
+        return getTargetProject() + "/" + getTargetDir(getPackageEnum());
+
     }
 
 
@@ -474,17 +487,17 @@ public class BeanName {
         return "IBaseMapper";
     }
 
-    public static String getShortMapperExtClassName(String modelName){
-        return getFirstUpperCase(modelName)+"MapperExt";
+    public static String getShortMapperExtClassName(String modelName) {
+        return getFirstUpperCase(modelName) + "MapperExt";
     }
 
-    public static String getFullMapperExtClassName(String modelName){
-        return getDaoMapperExtPackage()+"."+getShortMapperExtClassName(modelName);
+    public static String getFullMapperExtClassName(String modelName) {
+        return getDaoMapperExtPackage() + "." + getShortMapperExtClassName(modelName);
     }
 
 
     public static String getDaoMapperExtPackage() {
-        return getDaoPackage()+".mapperExt";
+        return getDaoPackage() + ".mapperExt";
     }
 
     public static String getFullBaseMapperClassName() {
@@ -554,7 +567,6 @@ public class BeanName {
     }
 
 
-
     public static String getDTOPackage() {
         return getPackageAppProject() + ".dto";
     }
@@ -571,6 +583,7 @@ public class BeanName {
     public static String getFullBaseListVOClass() {
         return getPubInterPackage() + "." + getShortBaseListVOClass();
     }
+
     public static String getShortBaseListVOClass() {
         return "AbstractPageVO";
     }
@@ -597,7 +610,7 @@ public class BeanName {
     }
 
     public static String getBackController() {
-        return getPackageAppProject() + ".controller."+StringUtil.replaceAll(BeanName.getRoute(),"/",".");
+        return getPackageAppProject() + ".controller." + StringUtil.replaceAll(BeanName.getRoute(), "/", ".");
     }
 
     public static String getFrontController() {
@@ -615,6 +628,7 @@ public class BeanName {
     public static String getMapperObjectName(String modelName) {
         return getFirstLowerCase(modelName) + "Mapper";
     }
+
     public static String getMapperExtObjectName(String modelName) {
         return getFirstLowerCase(modelName) + "MapperExt";
     }
@@ -622,7 +636,6 @@ public class BeanName {
     public static String getShortModelClassName(String modelName) {
         return getFirstUpperCase(modelName);
     }
-
 
 
     public static String getFullModelClassName(String modelName) {
@@ -640,6 +653,7 @@ public class BeanName {
     public static String getFullModelVOClassName(String modelName) {
         return getVOPackage() + "." + getShortVOClassName(modelName);
     }
+
     public static String getFullListVOClassName(String modelName) {
         return getVOPackage() + "." + getShortListVOClassName(modelName);
     }
@@ -651,6 +665,7 @@ public class BeanName {
     public static String getFullModelExtClassName(String modelName) {
         return getExtPackage() + "." + getShortModelExtClassName(modelName);
     }
+
     public static String getModelObjectName(String modelName) {
         return getFirstLowerCase(modelName);
     }
@@ -664,7 +679,6 @@ public class BeanName {
 
         return getFirstUpperCase(modelName) + "DO";
     }
-
 
 
     public static String getShortModelExtClassName(String modelName) {
@@ -686,7 +700,6 @@ public class BeanName {
 
         return getFirstUpperCase(modelName) + "DetailVO";
     }
-
 
 
     public static String getShortDTOClassName(String modelName) {
@@ -784,7 +797,7 @@ public class BeanName {
     }
 
     public static String getMapperExtXmlPath() {
-        return  mapperTargetProject+"/resources/mapper";
+        return mapperTargetProject + "/resources/mapper";
     }
 
     public static String getVOPath() {

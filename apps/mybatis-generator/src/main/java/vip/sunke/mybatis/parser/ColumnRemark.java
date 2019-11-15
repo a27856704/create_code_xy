@@ -34,7 +34,7 @@ public class ColumnRemark {
     private String javaType;
     private int totalValue;
     private String entityName;
-
+    private String valueString;//输入的值
 
     public String getEntityName() {
         return entityName;
@@ -43,8 +43,6 @@ public class ColumnRemark {
     public void setEntityName(String entityName) {
         this.entityName = entityName;
     }
-
-    private String valueString;//输入的值
 
     public String getValueString() {
         return valueString;
@@ -157,7 +155,10 @@ public class ColumnRemark {
         if (size > currentIndex) {//值
 
             List<ColumnValue> valueList = new ArrayList<ColumnValue>();
+
+
             setValueString(columnArr[currentIndex]);
+
             String[] valueArr = columnArr[currentIndex].split("\\,");
 
 
@@ -169,9 +170,13 @@ public class ColumnRemark {
                         continue;
                     oneValueArr = value.split("@");
 
-                    columnValue = new ColumnValue(oneValueArr[0], oneValueArr[0]);
-                    if (oneValueArr.length > 1)
+                    columnValue = new ColumnValue(oneValueArr[0], oneValueArr[0], getName()+"_"+oneValueArr[0].replace("-","_"));
+                    if (oneValueArr.length > 1) {
                         columnValue.setDesc(oneValueArr[1]);
+                    }
+                    if (oneValueArr.length > 2) {
+                        columnValue.setEnName(oneValueArr[2]);
+                    }
                     valueList.add(columnValue);
                     totalValue = totalValue + NumberUtil.parseInt(oneValueArr[0]);
                 }

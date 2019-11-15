@@ -67,7 +67,14 @@ public class TableField {
             if (len > 1) {
 
                 for (int i = 0; i < len; i++) {
-                    valueString = valueString + commentArr[i].replace("@", ":") + " ";
+
+                    if(commentArr[i].split("@").length>2) {
+
+                        valueString = valueString + commentArr[i].substring(0, commentArr[i].lastIndexOf("@")).replace("@", ":") + " ";
+                    }else{
+                        valueString = valueString + commentArr[i].replace("@", ":") + " ";
+
+                    }
                 }
 
             }

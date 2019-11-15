@@ -18,6 +18,7 @@ import org.mybatis.generator.internal.ObjectFactory;
 import vip.sunke.common.FileUtil;
 import vip.sunke.common.StringUtil;
 import vip.sunke.mybatis.parser.ColumnRemark;
+import vip.sunke.mybatis.parser.ColumnValue;
 import vip.sunke.mybatis.parser.IParser;
 
 import java.io.File;
@@ -478,6 +479,41 @@ public class SkPlugin extends PluginAdapter {
             }*/
 
             remarkList.add(columnRemark);
+
+            //说明要enums
+
+            List<ColumnValue> columnValueList=columnRemark.getValueList();
+            if(columnValueList!=null && columnValueList.size()>0){
+
+                String fieldName=BeanName.getFirstUpperCase(columnRemark.getEntityName())+BeanName.getFirstUpperCase(columnRemark.getName())+"@@"+columnRemark.getDescName();
+
+                List<FieldEnum> fieldEnumList=new ArrayList<>();
+                FieldEnum fieldEnum=null;
+                for(ColumnValue columnValue:columnValueList){
+                    fieldEnum=new FieldEnum();
+                    fieldEnum.setDesc(columnValue.getDesc());
+                    fieldEnum.setType(columnValue.getValue());
+                    fieldEnum.setName(columnValue.getEnName());
+                    fieldEnumList.add(fieldEnum);
+                }
+
+
+
+
+                SkDefaultShellCallback.addFiledMap(fieldName,fieldEnumList);
+
+
+
+            }
+
+
+
+
+
+
+
+
+
         }
         return remarkList;
     }

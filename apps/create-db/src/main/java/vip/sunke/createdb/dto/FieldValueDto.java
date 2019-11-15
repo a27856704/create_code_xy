@@ -13,4 +13,5 @@ import java.io.Serializable;
 public class FieldValueDto implements Serializable {
     private String value;
     private String desc;
+    private String enName;
 }

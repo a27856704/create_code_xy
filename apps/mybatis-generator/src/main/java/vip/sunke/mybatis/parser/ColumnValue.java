@@ -10,9 +10,11 @@ public class ColumnValue {
 
     private String value;
     private String desc;
+    private String enName;
 
-    public ColumnValue(String value, String desc) {
+    public ColumnValue(String value, String desc,String enName) {
         this.value = value;
+        this.enName=enName;
         this.desc = desc;
     }
 
@@ -21,6 +23,15 @@ public class ColumnValue {
 
     public ColumnValue(String value) {
         this.value = value;
+    }
+
+    public String getEnName() {
+        return enName;
+    }
+
+    public void setEnName(String enName) {
+        this.enName = enName;
+
     }
 
     public String getValue() {
