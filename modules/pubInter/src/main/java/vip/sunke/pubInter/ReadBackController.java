@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import vip.sunke.pubInter.exception.BusinessException;
 import vip.sunke.pubInter.exception.SkException;
-import vip.sunke.web.common.SkMap;
+import vip.sunke.web.common.SkJsonResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -22,22 +22,22 @@ public abstract class ReadBackController<T extends BaseIdDoMain, TS extends Base
 
 
     @Override
-    public SkMap postAdd(@Valid T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postAdd(@Valid T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 
     @Override
-    public SkMap postMod(KeyType id, @Valid T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postMod(KeyType id, @Valid T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 
     @Override
-    public SkMap postDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 
     @Override
-    public SkMap postDeleteAll(List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postDeleteAll(List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 }

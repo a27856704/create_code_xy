@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="inc/header::header"/>
+<body>
+<div class="container_main">
+    <div th:replace="inc/top::top"/>
+    <div th:replace="inc/menu::menu('news','list')"/>
+    <div class="container_box">
+        <div class="container_block">
+            <div class="container_title" th:text="${menuModel}">模块名称</div>
+
+            <div class="container_tab">
+                <ul>
+                    <li class="active"><a href="#" th:text="${modTitle}">修改</a></li>
+                </ul>
+
+            </div>
+
+            <div class="post_box">
+                <form id="postForm" th:action="${action}" method="post">
+                    <div class="container_fluid clear_box">
+                                <div class="row col_6">
+<div class="form_control">
+    <label>标题</label>
+    <div class="form_input">
+        <input type="text"
+               th:value="${domain.title}"
+               javatype="string"
+               th:name="title" th:id="title" autocomplete="off" placeholder="请输入标题"
+               data-verify data-verify-rules="{required:true}"
+               data-verify-message="{required:'标题不能为空'}"/>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label>类型</label>
+    <div class="form_input">
+                <label>
+                    <input type="checkbox" th:name="types" th:value="1" th:text="行业"
+                           javatype="integer"
+                            th:checked="${((domain.type!=null)?domain.type:'')+''=='1'}"
+                            />
+                </label>
+                <label>
+                    <input type="checkbox" th:name="types" th:value="2" th:text="专业"
+                           javatype="integer"
+                            th:checked="${((domain.type!=null)?domain.type:'')+''=='2'}"
+                            />
+                </label>
+                <label>
+                    <input type="checkbox" th:name="types" th:value="3" th:text="科技"
+                           javatype="integer"
+                            th:checked="${((domain.type!=null)?domain.type:'')+''=='3'}"
+                            />
+                </label>
+                <label>
+                    <input type="checkbox" th:name="types" th:value="4" th:text="社会"
+                           javatype="integer"
+                            th:checked="${((domain.type!=null)?domain.type:'')+''=='4'}"
+                            />
+                </label>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label for="status">状态</label>
+    <div class="form_input">
+                <label>
+                    <input type="radio"
+                           javatype="integer"
+                           th:name="status" th:value="1"
+                           th:checked="${((domain.status!=null)?domain.status+'':'')=='1'}"
+                           th:text="待审"/>
+                </label>
+                <label>
+                    <input type="radio"
+                           javatype="integer"
+                           th:name="status" th:value="2"
+                           th:checked="${((domain.status!=null)?domain.status+'':'')=='2'}"
+                           th:text="通过"/>
+                </label>
+                <label>
+                    <input type="radio"
+                           javatype="integer"
+                           th:name="status" th:value="-2"
+                           th:checked="${((domain.status!=null)?domain.status+'':'')=='-2'}"
+                           th:text="拒绝"/>
+                </label>
+                <label>
+                    <input type="radio"
+                           javatype="integer"
+                           th:name="status" th:value="3"
+                           th:checked="${((domain.status!=null)?domain.status+'':'')=='3'}"
+                           th:text="发布"/>
+                </label>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label>作者</label>
+    <div class="form_input">
+                <label>
+                    <input type="checkbox" th:name="authors" th:value="1" th:text="张三"
+                           javatype="integer"
+                            th:checked="${((domain.author!=null)?domain.author:'')+''=='1'}"
+                            />
+                </label>
+                <label>
+                    <input type="checkbox" th:name="authors" th:value="2" th:text="李四"
+                           javatype="integer"
+                            th:checked="${((domain.author!=null)?domain.author:'')+''=='2'}"
+                            />
+                </label>
+                <label>
+                    <input type="checkbox" th:name="authors" th:value="3" th:text="王五"
+                           javatype="integer"
+                            th:checked="${((domain.author!=null)?domain.author:'')+''=='3'}"
+                            />
+                </label>
+                <label>
+                    <input type="checkbox" th:name="authors" th:value="4" th:text="赵六"
+                           javatype="integer"
+                            th:checked="${((domain.author!=null)?domain.author:'')+''=='4'}"
+                            />
+                </label>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label for="show">是否显示</label>
+    <div class="form_input">
+                <label>
+                    <input type="radio"
+                           javatype="integer"
+                           th:name="show" th:value="1"
+                           th:checked="${((domain.show!=null)?domain.show+'':'1')=='1'}"
+                           th:text="显示"/>
+                </label>
+                <label>
+                    <input type="radio"
+                           javatype="integer"
+                           th:name="show" th:value="0"
+                           th:checked="${((domain.show!=null)?domain.show+'':'1')=='0'}"
+                           th:text="隐藏"/>
+                </label>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label for="sendTime">发送时间</label>
+    <div class="form_input">
+        <input class="Wdate date" th:name="sendTime" th:id="sendTime" type="text"
+               placeholder="请输入发送时间" autocomplete="off"
+               javatype="date"
+               onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})"
+               th:value="${#dates.format(domain.sendTime,'yyyy-MM-dd HH:mm:ss')}"
+                 data-verify data-verify-rules="{required:true}"
+            data-verify-message="{required:'发送时间不能为空'}"
+                />
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="big_form_control">
+    <label for="intro">简介</label>
+    <div class="big_form_input">
+                                    <textarea name="intro" id="intro" type="text"
+                                              autocomplete="off"
+                                              javatype="string"
+                                               data-verify data-verify-rules="{required:true}"
+                                                  data-verify-message="{required:'简介不能为空'}"
+                                                 th:text="${domain.intro}"
+                                              placeholder="请输入简介"></textarea>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label for="source">来源</label>
+    <div class="form_input">
+        <select th:name="source"
+                javatype="integer"
+                th:id="source" >
+                    <option value="1"
+                            th:selected="${((domain.source!=null)?domain.source+'':'')=='1'}">新浪</option>
+                    <option value="2"
+                            th:selected="${((domain.source!=null)?domain.source+'':'')=='2'}">腾讯</option>
+                    <option value="3"
+                            th:selected="${((domain.source!=null)?domain.source+'':'')=='3'}">知乎</option>
+        </select>
+    </div>
+</div>
+                                </div>
+                                <div class="row col_6">
+<div class="form_control">
+    <label for="addTime">添加时间</label>
+    <div class="form_input">
+        <input class="Wdate date" th:name="addTime" th:id="addTime" type="text"
+               placeholder="请输入添加时间" autocomplete="off"
+               javatype="date"
+               onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})"
+               th:value="${#dates.format(domain.addTime,'yyyy-MM-dd HH:mm:ss')}"
+                 data-verify data-verify-rules="{required:true}"
+            data-verify-message="{required:'添加时间不能为空'}"
+                />
+    </div>
+</div>
+                                </div>
+                                <div class="row col_12">
+<div class="big_form_control">
+    <label>详情</label>
+    <div class="big_form_input">
+        <div th:text="${domain.info}"></div>
+        <div class="wu_editor" data-editorname="info">
+        </div>
+    </div>
+</div>
+                                </div>
+                        <div class="row col_12">
+<div class="form_control">
+    <label></label>
+    <div class="form_input">
+        <p class="button primary_btn" th:attr="data-success-link=${listPage}"
+           data-msg-text="修改成功" id="postBtn"><span class="loading_icon"></span>提交</p>
+        &nbsp;&nbsp;
+        <p class="button cancel_btn reset_btn"><span class="loading_icon"></span>重置</p>
+    </div>
+</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div th:replace="inc/footer::footer"/>
+    </div>
+</div>
+</body>
+</html>

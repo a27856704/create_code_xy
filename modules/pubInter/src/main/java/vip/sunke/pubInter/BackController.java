@@ -1,5 +1,7 @@
 package vip.sunke.pubInter;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
@@ -8,7 +10,7 @@ import vip.sunke.common.BeanUtils;
 import vip.sunke.pubInter.common.PubConst;
 import vip.sunke.pubInter.exception.SkException;
 import vip.sunke.web.common.Const;
-import vip.sunke.web.common.SkMap;
+import vip.sunke.web.common.SkJsonResult;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,7 +20,7 @@ import java.util.Map;
 
 /**
  * @author sunke
- * @Date 2017/12/18 10:07
+ * @Date 2019-11-15 10:10:46
  * @description 完成基本增删改详情列表等操作
  */
 @Validated
@@ -140,6 +142,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
+    @ApiOperation(value = "添加页面", hidden = true)
     @GetMapping("add")
     public String add(T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         model.addAttribute("domain", domain);
@@ -210,15 +213,16 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
+    @ApiOperation(value = "添加提交数据", httpMethod = "POST")
     @PostMapping("postAdd")
     @ResponseBody
-    public SkMap postAdd(@Valid T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postAdd(@Valid T domain, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
         if (!beforePostAdd(domain, model, request, session)) {
-            return SkMap.fail("beforePostAdd false;");
+            return SkJsonResult.fail("beforePostAdd false;");
         }
         getBaseService().insert(domain);
         afterPostAdd(domain, model, request, session);
-        return SkMap.ok();
+        return SkJsonResult.ok();
     }
 
 
@@ -234,6 +238,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
         pageExtend(domain, model, request, session);
     }
 
+    @ApiOperation(value = "修改页面", hidden = true)
     @GetMapping("mod/{id}")
     public String mod(@PathVariable KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
         T domain = getBaseService().getDetail(id);
@@ -254,17 +259,18 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
+    @ApiOperation(value = "修改提交数据", httpMethod = "POST")
     @PostMapping("postMod/{id}")
     @ResponseBody
-    public SkMap postMod(@PathVariable KeyType id, @Valid T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postMod(@ApiParam("主键ID") @PathVariable KeyType id, @Valid T domain, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
         if (!beforePostMod(domain, model, request, session)) {
-            return SkMap.fail("beforePostMod false;");
+            return SkJsonResult.fail("beforePostMod false;");
         }
         T oldDomain = getBaseService().getDetail(id);
         org.springframework.beans.BeanUtils.copyProperties(domain, oldDomain, postModNoUpdate(oldDomain));
         getBaseService().update(oldDomain);
         afterPostMod(oldDomain, model, request, session);
-        return SkMap.ok();
+        return SkJsonResult.ok();
 
     }
 
@@ -356,15 +362,16 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
+    @ApiOperation(value = "删除单个", httpMethod = "POST")
     @PostMapping("postDelete")
     @ResponseBody
-    public SkMap postDelete(KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postDelete(@ApiParam("主键ID") @RequestParam("id") KeyType id, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
         if (!beforePostDelete(id, model, request, session)) {
-            return SkMap.fail("beforePostDelete false");
+            return SkJsonResult.fail("beforePostDelete false");
         }
         getBaseService().delete(id);
         afterPostDelete(id, model, request, session);
-        return SkMap.ok();
+        return SkJsonResult.ok();
     }
 
 
@@ -401,18 +408,19 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws
      */
+    @ApiOperation(value = "批量删除", httpMethod = "POST")
     @PostMapping(value = "postDeleteAll")
     @ResponseBody
-    public SkMap postDeleteAll(@RequestParam(name = "ids[]") List<KeyType> ids, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<String> postDeleteAll(@ApiParam("ids") @RequestParam(name = "ids[]") List<KeyType> ids, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
 
         if (ids == null || ids.size() == 0)
-            return SkMap.fail("删除的条目为空");
+            return SkJsonResult.fail("删除的条目为空");
         if (beforePostDeleteAll(ids, model, request, session)) {
-            return SkMap.fail("beforePostDeleteAll false");
+            return SkJsonResult.fail("beforePostDeleteAll false");
         }
         getBaseService().batchDelete(ids);
         afterPostDeleteAll(ids, model, request, session);
-        return SkMap.ok();
+        return SkJsonResult.ok();
     }
 
 
@@ -451,7 +459,8 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
-    @RequestMapping("list")
+    @ApiOperation(value = "列表页面", hidden = true)
+    @RequestMapping(value = "list", method = {RequestMethod.GET, RequestMethod.POST})
     public String list(TS search, Model model, HttpServletRequest request, HttpSession session) throws SkException {
 
         searchConditionExtend(search, request, session);//附加搜索条件
@@ -529,6 +538,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @return
      * @throws SkException
      */
+    @ApiOperation(value = "详情页面", hidden = true)
     @GetMapping("detail/{id}")
     public String detail(@PathVariable KeyType id, Model model, HttpServletRequest request, HttpSession session) throws SkException {
 

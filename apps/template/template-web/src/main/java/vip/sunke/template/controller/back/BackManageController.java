@@ -9,18 +9,24 @@ import vip.sunke.pubInter.BaseSearch;
 import java.util.List;
 
 /**
- * @author sunke
- * @Date 2019-11-13 10:38:18
- * @description
- */
+* @author sunke
+* @Date 2019-11-15 09:38:24
+* @description
+*/
 
 public abstract class BackManageController<T extends BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> extends BackController<T, TS, KeyType> {
+
+
     private static boolean debug;
+
+
     public static String getSplitMenuUrl(String menuUrl) {
+
         if (StringUtil.isEmpty(menuUrl))
             return "";
 
         return menuUrl.split(";")[0];
+
 
     }
 
@@ -55,23 +61,6 @@ public abstract class BackManageController<T extends BaseIdDoMain<KeyType>, TS e
     }
 
 
-    public static boolean contains(List<String> values, String rightsUrl) {
-
-        if (debug)
-            return true;
-
-        if (values == null || values.size() == 0 || StringUtil.isEmpty(rightsUrl))
-            return false;
-
-        for (String value : values) {
-            if (rightsUrl.toLowerCase().contains(value.toLowerCase())) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     public static String containsValue(String values, String currValues) {
         if (StringUtil.isEmpty(values) || StringUtil.isEmpty(currValues))
             return currValues;
@@ -100,6 +89,23 @@ public abstract class BackManageController<T extends BaseIdDoMain<KeyType>, TS e
         return currValues;
     }
 
+
+    public static boolean contains(List<String> values, String rightsUrl) {
+
+        if (debug)
+            return true;
+
+        if (values == null || values.size() == 0 || StringUtil.isEmpty(rightsUrl))
+            return false;
+
+        for (String value : values) {
+            if (rightsUrl.toLowerCase().contains(value.toLowerCase())) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     @Value("${debug}")
     public void setDebug(boolean debug) {

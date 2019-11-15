@@ -1,8 +1,126 @@
 $(function () {
+
+    checkRightsAll();
+
+
+    function checkRightsAll(){
+
+        $("#allRights").prop("checked",$(":input[name='rightsIds']:checked").size()==$(":input[name='rightsIds']").size());
+    }
+
+
+
+
+    $("#allRights").click(function () {
+
+        var subName = $(this).attr("subName");
+
+        $(":input[name=" + subName + "]").prop("checked", $(this).prop("checked"));
+
+    });
+
+    $(":input[moduleId]").click(function () {
+        var id=$(this).val();
+        $(":input[parentId=" + id + "]").prop("checked", $(this).prop("checked"));
+        checkRightsAll();
+
+    });
+
+    $(":input[parentId]").click(function () {
+        var parentId=$(this).attr("parentId");
+
+        $(":input[moduleId='"+parentId+"']").prop("checked",$(":input[parentId='"+parentId+"']:checked").size()>0);
+
+        checkRightsAll();
+
+
+    });
+
+
+
+    $("#allRights").click(function () {
+
+        var subName = $(this).attr("subName");
+
+        $(":input[name=" + subName + "]").prop("checked", $(this).prop("checked"));
+
+    });
+
+
+    $("#backBtn").click(function () {
+        history.back();
+    });
+
+
+
     $("#postBtn").click(function () {
+
+
+
+
+
         var _this = $(this);
         var _link = _this.attr("data-success-link") || "";
         var _msgText = _this.attr("data-msg-text") || "提交成功";
+        var confirmMsg = _this.attr("data-msg-confirm") || "";
+
+        var show_layer=_this.attr("data-success-show-layer")||"";
+
+
+
+
+        if(confirmMsg!=""){
+
+
+            layer.confirm(confirmMsg, {icon: 3, title: '提示'}, function (index) {
+                layer.close(index);
+
+                var config = {
+
+                    formDom: _this.parents("form"),
+                    btn: _this,
+                    callback: function (backdata) {
+                        if (backdata.success) {
+                            layer.msg(_msgText, {icon: 1, title: "提示"}, function () {
+                                if(show_layer=="1" && _link != ""){
+
+                                    layer.open({
+
+                                        area: ['200px',  '200px'],
+                                        fix: false, //不固定
+                                        maxmin: true,
+                                        shade: 0.4,
+                                        
+                                        content: _link
+                                    });
+
+
+                                }else{
+                                    if (_link == "") {
+                                        location.reload()
+                                        return
+                                    }
+                                    location.href = _link
+                                }
+
+
+                            })
+                        } else {
+                            layer.msg(backdata.message, {icon: 2, title: "提示"})
+                        }
+                    }
+                }
+                validatePost(config)
+                _this.parents("form").submit();
+
+
+
+            });
+
+
+            return;
+        }
+
         var config = {
 
             formDom: _this.parents("form"),

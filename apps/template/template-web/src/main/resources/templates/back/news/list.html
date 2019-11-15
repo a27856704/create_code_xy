@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="inc/header::header"/>
+<body>
+<div class="container_main">
+    <div th:replace="inc/top::top"/>
+    <div th:replace="inc/menu::menu('news','list')"/>
+    <div class="container_box">
+        <div class="container_block">
+            <div class="container_title" th:text="${menuModel}">模块</div>
+            <div class="container_tab">
+                <ul>
+                    <li class="active"><a href="#">新闻列表</a></li>
+                </ul>
+                <ul>
+                    <li><a class="info_link" th:href="${addPage}"
+                           th:if="${T(vip.sunke.template.controller.back.BackManageController).contains(session?.rights_session,addPage)}">+ 添加</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="search_box">
+                <form id="searchForm" th:action="${listPage}" method="post">
+                    <input class="search_page" type="hidden">
+                    <input class="search_page" type="hidden" th:value="${search.pageNumber}" id="pageNumber" name="pageNumber"/>
+                    <ul class="container_fluid clear_box">
+    <li class="col_3 row">
+        <p>标题：</p>
+        <p>
+            <input type="text" name="titleLike"
+                   th:value="${search.titleLike}"
+                   id="titleLike" placeholder="请输入标题" autocomplete="off"/>
+        </p>
+    </li>
+
+<li class="col_3 row">
+    <p>类型：</p>
+    <p>
+                <input type="checkbox" javatype="integer"
+                       th:name="typeIn" th:value="1" th:text="行业"
+                            th:checked="${ !#lists.isEmpty(search.typeIn)  &&  #lists.contains(search.typeIn,'1')}"
+                       searchType="4"/>
+                <input type="checkbox" javatype="integer"
+                       th:name="typeIn" th:value="2" th:text="专业"
+                            th:checked="${ !#lists.isEmpty(search.typeIn)  &&  #lists.contains(search.typeIn,'2')}"
+                       searchType="4"/>
+                <input type="checkbox" javatype="integer"
+                       th:name="typeIn" th:value="3" th:text="科技"
+                            th:checked="${ !#lists.isEmpty(search.typeIn)  &&  #lists.contains(search.typeIn,'3')}"
+                       searchType="4"/>
+                <input type="checkbox" javatype="integer"
+                       th:name="typeIn" th:value="4" th:text="社会"
+                            th:checked="${ !#lists.isEmpty(search.typeIn)  &&  #lists.contains(search.typeIn,'4')}"
+                       searchType="4"/>
+    </p>
+</li>
+<li class="col_3 row">
+    <p>状态：</p>
+    <p>
+            <input th:type="radio" th:name="statusIn" value=""
+                   lay-skin="primary" javaType="integer"
+                   checked
+            />全部
+                <input type="radio"
+                       javatype="integer"
+                       th:name="statusIn" th:value="1" th:text="待审"
+                       th:checked="${!#lists.isEmpty(search.statusIn)  &&  #lists.contains(search.statusIn,'1')}"
+                />
+                <input type="radio"
+                       javatype="integer"
+                       th:name="statusIn" th:value="2" th:text="通过"
+                       th:checked="${!#lists.isEmpty(search.statusIn)  &&  #lists.contains(search.statusIn,'2')}"
+                />
+                <input type="radio"
+                       javatype="integer"
+                       th:name="statusIn" th:value="-2" th:text="拒绝"
+                       th:checked="${!#lists.isEmpty(search.statusIn)  &&  #lists.contains(search.statusIn,'-2')}"
+                />
+                <input type="radio"
+                       javatype="integer"
+                       th:name="statusIn" th:value="3" th:text="发布"
+                       th:checked="${!#lists.isEmpty(search.statusIn)  &&  #lists.contains(search.statusIn,'3')}"
+                />
+    </p>
+</li>
+<li class="col_3 row">
+    <p>作者：</p>
+    <p>
+                <input type="checkbox" javatype="integer"
+                       th:name="authorIn" th:value="1" th:text="张三"
+                            th:checked="${ !#lists.isEmpty(search.authorIn)  &&  #lists.contains(search.authorIn,'1')}"
+                       searchType="4"/>
+                <input type="checkbox" javatype="integer"
+                       th:name="authorIn" th:value="2" th:text="李四"
+                            th:checked="${ !#lists.isEmpty(search.authorIn)  &&  #lists.contains(search.authorIn,'2')}"
+                       searchType="4"/>
+                <input type="checkbox" javatype="integer"
+                       th:name="authorIn" th:value="3" th:text="王五"
+                            th:checked="${ !#lists.isEmpty(search.authorIn)  &&  #lists.contains(search.authorIn,'3')}"
+                       searchType="4"/>
+                <input type="checkbox" javatype="integer"
+                       th:name="authorIn" th:value="4" th:text="赵六"
+                            th:checked="${ !#lists.isEmpty(search.authorIn)  &&  #lists.contains(search.authorIn,'4')}"
+                       searchType="4"/>
+    </p>
+</li>
+<li class="col_3 row">
+    <p>是否显示：</p>
+    <p>
+            <input th:type="radio" th:name="showIn" value=""
+                   lay-skin="primary" javaType="integer"
+                   checked
+            />全部
+                <input type="radio"
+                       javatype="integer"
+                       th:name="showIn" th:value="1" th:text="显示"
+                       th:checked="${!#lists.isEmpty(search.showIn)  &&  #lists.contains(search.showIn,'1')}"
+                />
+                <input type="radio"
+                       javatype="integer"
+                       th:name="showIn" th:value="0" th:text="隐藏"
+                       th:checked="${!#lists.isEmpty(search.showIn)  &&  #lists.contains(search.showIn,'0')}"
+                />
+    </p>
+</li>
+<li class="col_6 row">
+    <p>发送时间：</p>
+    <p>
+        <input class="Wdate date"
+               th:value="${#dates.format(search.sendTimeStart,'yyyy-MM-dd')}"
+               name="sendTimeStart"
+               id="sendTimeStart"
+               type="text" placeholder="请输入" autocomplete="off"
+               onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})"><span
+                class="padding_lr_10"> ~</span>
+        <input class="Wdate date"
+               th:value="${#dates.format(search.sendTimeEnd,'yyyy-MM-dd')}"
+               name="sendTimeEnd"
+               id="sendTimeEnd"
+               type="text" placeholder="请输入" autocomplete="off"
+               onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})"/>
+    </p>
+</li>
+<li class="col_3 row">
+    <p>简介：</p>
+    <p>
+        <input type="text" name="introLike"
+               th:value="${search.introLike}"
+               id="introLike" placeholder="请输入简介" autocomplete="off"/>
+    </p>
+</li>
+<li class="col_3 row">
+    <p>来源：</p>
+    <p>
+        <select name="sourceIn"
+                id="sourceIn">
+            <option value="">全部</option>
+                        <option value="1"
+                                th:selected="${!#lists.isEmpty(search.sourceIn)  &&  #lists.contains(search.sourceIn,'1')}">
+                            新浪</option>
+                        <option value="2"
+                                th:selected="${!#lists.isEmpty(search.sourceIn)  &&  #lists.contains(search.sourceIn,'2')}">
+                            腾讯</option>
+                        <option value="3"
+                                th:selected="${!#lists.isEmpty(search.sourceIn)  &&  #lists.contains(search.sourceIn,'3')}">
+                            知乎</option>
+        </select>
+    </p>
+</li>
+<li class="col_6 row">
+    <p>添加时间：</p>
+    <p>
+        <input class="Wdate date"
+               th:value="${#dates.format(search.addTimeStart,'yyyy-MM-dd')}"
+               name="addTimeStart"
+               id="addTimeStart"
+               type="text" placeholder="请输入" autocomplete="off"
+               onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})"><span
+                class="padding_lr_10"> ~</span>
+        <input class="Wdate date"
+               th:value="${#dates.format(search.addTimeEnd,'yyyy-MM-dd')}"
+               name="addTimeEnd"
+               id="addTimeEnd"
+               type="text" placeholder="请输入" autocomplete="off"
+               onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',readOnly:true})"/>
+    </p>
+</li>
+
+                            <li class="col_3 row search_button">
+                                <button class="primary_btn" id="searchBtn" type="button">搜索</button>
+                            </li>
+
+                    </ul>
+                </form>
+            </div>
+            <div class="list_table">
+                <table role="table">
+                    <thead>
+                    <tr>
+                        <th role="gridcell" width="auto">编号</th>
+                                <th role="gridcell" width="auto">标题</th>
+                                <th role="gridcell" width="auto">类型</th>
+                                <th role="gridcell" width="auto">状态</th>
+                                <th role="gridcell" width="auto">作者</th>
+                                <th role="gridcell" width="auto">是否显示</th>
+                                <th role="gridcell" width="auto">发送时间</th>
+                                <th role="gridcell" width="auto">添加时间</th>
+
+                        <th role="gridcell" width="150">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item,stat:${list}">
+                        <td role="row" th:text="${stat.count+page.begin}">编号</td>
+                                        <td role="row" th:text="${item.title}"></td>
+                                        <td role="row"
+                                            th:text="${T(vip.sunke.template.controller.back.BackManageController).containsValue('1@行业,2@专业,3@科技,4@社会',item.type)}"></td>
+                                        <td role="row"
+                                            th:text="${T(vip.sunke.template.controller.back.BackManageController).containsValue('1@待审,2@通过,-2@拒绝,3@发布',item.status)}"></td>
+                                        <td role="row"
+                                            th:text="${T(vip.sunke.template.controller.back.BackManageController).containsValue('1@张三,2@李四,3@王五,4@赵六',item.author)}"></td>
+                                        <td role="row"
+                                            th:text="${T(vip.sunke.template.controller.back.BackManageController).containsValue('1@显示,0@隐藏',item.show)}"></td>
+                                    <td role="row"
+                                        th:text="${#dates.format(item.sendTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                                    <td role="row"
+                                        th:text="${#dates.format(item.addTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td role="row">
+                            <a th:if="${T(vip.sunke.template.controller.back.BackManageController).contains(session?.rights_session,deleteAction)}"
+                               class="danger_link" href="#" onclick="dataChange(this);"
+                               th:attr="data-url=${deleteAction},data-id=${item.id},data-confirmTxt=@{确定要删除吗},data-showTxt=@{删除成功},data-type=post"
+                            >删除</a>
+                            <a th:if="${T(vip.sunke.template.controller.back.BackManageController).contains(session?.rights_session,modPage)}"
+                               class="warn_link" th:href="${modPage}+'/'+${item.id}">修改</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="pagers" id="pager"
+                     th:attr="data-current-page=${page.currentPage},data-total-page=${page.totalPage}"></div>
+            </div>
+        </div>
+        <div th:replace="inc/footer::footer"/>
+    </div>
+</div>
+</body>
+</html>

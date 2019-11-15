@@ -1,7 +1,12 @@
 $(function () {
 
+
+
+
+
     //用户现实注销退出
     $('#adminInfo').click(function (e) {
+
         stopPropagation(e)
         $('.balloon_box').slideDown();
     })
@@ -11,6 +16,8 @@ $(function () {
     $('.balloon_box').bind("click", function (e) {
         stopPropagation(e)
     })
+
+
     $(".reset_btn").click(function () {
         document.getElementById("postForm").reset();
         $(".wu_editor_textarea").val("");
@@ -21,6 +28,9 @@ $(function () {
     //     console.log("5555")
     // })
     $("#searchBtn").click(function () {
+
+        $("#searchForm :input[type='hidden']").val("");
+
         $("#searchForm").submit();
     });
 
@@ -585,3 +595,46 @@ function HTMLDecode(text) {
     temp = null;
     return output;
 }
+
+
+function layerShow(obj) {
+    var _this = $(obj);
+    var title = _this.attr("data-title");
+    var url = _this.attr("data-url") || "404.html";
+    var w = _this.attr("data-w")
+    var h = _this.attr("data-h");
+    var type = _this.attr("data-type");
+
+
+    if (h == null || h == '') {
+        h = ($(window).height() - 50);
+    }
+
+    if (w == null || w == '') {
+        w = ($(window).width() - 50);
+    }
+
+    if (h > $(window).height()) {
+        h = ($(window).height() - 50);
+    }
+    if (w > $(window).width()) {
+        w = ($(window).width() - 50);
+    }
+
+
+    layer.open({
+        type: type || 2,
+        area: [w + 'px', h + 'px'],
+        fix: false, //不固定
+        maxmin: true,
+        shade: 0.4,
+        title: title,
+        content: url
+    });
+}
+
+
+
+
+
+

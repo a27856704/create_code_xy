@@ -2,6 +2,9 @@ package ${package};
 
 import org.springframework.beans.factory.annotation.Value;
 import ${pubPackage}.common.StringUtil;
+import ${pubPackage}.pubInter.BackController;
+import ${pubPackage}.pubInter.BaseIdDoMain;
+import ${pubPackage}.pubInter.BaseSearch;
 
 import java.util.List;
 
@@ -74,6 +77,34 @@ public abstract class BackManageController<T extends BaseIdDoMain<KeyType>, TS e
 
         return false;
     }
+
+    public static String containsValue(String values, String currValues) {
+       if (StringUtil.isEmpty(values) || StringUtil.isEmpty(currValues))
+           return currValues;
+
+       String[] valueArr = values.split("\\,");
+
+       if (valueArr == null || valueArr.length == 0)
+           return currValues;
+
+
+       String[] oneValueArr = null;
+       for (String value : valueArr) {
+           if (value == null || "".equalsIgnoreCase(value))
+               continue;
+           oneValueArr = value.split("@");
+
+           if (currValues.equalsIgnoreCase(oneValueArr[0])) {
+               if (oneValueArr.length > 1) {
+                   return oneValueArr[1];
+               } else {
+                   return oneValueArr[0];
+               }
+           }
+
+       }
+       return currValues;
+   }
 
     @Value("${r'${debug}'}")
     public void setDebug(boolean debug) {
