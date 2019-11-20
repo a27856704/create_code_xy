@@ -1,6 +1,7 @@
 package ${package};
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 import ${modelExtClass};
 
 /**
@@ -9,7 +10,9 @@ import ${modelExtClass};
 *    @description ${description}
 */
 @Data
+@Accessors(chain = true)
 public class ${modelDO} extends ${modelExt} {
+
 
 
 

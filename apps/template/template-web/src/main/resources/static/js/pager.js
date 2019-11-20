@@ -6,6 +6,8 @@ $(function () {
      */
     var _totalPage = parseInt($('#pager').attr('data-total-page'));
     var _currentPage = parseInt($('#pager').attr('data-current-page'));
+    if(_currentPage<=0)
+        _currentPage=1;
     var _innerStr = '';
 
     if (_currentPage > 1) {

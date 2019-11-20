@@ -43,8 +43,7 @@ public enum ${enumName} {
         if(type==null || "".equals(type)){
             type="0";
         }
-
-        for (${enumName} var : ${enumName}.values()) {
+        for (${enumName} var : ${enumName}.values()) {`
             if (type.equalsIgnoreCase(var.getType()))
                 return var.getDesc();
              }

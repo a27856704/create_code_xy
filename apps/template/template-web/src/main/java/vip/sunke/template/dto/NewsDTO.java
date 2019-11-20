@@ -13,6 +13,10 @@ import vip.sunke.pubInter.AbstractDTO;
 @ApiModel("新闻")
 @Data
 public class NewsDTO extends AbstractDTO {
-    @ApiModelProperty("新闻标题")
+
+    /**
+     * 标题
+     */
+    @ApiModelProperty(value = "标题")
     private String title;
 }

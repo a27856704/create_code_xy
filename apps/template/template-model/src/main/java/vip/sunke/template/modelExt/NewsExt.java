@@ -12,5 +12,11 @@ import vip.sunke.template.model.News;
 public class NewsExt extends News {
 
 
+    private String statusDesc;
 
+
+    public String getStatusDesc() {
+
+        return statusDesc;
+    }
 }

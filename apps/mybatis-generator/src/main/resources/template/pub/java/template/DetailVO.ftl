@@ -3,7 +3,7 @@ package ${package};
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
+import lombok.experimental.Accessors;
 
 import ${baseDataVOClass};
 
@@ -14,6 +14,7 @@ import ${baseDataVOClass};
 */
 
 @Data
+@Accessors(chain = true)
 public class ${detailVO} extends ${baseDataVO}<${modelVO}> {
 
 }

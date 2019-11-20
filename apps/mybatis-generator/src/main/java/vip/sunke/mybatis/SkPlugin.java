@@ -233,11 +233,11 @@ public class SkPlugin extends PluginAdapter {
         createController(entityName, introspectedTable.getRemarks(), keyType);//生成controller
 
 
-        createVO(introspectedTable, keyType);//创建VO
+        createVO(introspectedTable, keyType,columnRemarkList);//创建VO
         createDetailVO(introspectedTable, keyType);//创建DetailVO
         createListVO(introspectedTable, keyType);//创建ListVO
 
-        createDTO(introspectedTable, keyType);//创建DTO
+        createDTO(introspectedTable, keyType,columnRemarkList);//创建DTO
         createWebSite(introspectedTable, columnRemarkList, keyType);//创建页面
 
 
@@ -397,7 +397,7 @@ public class SkPlugin extends PluginAdapter {
      * @param introspectedTable
      * @param keyType
      */
-    private void createVO(IntrospectedTable introspectedTable, String keyType) {
+    private void createVO(IntrospectedTable introspectedTable, String keyType,List<ColumnRemark> columnRemarkList) {
 
         String entityName = getEntityName(introspectedTable);
         String remark = introspectedTable.getRemarks();
@@ -409,6 +409,7 @@ public class SkPlugin extends PluginAdapter {
             dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
             dataMap.put("shortVO", BeanName.getShortVOClassName(entityName));
             dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
+            dataMap.put("columnList", columnRemarkList);
             setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("VO.ftl", dataMap, BeanName.getShortVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
@@ -422,7 +423,7 @@ public class SkPlugin extends PluginAdapter {
      * @param introspectedTable
      * @param keyType
      */
-    private void createDTO(IntrospectedTable introspectedTable, String keyType) {
+    private void createDTO(IntrospectedTable introspectedTable, String keyType,List<ColumnRemark> columnRemarkList) {
 
         String entityName = getEntityName(introspectedTable);
         String remark = introspectedTable.getRemarks();
@@ -431,7 +432,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "DTO", remark);
             dataMap.put("package", BeanName.getDTOPackage());
-
+            dataMap.put("columnList", columnRemarkList);
             dataMap.put("remark", remark);
             setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("DTO.ftl", dataMap, BeanName.getShortDTOClassName(entityName) + ".java", BeanName.getDTOPath(), BeanName.getTempInPubJavaDir() + "/template");
@@ -461,8 +462,6 @@ public class SkPlugin extends PluginAdapter {
             remark = column.getRemarks();
             if (remark == null || "".equalsIgnoreCase(remark))
                 continue;
-
-
             columnRemark = new ColumnRemark();
             columnRemark.setDefaultValue(column.getDefaultValue());
             columnRemark.setName(column.getJavaProperty());
@@ -472,14 +471,11 @@ public class SkPlugin extends PluginAdapter {
             columnRemark.setEntityName(entityName);
             columnRemark.parse(remark);
 
-
            /* parser = parserFactory.getParser(columnRemark.getInputType());
             if (parser != null) {
                 columnRemark.setInputHtml(parser.parse(columnRemark));
             }*/
-
             remarkList.add(columnRemark);
-
             //说明要enums
 
             List<ColumnValue> columnValueList=columnRemark.getValueList();
@@ -496,22 +492,13 @@ public class SkPlugin extends PluginAdapter {
                     fieldEnum.setName(columnValue.getEnName());
                     fieldEnumList.add(fieldEnum);
                 }
-
-
-
-
                 SkDefaultShellCallback.addFiledMap(fieldName,fieldEnumList);
 
 
 
+
+
             }
-
-
-
-
-
-
-
 
 
         }
