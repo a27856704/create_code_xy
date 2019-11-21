@@ -25,14 +25,15 @@ public class ${modelVO} extends ${baseVO}<String> {
     <#if item.showListPage>
 
     /**
-    * ${item.descName}
+     * ${item.descName}
       <#if item.valueString??>
-    * ${item.valueString?replace("@",":")}
+     * ${item.valueString?replace("@",":")}
       </#if>
     */
 
     @ApiModelProperty(value = "${item.descName}<#if item.valueString??> ${item.valueString?replace("@",":")}</#if>")
     private ${item.javaType} ${item.name};
+
     </#if>
 </#list>
 

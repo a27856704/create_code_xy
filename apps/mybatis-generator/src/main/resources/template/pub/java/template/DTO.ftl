@@ -23,13 +23,14 @@ public class ${modelDTO} extends ${abstractDTO} {
 <#list columnList as item>
     <#if item.show>
     /**
-    * ${item.descName}
+     * ${item.descName}
     <#if item.valueString??>
-    * ${item.valueString?replace("@",":")}
+     * ${item.valueString?replace("@",":")}
     </#if>
-    */
+     */
     @ApiModelProperty(value = "${item.descName}<#if item.valueString??> ${item.valueString?replace("@",":")}</#if>")
     private ${item.javaType} ${item.name};
+
     </#if>
 </#list>
 
