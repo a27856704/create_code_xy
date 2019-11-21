@@ -67,10 +67,6 @@ public class CreateController {
     private String modelRootClass;
 
 
-
-
-
-
     public static void emptyConnection() {
         connection = null;
     }
@@ -304,7 +300,6 @@ public class CreateController {
         model.addAttribute("searchTemplate", searchTemplate);
 
 
-
         model.addAttribute("action", getBaseRoute() + "postFile");
 
 
@@ -476,10 +471,6 @@ public class CreateController {
         Map<String, Object> dataMap = new HashMap<>();
 
 
-
-
-
-
         if (tableCommentList != null) {
 
 
@@ -488,9 +479,6 @@ public class CreateController {
                 tableComment.setFieldList(getTableFieldList(db, tableComment.getName()));
 
             }
-
-
-
 
 
             dataMap.put("list", tableCommentList);
@@ -918,7 +906,7 @@ public class CreateController {
 
     @PostMapping("postTable")
     @ResponseBody
-    public SkMap postTable(String db, String tableName, String fieldPrefix, String tableDesc) throws Exception {
+    public SkMap postTable(String db, String tableName, String fieldPrefix, String tableDesc, boolean sourceFlag) throws Exception {
 
 
         CreateDbApplication.setFieldPrefix("");
@@ -939,7 +927,7 @@ public class CreateController {
 
 
         CreateDbApplication.setFieldPrefix(fieldPrefix);
-        createTable(tableName, CreateDbApplication.getFieldPrefix(), tableDesc);
+        createTable(tableName, CreateDbApplication.getFieldPrefix(), tableDesc, sourceFlag);
         CreateDbApplication.setTABLE(tableName);
 
 
@@ -1063,19 +1051,22 @@ public class CreateController {
     }
 
 
-    private boolean createTable(String tableName, String fieldPrefix, String tableDesc) throws Exception {
+    private boolean createTable(String tableName, String fieldPrefix, String tableDesc, boolean sourceFlag) throws Exception {
 
 
         StringBuffer sql = new StringBuffer();
         String key = "`" + fieldPrefix + "id`";
         String keyStr = key + " varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '主键'";
         String createTimeStr = "`" + fieldPrefix + "create_time` datetime  COMMENT '创建时间|0|0|0|0|1'";
+        String source = "`" + fieldPrefix + "source` int(11)  COMMENT '来源|0|0|0|0|1'";
         String updateTimeStr = "`" + fieldPrefix + "update_time` datetime  COMMENT '更新时间|0|0|0|0|1'";
 
 
         sql.append("CREATE TABLE `" + CreateDbApplication.getDB() + "`.`" + tableName + "` (");
 
         sql.append(keyStr + ",");
+        if (sourceFlag)
+            sql.append(source + ",");
         sql.append(createTimeStr + ",");
         sql.append(updateTimeStr + ",");
 
