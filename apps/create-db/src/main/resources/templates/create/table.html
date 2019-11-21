@@ -47,6 +47,8 @@
 
 
                 </div>
+
+
                 <div class="layui-form-item">
 
                     <label class="layui-form-label">字段前缀</label>
@@ -69,12 +71,22 @@
 
                 </div>
 
+                <div class="layui-form-item">
+
+                    <label class="layui-form-label">是否来源</label>
+                    <input type="checkbox" checked name="sourceFlag" class="sourceFlag" lay-skin="switch"
+                           lay-text="是|否">
+                    <div class="layui-unselect layui-form-switch layui-form-onswitch"
+                         lay-skin="_switch">
+                        <em>是</em><i></i></div>
+
+                </div>
 
                 <div class="layui-form-item">
 
 
                     <div class="layui-input-block">
-                        默认会添加主键前缀加id、create_time、update_time的字段
+                        默认会添加主键前缀加id、source(选择)、create_time、update_time的字段
                     </div>
 
                 </div>
