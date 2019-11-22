@@ -223,7 +223,7 @@ public class SkPlugin extends PluginAdapter {
         List<ColumnRemark> columnRemarkList = getColumnRemarkListByTable(introspectedTable);
 
         createMapperExt(introspectedTable, keyType);
-        createModelExt(introspectedTable, keyType);//生成DO
+        createModelExt(introspectedTable, keyType, columnRemarkList);//生成DO
         createDO(introspectedTable, keyType);//生成DO
 
         createDao(introspectedTable, keyType);//生成dao
@@ -233,11 +233,11 @@ public class SkPlugin extends PluginAdapter {
         createController(entityName, introspectedTable.getRemarks(), keyType);//生成controller
 
 
-        createVO(introspectedTable, keyType,columnRemarkList);//创建VO
+        createVO(introspectedTable, keyType, columnRemarkList);//创建VO
         createDetailVO(introspectedTable, keyType);//创建DetailVO
         createListVO(introspectedTable, keyType);//创建ListVO
 
-        createDTO(introspectedTable, keyType,columnRemarkList);//创建DTO
+        createDTO(introspectedTable, keyType, columnRemarkList);//创建DTO
         createWebSite(introspectedTable, columnRemarkList, keyType);//创建页面
 
 
@@ -292,7 +292,7 @@ public class SkPlugin extends PluginAdapter {
      * @param introspectedTable
      * @param keyType
      */
-    private void createModelExt(IntrospectedTable introspectedTable, String keyType) {
+    private void createModelExt(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
 
         String entityName = getEntityName(introspectedTable);
         String remark = introspectedTable.getRemarks();
@@ -302,6 +302,26 @@ public class SkPlugin extends PluginAdapter {
             setComment(dataMap, entityName, "Ext", remark);
             dataMap.put("package", BeanName.getExtPackage());
             dataMap.put("modelExt", BeanName.getShortModelExtClassName(entityName));
+            dataMap.put("enumsPackage",BeanName.getPackageEnum());
+
+            List<ColumnRemark> columnList = new ArrayList<>();
+            if (columnRemarkList != null && columnRemarkList.size() > 0) {
+
+
+                columnRemarkList.forEach(columnRemark -> {
+
+                    if (columnRemark.getValueList() != null && columnRemark.getValueList().size() > 0) {
+                        columnList.add(columnRemark);
+                        return;
+                    }
+
+
+                });
+
+
+            }
+
+            dataMap.put("columnList",columnList);
             setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("Ext.ftl", dataMap, BeanName.getShortModelExtClassName(entityName) + ".java", BeanName.getExtPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
@@ -397,7 +417,7 @@ public class SkPlugin extends PluginAdapter {
      * @param introspectedTable
      * @param keyType
      */
-    private void createVO(IntrospectedTable introspectedTable, String keyType,List<ColumnRemark> columnRemarkList) {
+    private void createVO(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
 
         String entityName = getEntityName(introspectedTable);
         String remark = introspectedTable.getRemarks();
@@ -423,7 +443,7 @@ public class SkPlugin extends PluginAdapter {
      * @param introspectedTable
      * @param keyType
      */
-    private void createDTO(IntrospectedTable introspectedTable, String keyType,List<ColumnRemark> columnRemarkList) {
+    private void createDTO(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
 
         String entityName = getEntityName(introspectedTable);
         String remark = introspectedTable.getRemarks();
@@ -478,25 +498,21 @@ public class SkPlugin extends PluginAdapter {
             remarkList.add(columnRemark);
             //说明要enums
 
-            List<ColumnValue> columnValueList=columnRemark.getValueList();
-            if(columnValueList!=null && columnValueList.size()>0){
+            List<ColumnValue> columnValueList = columnRemark.getValueList();
+            if (columnValueList != null && columnValueList.size() > 0) {
 
-                String fieldName=BeanName.getFirstUpperCase(columnRemark.getEntityName())+BeanName.getFirstUpperCase(columnRemark.getName())+"@@"+columnRemark.getDescName();
+                String fieldName = BeanName.getFirstUpperCase(columnRemark.getEntityName()) + BeanName.getFirstUpperCase(columnRemark.getName()) + "@@" + columnRemark.getDescName();
 
-                List<FieldEnum> fieldEnumList=new ArrayList<>();
-                FieldEnum fieldEnum=null;
-                for(ColumnValue columnValue:columnValueList){
-                    fieldEnum=new FieldEnum();
+                List<FieldEnum> fieldEnumList = new ArrayList<>();
+                FieldEnum fieldEnum = null;
+                for (ColumnValue columnValue : columnValueList) {
+                    fieldEnum = new FieldEnum();
                     fieldEnum.setDesc(columnValue.getDesc());
                     fieldEnum.setType(columnValue.getValue());
                     fieldEnum.setName(columnValue.getEnName());
                     fieldEnumList.add(fieldEnum);
                 }
-                SkDefaultShellCallback.addFiledMap(fieldName,fieldEnumList);
-
-
-
-
+                SkDefaultShellCallback.addFiledMap(fieldName, fieldEnumList);
 
             }
 

@@ -33,6 +33,10 @@ public class ${modelVO} extends ${baseVO}<String> {
 
     @ApiModelProperty(value = "${item.descName}<#if item.valueString??> ${item.valueString?replace("@",":")}</#if>")
     private ${item.javaType} ${item.name};
+    <#if item.valueString??>
+    @ApiModelProperty(value = "${item.descName}")
+    private String ${item.name}Desc;
+    </#if>
 
     </#if>
 </#list>
