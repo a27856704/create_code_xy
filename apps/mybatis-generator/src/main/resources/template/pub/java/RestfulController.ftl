@@ -210,7 +210,8 @@ public abstract class RestfulController<
             return SkJsonResult.fail("beforePostMod false;");
         }
         T oldDomain = getBaseService().getDetail(id);
-        org.springframework.beans.BeanUtils.copyProperties(map(dto, getDomainClass()), oldDomain, postModNoUpdate(oldDomain));
+        T newDomain=map(dto, getDomainClass());
+        org.springframework.beans.BeanUtils.copyProperties(newDomain, oldDomain, postModNoUpdate(newDomain));
         getBaseService().update(oldDomain);
         jsonResult.setData(map(new DecorateModel<T>(oldDomain), getDetailVOClass()));
         afterPostMod(oldDomain, jsonResult.getData(), request, session);
