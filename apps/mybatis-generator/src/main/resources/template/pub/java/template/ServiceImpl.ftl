@@ -7,7 +7,8 @@ import ${iDaoClass};
 import ${modelSearchClass};
 import ${iBaseDaoClass};
 import ${abstractBaseServiceClass};
-import ${serviceImplClass};
+import ${iServiceClass};
+
 
 
 /**
