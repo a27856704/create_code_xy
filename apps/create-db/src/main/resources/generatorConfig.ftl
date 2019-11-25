@@ -27,6 +27,9 @@
 
             <property name="templateDir"
                       value="${templateDir!'/work/vip-sunke/apps/mybatis-generator/src/main/resources/template/layui/templates'}"></property>
+
+            <property name="activeProfile" value="${activeProfile!'local'}"/>
+
         </plugin>
 
 

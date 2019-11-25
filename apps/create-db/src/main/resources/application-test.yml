@@ -30,7 +30,7 @@ datasource:
   username: root
   password: WU67jsBLw2OjWg
   driver: /opt/mysql-connector-java-5.1.21.jar
-controllerTemplate: ApiController.ftl
+controllerTemplate: RestfulController.ftl
 searchTemplate: SourceSearch.ftl
 modelRootClass: BaseSourceDoMain
 

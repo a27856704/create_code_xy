@@ -2,6 +2,7 @@ package vip.sunke;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 import vip.sunke.createdb.controller.CreateController;
 
 @SpringBootApplication
@@ -12,6 +13,7 @@ public class CreateDbApplication {
     private static String DB = "";
     private static String TABLE = "";
     private static String FIELD_PREFIX = "";
+    private static ApplicationContext applicationContext;
 
     public static String getFieldPrefix() {
         return FIELD_PREFIX;
@@ -29,7 +31,7 @@ public class CreateDbApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(CreateDbApplication.class, args);
+        applicationContext = SpringApplication.run(CreateDbApplication.class, args);
     }
 
     public static String getDB() {
@@ -50,4 +52,13 @@ public class CreateDbApplication {
     public static void setTABLE(String TABLE) {
         CreateDbApplication.TABLE = TABLE;
     }
+
+    /**
+     * 获取spring.profiles.active
+     */
+    public static String getActiveProfile() {
+
+        return applicationContext.getEnvironment().getActiveProfiles()[0];
+    }
+
 }

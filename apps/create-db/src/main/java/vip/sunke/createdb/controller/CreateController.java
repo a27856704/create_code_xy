@@ -364,6 +364,7 @@ public class CreateController {
         dataMap.put("password", StringUtil.isNullToDefault(generatorDto.getPassword(), "123456"));
         dataMap.put("modelTargetPackage", StringUtil.isNullToDefault(generatorDto.getPackageAppProject(), "vip.sunke") + ".model");
         dataMap.put("modelTargetProject", StringUtil.isNullToDefault(generatorDto.getModelTargetProject(), xmlDir + "/create"));
+        dataMap.put("activeProfile",CreateDbApplication.getActiveProfile());
 
 
         if (StringUtil.isBlank(generatorDto.getModelRootClass())) {
