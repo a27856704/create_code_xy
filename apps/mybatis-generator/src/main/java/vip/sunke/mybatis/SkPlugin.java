@@ -1150,7 +1150,7 @@ public class SkPlugin extends PluginAdapter {
 
 
         dataMap.put("iDaoClass", BeanName.getFullDaoClassName(entityName));
-        dataMap.put("iDao", BeanName.getFullDaoClassName(entityName));
+        dataMap.put("iDao", BeanName.getShortDaoClassName(entityName));
         dataMap.put("daoImplClass", BeanName.getFullDaoImplClassName(entityName));
         dataMap.put("daoImpl", BeanName.getShortDaoImplClassName(entityName));
 

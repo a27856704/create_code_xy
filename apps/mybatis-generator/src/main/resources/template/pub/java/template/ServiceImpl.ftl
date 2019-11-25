@@ -7,7 +7,7 @@ import ${iDao};
 import ${modelSearchClass};
 import ${iBaseDaoClass};
 import ${abstractBaseServiceClass};
-import ${iService};
+import ${serviceImplClass};
 
 
 /**
@@ -16,7 +16,7 @@ import ${iService};
 *    @description ${description}
 */
 @Service(value = "${serviceVar}")
-public class ${serviceImplClass} extends ${abstractBaseService}<${modelExt}, ${modelSearch},String> implements ${iService} {
+public class ${serviceImpl} extends ${abstractBaseService}<${modelExt}, ${modelSearch},String> implements ${iService} {
 
     @Resource(name = "${daoVar}")
     private ${iDao} ${daoVar};
