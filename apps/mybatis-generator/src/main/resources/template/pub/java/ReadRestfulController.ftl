@@ -20,8 +20,9 @@ public abstract class ReadRestfulController<DTO extends AbstractDTO
         , T extends BaseIdDoMain
         , TS extends BaseSearch
         , DomainVO extends AbstractDomainVO<String>
-        , DataVO extends AbstractDataVO<DomainVO>
-        , ListVO extends AbstractPageVO<DomainVO>> extends RestfulController<DTO, T, TS, DomainVO, DataVO, ListVO> {
+        , DetailDomainVO extends DomainVO
+        , DataVO extends AbstractDataVO<DetailDomainVO>
+        , ListVO extends AbstractPageVO<DomainVO>> extends RestfulController<DTO, T, TS, DomainVO, DetailDomainVO,DataVO, ListVO> {
 
 
     @Override

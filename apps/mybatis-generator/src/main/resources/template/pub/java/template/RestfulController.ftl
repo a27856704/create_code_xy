@@ -13,6 +13,7 @@ import ${iServiceClass};
 import ${detailVOClass};
 import ${listVOClass};
 import ${modelVOClass};
+import ${detailModelVOClass};
 
 /**
 *    @author ${author}
@@ -22,7 +23,7 @@ import ${modelVOClass};
 @Api(tags = "${apiTags}", description = "${apiDesc}")
 @RestController(value ="${controllerName}")
 @RequestMapping("${route}")
-public class ${controllerClass} extends RestfulController<${modelDTO},${modelExt}, ${modelSearch},${modelVO},${detailVO},${listVO}> {
+public class ${controllerClass} extends ApiManageController<${modelDTO},${modelExt}, ${modelSearch},${modelVO},${detailModelVO},${detailVO},${listVO}> {
 
 	@Resource(name = "${serviceVar}")
 	private ${iService} ${serviceVar};

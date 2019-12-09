@@ -233,7 +233,8 @@ public class SkPlugin extends PluginAdapter {
         createController(entityName, introspectedTable.getRemarks(), keyType);//生成controller
 
 
-        createVO(introspectedTable, keyType, columnRemarkList);//创建VO
+        createDomainVO(introspectedTable, keyType, columnRemarkList);//创建DomainVO
+        createDetailDomainVO(introspectedTable, keyType, columnRemarkList);//创建DetailDomainVO
         createDetailVO(introspectedTable, keyType);//创建DetailVO
         createListVO(introspectedTable, keyType);//创建ListVO
 
@@ -302,7 +303,7 @@ public class SkPlugin extends PluginAdapter {
             setComment(dataMap, entityName, "Ext", remark);
             dataMap.put("package", BeanName.getExtPackage());
             dataMap.put("modelExt", BeanName.getShortModelExtClassName(entityName));
-            dataMap.put("enumsPackage",BeanName.getPackageEnum());
+            dataMap.put("enumsPackage", BeanName.getPackageEnum());
 
             List<ColumnRemark> columnList = new ArrayList<>();
             if (columnRemarkList != null && columnRemarkList.size() > 0) {
@@ -321,7 +322,7 @@ public class SkPlugin extends PluginAdapter {
 
             }
 
-            dataMap.put("columnList",columnList);
+            dataMap.put("columnList", columnList);
             setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("Ext.ftl", dataMap, BeanName.getShortModelExtClassName(entityName) + ".java", BeanName.getExtPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
@@ -412,26 +413,52 @@ public class SkPlugin extends PluginAdapter {
 
 
     /**
-     * 生成Model VO
+     * 生成Model DetailDomainVO
      *
      * @param introspectedTable
      * @param keyType
      */
-    private void createVO(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
+    private void createDetailDomainVO(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
 
         String entityName = getEntityName(introspectedTable);
         String remark = introspectedTable.getRemarks();
         entityName = BeanName.getShortModelClassName(entityName);
         try {
             Map<String, Object> dataMap = new HashMap<>();
-            setComment(dataMap, entityName, "VO", remark);
+            setComment(dataMap, entityName, "DetailDomainVO", remark);
+            dataMap.put("package", BeanName.getVOPackage());
+            dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
+            dataMap.put("shortDetailDomainVO", BeanName.getShortDetailDomainVOClassName(entityName));
+            dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
+            setBaseInfo(dataMap, entityName, keyType, remark + "详情");
+            BeanName.getFreeMarkerUtil().printFile("DetailDomainVO.ftl", dataMap, BeanName.getShortDetailDomainVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+        }
+
+    }
+
+
+    /**
+     * 生成Model VO
+     *
+     * @param introspectedTable
+     * @param keyType
+     */
+    private void createDomainVO(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
+
+        String entityName = getEntityName(introspectedTable);
+        String remark = introspectedTable.getRemarks();
+        entityName = BeanName.getShortModelClassName(entityName);
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "DomainVO", remark);
             dataMap.put("package", BeanName.getVOPackage());
             dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
             dataMap.put("shortVO", BeanName.getShortVOClassName(entityName));
             dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
             dataMap.put("columnList", columnRemarkList);
             setBaseInfo(dataMap, entityName, keyType, remark);
-            BeanName.getFreeMarkerUtil().printFile("VO.ftl", dataMap, BeanName.getShortVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
+            BeanName.getFreeMarkerUtil().printFile("DomainVO.ftl", dataMap, BeanName.getShortVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
         }
 
@@ -1136,6 +1163,9 @@ public class SkPlugin extends PluginAdapter {
 
         dataMap.put("modelVOClass", BeanName.getFullModelVOClassName(entityName));
         dataMap.put("modelVO", BeanName.getShortVOClassName(entityName));
+
+        dataMap.put("detailModelVOClass", BeanName.getFullDetailModelVOClassName(entityName));
+        dataMap.put("detailModelVO", BeanName.getShortDetailDomainVOClassName(entityName));
 
         dataMap.put("detailVOClass", BeanName.getFullDetailVOClassName(entityName));
         dataMap.put("detailVO", BeanName.getShortDetailVOClassName(entityName));

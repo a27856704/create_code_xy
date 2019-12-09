@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import ${baseDataVOClass};
+import ${baseListVOClass};
 
 /**
 *    @author ${author}
@@ -15,6 +15,7 @@ import ${baseDataVOClass};
 
 @Data
 @Accessors(chain = true)
-public class ${detailVO} extends ${baseDataVO}<${detailModelVO}> {
+@ApiModel("${remark}")
+public class ${detailModelVO} extends ${modelVO} {
 
 }

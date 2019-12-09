@@ -31,13 +31,18 @@ public abstract class RestfulController<
         , T extends BaseIdDoMain
         , TS extends BaseSearch
         , DomainVO extends AbstractDomainVO<String>
-        , DataVO extends AbstractDataVO<DomainVO>
+        , DetailDomainVO extends DomainVO
+        , DetailVO extends AbstractDataVO<DetailDomainVO>
         , ListVO extends AbstractPageVO<DomainVO>> extends BaseController {
 
     public abstract IBaseService<T, TS, String> getBaseService() throws SkException;
 
     public abstract String getBaseRoute() throws SkException;
 
+    public final Class<DTO> getDtoClass() {
+        ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
+        return (Class) type.getActualTypeArguments()[0];
+    }
 
     public final Class<T> getDomainClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
@@ -54,16 +59,21 @@ public abstract class RestfulController<
         return (Class) type.getActualTypeArguments()[3];
     }
 
-
-    public final Class<DataVO> getDetailVOClass() {
+    public final Class<DetailDomainVO> getDomainDetailVOClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[4];
     }
 
 
-    public final Class<ListVO> getListVOClass() {
+    public final Class<DetailVO> getDetailVOClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[5];
+    }
+
+
+    public final Class<ListVO> getListVOClass() {
+        ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
+        return (Class) type.getActualTypeArguments()[6];
     }
 
 
@@ -119,13 +129,13 @@ public abstract class RestfulController<
     @ApiOperation(value = "详情页面", notes = "详情页面接口", httpMethod = "GET")
     @GetMapping("detail/{id}")
     @ResponseBody
-    public SkJsonResult<DataVO> getDetail(@ApiParam("id") @PathVariable String id
+    public SkJsonResult<DetailVO> getDetail(@ApiParam("id") @PathVariable String id
             , @ApiParam(name = "request", hidden = true) @RequestParam(required = false) HttpServletRequest request,
-                                          @ApiParam(name = "session", hidden = true)
-                                          @RequestParam(required = false) HttpSession session) throws SkException {
+                                            @ApiParam(name = "session", hidden = true)
+                                            @RequestParam(required = false) HttpSession session) throws SkException {
         T domain = getBaseService().getDetail(id);
-        SkJsonResult<DataVO> jsonResult = SkJsonResult.ok();
-        jsonResult.setData(map(new DecorateModel<T>(domain), getDetailVOClass()));
+        SkJsonResult<DetailVO> jsonResult = SkJsonResult.ok();
+        jsonResult.setData(map(new DecorateModel<DetailDomainVO>(map(domain, getDomainDetailVOClass())), getDetailVOClass()));
         detailExtend(domain, jsonResult.getData(), request, session);
         return jsonResult;
 
@@ -139,7 +149,7 @@ public abstract class RestfulController<
      * @param request
      */
 
-    public void detailExtend(T t, DataVO detailVO, HttpServletRequest request, HttpSession session) {
+    public void detailExtend(T t, DetailVO detailVO, HttpServletRequest request, HttpSession session) {
 
 
     }
@@ -160,9 +170,9 @@ public abstract class RestfulController<
     @ApiOperation(value = "通用添加接口", notes = "通用添加接口", httpMethod = "POST")
     @PostMapping(value = "postAdd")
     @ResponseBody
-    public SkJsonResult<DataVO> postAdd(@ApiParam(required = true, name = "dto", value
+    public SkJsonResult<DetailVO> postAdd(@ApiParam(required = true, name = "dto", value
             = "通用基础dto") @Valid DTO dto, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
-        SkJsonResult<DataVO> jsonResult = SkJsonResult.ok();
+        SkJsonResult<DetailVO> jsonResult = SkJsonResult.ok();
         if (dto == null)
             return jsonResult;
         T domain = map(dto, getDomainClass());
@@ -184,7 +194,7 @@ public abstract class RestfulController<
      * @param session
      * @throws SkException
      */
-    public void afterPostAdd(T domain, DataVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostAdd(T domain, DetailVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -200,9 +210,9 @@ public abstract class RestfulController<
     @ApiOperation(value = "通用修改接口", notes = "通用修改接口", httpMethod = "POST")
     @PostMapping("postMod/{id}")
     @ResponseBody
-    public SkJsonResult<DataVO> postMod(@ApiParam("id") @PathVariable String id, @Valid DTO dto, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<DetailVO> postMod(@ApiParam("id") @PathVariable String id, @Valid DTO dto, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
 
-        SkJsonResult<DataVO> jsonResult = SkJsonResult.ok();
+        SkJsonResult<DetailVO> jsonResult = SkJsonResult.ok();
         if (dto == null)
             return jsonResult;
 
@@ -210,7 +220,7 @@ public abstract class RestfulController<
             return SkJsonResult.fail("beforePostMod false;");
         }
         T oldDomain = getBaseService().getDetail(id);
-        T newDomain=map(dto, getDomainClass());
+        T newDomain = map(dto, getDomainClass());
         org.springframework.beans.BeanUtils.copyProperties(newDomain, oldDomain, postModNoUpdate(newDomain));
         getBaseService().update(oldDomain);
         jsonResult.setData(map(new DecorateModel<T>(oldDomain), getDetailVOClass()));
@@ -269,7 +279,7 @@ public abstract class RestfulController<
      * @param session
      * @throws SkException
      */
-    public void afterPostMod(T domain, DataVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostMod(T domain, DetailVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -350,7 +360,7 @@ public abstract class RestfulController<
     @ApiOperation(value = "通用批量删除接口", notes = "通用批量删除接口", httpMethod = "POST")
     @PostMapping(value = "postDeleteAll")
     @ResponseBody
-    public SkJsonResult<String> postDeleteAll(@ApiParam("主键IDs") @RequestParam(name = "ids[]") List<String> ids,@ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false)HttpSession session) throws SkException {
+    public SkJsonResult<String> postDeleteAll(@ApiParam("主键IDs") @RequestParam(name = "ids[]") List<String> ids, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
 
         if (ids == null || ids.size() == 0)
             return SkJsonResult.fail("删除的条目为空");
@@ -435,9 +445,6 @@ public abstract class RestfulController<
      * @throws SkException
      */
     public void searchConditionExtend(TS search, HttpServletRequest request, HttpSession session) throws SkException {
-
-
+        
     }
-
-
 }

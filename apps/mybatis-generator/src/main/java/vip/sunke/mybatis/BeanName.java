@@ -664,6 +664,11 @@ public class BeanName {
         return getVOPackage() + "." + getShortVOClassName(modelName);
     }
 
+    public static String getFullDetailModelVOClassName(String modelName) {
+        return getVOPackage() + "." + getShortDetailDomainVOClassName(modelName);
+    }
+
+
     public static String getFullListVOClassName(String modelName) {
         return getVOPackage() + "." + getShortListVOClassName(modelName);
     }
@@ -698,8 +703,15 @@ public class BeanName {
 
     public static String getShortVOClassName(String modelName) {
 
-        return getFirstUpperCase(modelName) + "VO";
+        return getFirstUpperCase(modelName) + "DomainVO";
     }
+
+
+    public static String getShortDetailDomainVOClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "DetailDomainVO";
+    }
+
 
     public static String getShortListVOClassName(String modelName) {
 
