@@ -1,5 +1,6 @@
 package ${package};
-
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import ${sourceBaseSearchClass};
 import ${modelClass};
 
@@ -8,7 +9,7 @@ import ${modelClass};
 *    @Date ${date}
 *    @description ${description}
 */
-
+@ApiModel("${remark} ${entityName}")
 public class ${modelSearch} extends ${sourceBaseSearch} {
 
 ${searchField}
