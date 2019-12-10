@@ -977,28 +977,28 @@ public class SkPlugin extends PluginAdapter {
                     || searchFlag == SearchTypeEnum.EQUAL.getType()
             ) {
 
-                sf.append(SearchFieldBuild.buildStringSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName(), columnRemark.getSearchFlag() == SearchTypeEnum.EQUAL.getType()));
+                sf.append(SearchFieldBuild.buildStringSearchName(field, entityName, columnRemark, columnRemark.getSearchFlag() == SearchTypeEnum.EQUAL.getType()));
 
             } else if (searchFlag == SearchTypeEnum.NUMBER.getType()
 
             ) {
-                sf.append(SearchFieldBuild.buildNumberSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName(), true));
-                sf.append(SearchFieldBuild.buildNumberSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName(), false));
+                sf.append(SearchFieldBuild.buildNumberSearchName(field, entityName, columnRemark, true));
+                sf.append(SearchFieldBuild.buildNumberSearchName(field, entityName, columnRemark, false));
 
 
             } else if (searchFlag == SearchTypeEnum.IN.getType()
                     || searchFlag == SearchTypeEnum.NOT_IN.getType()
             ) {
 
-                sf.append(SearchFieldBuild.buildInSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName(), columnRemark.getSearchFlag() == SearchTypeEnum.IN.getType()));
+                sf.append(SearchFieldBuild.buildInSearchName(field, entityName, columnRemark, columnRemark.getSearchFlag() == SearchTypeEnum.IN.getType()));
 
             } else if (searchFlag == SearchTypeEnum.DATE.getType()
             ) {
-                sf.append(SearchFieldBuild.buildDateSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName(), true));
-                sf.append(SearchFieldBuild.buildDateSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName(), false));
+                sf.append(SearchFieldBuild.buildDateSearchName(field, entityName, columnRemark, true));
+                sf.append(SearchFieldBuild.buildDateSearchName(field, entityName, columnRemark, false));
 
             } else if (searchFlag == SearchTypeEnum.BIT.getType()) {
-                sf.append(SearchFieldBuild.buildBitSearchName(field, entityName, columnRemark.getName(), columnRemark.getDbName()));
+                sf.append(SearchFieldBuild.buildBitSearchName(field, entityName, columnRemark));
 
             }
 
