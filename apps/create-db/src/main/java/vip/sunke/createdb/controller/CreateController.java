@@ -1097,8 +1097,21 @@ public class CreateController {
         remark.append(fieldDto.isShowPage() ? "1" : "0");
         remark.append("|");
 
-        remark.append(fieldDto.isShowListPage() ? "1" : "0");
+
+
+        if(fieldDto.isShowListPage() && fieldDto.isShowDetailPage()){
+            remark.append("2");
+
+        }else if(fieldDto.isShowListPage()){
+            remark.append("1");
+
+        }else{
+            remark.append("0");
+        }
+
         remark.append("|");
+     /*   remark.append(fieldDto.isShowListPage() ? "1" : "0");
+        remark.append("|");*/
 
         remark.append(fieldDto.isNeed() ? "1" : "0");
         remark.append("|");

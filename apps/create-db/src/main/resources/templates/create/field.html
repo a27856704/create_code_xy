@@ -197,9 +197,20 @@
                         </div>
                     </div>
                     <div class="layui-inline">
-                        <label class="layui-form-label">列表显示</label>
+                        <label class="layui-form-label" style="width: 150px;">列表||详情显示</label>
                         <div class="layui-input-inline">
-                            <input type="checkbox" name="showListPage" class="showListPage" lay-skin="switch"
+                            <input type="checkbox" checked name="showListPage" class="showListPage" lay-skin="switch"
+                                   lay-text="是|否">
+                            <div class="layui-unselect layui-form-switch layui-form-onswitch"
+                                 lay-skin="_switch">
+                                <em>否</em><i></i></div>
+                        </div>
+                    </div>
+
+                    <div class="layui-inline">
+                        <label class="layui-form-label">仅详情显示</label>
+                        <div class="layui-input-inline">
+                            <input type="checkbox" name="showDetailPage" class="showDetailPage" lay-skin="switch"
                                    lay-text="是|否">
                             <div class="layui-unselect layui-form-switch"
                                  lay-skin="_switch">
@@ -356,6 +367,7 @@
                 "searchFlag": 0,
                 "showPage": false,
                 "showListPage": false,
+                "showDetailPage":false,
                 "need": false,
                 "inputType": 1,
                 "fieldValueList": []
@@ -373,6 +385,7 @@
                     || key == "showPage"
                     || key == "showListPage"
                     || key == "need"
+                    || key == "showDetailPage"
                 ) {
                     field[key] = true;
                 } else {

@@ -22,6 +22,7 @@ public class ColumnRemark {
     private SearchTypeEnum searchTypeEnum;
     private boolean show;//显示
     private boolean showListPage;//列表时显示
+    private boolean showDetailPage;//详情显示
     private boolean need;//必选
     private int inputType;//输入框
     private InputTypeEnum inputTypeEnum;
@@ -35,6 +36,16 @@ public class ColumnRemark {
     private int totalValue;
     private String entityName;
     private String valueString;//输入的值
+
+
+    public boolean isShowDetailPage() {
+        return showDetailPage;
+    }
+
+    public ColumnRemark setShowDetailPage(boolean showDetailPage) {
+        this.showDetailPage = showDetailPage;
+        return this;
+    }
 
     public String getEntityName() {
         return entityName;
@@ -133,7 +144,16 @@ public class ColumnRemark {
 
 
         if (size > currentIndex) {//列表显示
-            setShowListPage(NumberUtil.parseInt(columnArr[currentIndex], YesOrNoEnum.YES.getType()) == YesOrNoEnum.YES.getType());
+            int v = NumberUtil.parseInt(columnArr[currentIndex], YesOrNoEnum.YES.getType());
+            if (v == 1) {
+                setShowListPage(true);
+            } else if (v == 2) {
+                setShowDetailPage(true);
+
+            }
+
+
+            //  setShowListPage(NumberUtil.parseInt(columnArr[currentIndex], YesOrNoEnum.YES.getType()) == YesOrNoEnum.YES.getType());
         }
         currentIndex = currentIndex + 1;
 
@@ -170,7 +190,7 @@ public class ColumnRemark {
                         continue;
                     oneValueArr = value.split("@");
 
-                    columnValue = new ColumnValue(oneValueArr[0], oneValueArr[0], getName()+"_"+oneValueArr[0].replace("-","_"));
+                    columnValue = new ColumnValue(oneValueArr[0], oneValueArr[0], getName() + "_" + oneValueArr[0].replace("-", "_"));
                     if (oneValueArr.length > 1) {
                         columnValue.setDesc(oneValueArr[1]);
                     }

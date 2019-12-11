@@ -430,6 +430,7 @@ public class SkPlugin extends PluginAdapter {
             dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
             dataMap.put("shortDetailDomainVO", BeanName.getShortDetailDomainVOClassName(entityName));
             dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
+            dataMap.put("columnList", columnRemarkList);
             setBaseInfo(dataMap, entityName, keyType, remark + "详情");
             BeanName.getFreeMarkerUtil().printFile("DetailDomainVO.ftl", dataMap, BeanName.getShortDetailDomainVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {

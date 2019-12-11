@@ -33,6 +33,7 @@ public class FieldDto implements Serializable {
     private boolean showPage;//添加或修改显示
 
     private boolean showListPage;//列表时显示
+    private boolean showDetailPage;//详情时显示
 
     private boolean need;//必选
     private int inputType;//输入框
