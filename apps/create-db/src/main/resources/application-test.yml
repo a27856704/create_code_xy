@@ -2,9 +2,9 @@ server:
   port: 8089
 spring:
   datasource:
-    url:  jdbc:mysql://10.19.151.77:3306/mysql?useSSL=false&useUnicode=true
+    url:  jdbc:mysql://10.19.151.76:3306/mysql?useSSL=false&useUnicode=true
     username: root
-    password: WU67jsBLw2OjWg
+    password: nbrc@123
     driver-class-name:  com.mysql.jdbc.Driver
 
   thymeleaf:
@@ -26,9 +26,9 @@ file:
     tempRoot: /Users/upload/temp
 xmlDir: /opt/create-db-file
 datasource:
-  url:  10.19.151.77:3306
+  url:  10.19.151.76:3306
   username: root
-  password: WU67jsBLw2OjWg
+  password: nbrc@123
   driver: /opt/mysql-connector-java-5.1.21.jar
 controllerTemplate: RestfulController.ftl
 searchTemplate: SourceSearch.ftl
