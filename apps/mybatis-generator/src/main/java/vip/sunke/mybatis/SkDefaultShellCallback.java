@@ -76,6 +76,7 @@ public class SkDefaultShellCallback extends DefaultShellCallback {
                 dataMap.put("createTime", YXDate.getFormatDate2String(new Date()));
 
                 dataMap.put("enumList", entry.getValue());
+                dataMap.put("pubInterPackage", BeanName.getPubInterPackage());
 
 
 
@@ -274,6 +275,7 @@ public class SkDefaultShellCallback extends DefaultShellCallback {
         templateList.add("AbstractPageVO");
         templateList.add("DecorateModel");
         templateList.add("DecoratePageList");
+        templateList.add("EnumVO");
 
 
         int size = templateList.size();

@@ -5,6 +5,7 @@ package ${package};
 *    @Date ${createTime}
 *    @description ${description}
 */
+import ${pubInterPackage}.EnumVO;
 
 public enum ${enumName} {
 
@@ -47,7 +48,21 @@ public enum ${enumName} {
             if (type.equalsIgnoreCase(var.getType()))
                 return var.getDesc();
              }
-            return ${enumName}.values()[0].getDesc();
+        return ${enumName}.values()[0].getDesc();
+    }
+
+    public static List<EnumVO> getDescs() {
+        List list = new ArrayList();
+
+        for (${enumName} var : ${enumName}.values()) {
+            EnumVO enumVO = new EnumVO();
+            enumVO.setId(var.getType());
+            enumVO.setName(var.getDesc());
+            list.add(enumVO);
         }
+
+
+        return list;
+    }
 
 }
