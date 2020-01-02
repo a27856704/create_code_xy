@@ -6,6 +6,8 @@ package ${package};
 *    @description ${description}
 */
 import ${pubInterPackage}.EnumVO;
+import java.util.ArrayList;
+import java.util.List;
 
 public enum ${enumName} {
 
