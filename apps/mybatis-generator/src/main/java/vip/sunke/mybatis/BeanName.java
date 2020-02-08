@@ -31,15 +31,11 @@ public class BeanName {
     private static String modelClass;
     private static String route;
     private static String mapperTargetProject;
+    private static String activeProfile;
 
     public static String getActiveProfile() {
         return activeProfile;
     }
-
-    private static String activeProfile;
-
-
-
 
     public static String getMapperTargetProject() {
         return mapperTargetProject;
@@ -123,7 +119,7 @@ public class BeanName {
         BeanName.controllerTemplate = properties.getProperty("controllerTemplate");
         BeanName.modelClass = properties.getProperty("modelClass");
         BeanName.mapperTargetProject = properties.getProperty("mapperTargetProject");
-        BeanName.activeProfile=properties.getProperty("activeProfile");
+        BeanName.activeProfile = properties.getProperty("activeProfile");
 
         BeanName.route = properties.getProperty("route");
         if (StringUtil.isNullOrEmpty(BeanName.route)) {
@@ -406,7 +402,7 @@ public class BeanName {
         return getTargetProject() + "/" + getTargetDir(getPackageProject() + ".pubInter");
     }
 
-    public static String getEnumPath(){
+    public static String getEnumPath() {
 
         return getTargetProject() + "/" + getTargetDir(getPackageEnum());
 
@@ -587,11 +583,11 @@ public class BeanName {
     }
 
     public static String getFullBaseDetailVOClass() {
-        return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile)?".baseVO.":".")+getShortBaseDetailVOClass();
+        return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile) || "remote".equalsIgnoreCase(activeProfile) ? ".baseVO." : ".") + getShortBaseDetailVOClass();
     }
 
     public static String getFullBaseListVOClass() {
-        return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile)?".baseVO.":".") + getShortBaseListVOClass();
+        return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile) || "remote".equalsIgnoreCase(activeProfile) ? ".baseVO." : ".") + getShortBaseListVOClass();
     }
 
     public static String getShortBaseListVOClass() {
