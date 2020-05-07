@@ -122,7 +122,7 @@
                     <label class="layui-form-label">作者</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input" name="author" id="author"
-                              placeholder="author">
+                               placeholder="author">
                     </div>
                 </div>
                 <div class="layui-form-item">
@@ -147,19 +147,19 @@
                 </div>-->
 
 
-               <!-- <div class="layui-form-item">
-                    <label class="layui-form-label">mapper文件生成的目录</label>
-                    <div class="layui-input-inline">
-                        <input type="text" class="layui-input" name="mapperTargetProject" id="mapperTargetProject"
-                               th:value="${createDir}">
-                    </div>
-                    <label class="layui-form-label">生成Model目录</label>
-                    <div class="layui-input-inline">
-                        <input type="text" class="layui-input" name="modelTargetProject" id="modelTargetProject"
-                               th:value="${createDir}">
-                    </div>
+                <!-- <div class="layui-form-item">
+                     <label class="layui-form-label">mapper文件生成的目录</label>
+                     <div class="layui-input-inline">
+                         <input type="text" class="layui-input" name="mapperTargetProject" id="mapperTargetProject"
+                                th:value="${createDir}">
+                     </div>
+                     <label class="layui-form-label">生成Model目录</label>
+                     <div class="layui-input-inline">
+                         <input type="text" class="layui-input" name="modelTargetProject" id="modelTargetProject"
+                                th:value="${createDir}">
+                     </div>
 
-                </div>-->
+                 </div>-->
 
 
                 <div class="layui-form-item">
@@ -230,9 +230,8 @@
                     <label class="layui-form-label">根路由</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input" name="route" id="route"
-                              placeholder="xxx"/>
+                               placeholder="xxx"/>
                     </div>
-
 
 
                 </div>
@@ -248,29 +247,27 @@
 
                 </div>-->
 
-                <div  th:if="${tableList!=null}">
 
-                    <table class="layui-table" lay-even lay-size="sm">
-                        <thead>
+
+                    <table class="layui-table" lay-even lay-size="sm" id="tableList">
+
                         <tr>
                             <th><input th:type="checkbox" id="all" lay-skin="primary" lay-filter="allChoose"/></th>
                             <th>表名</th>
                             <th>表描述</th>
 
                         </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="item,stat:${tableList}">
-                            <td><input th:type="checkbox" name="tableList" lay-skin="primary"  th:value="${item.name}"/></td>
+
+
+                        <tr th:each="item,stat:${tableList}" th:if="${tableList!=null}">
+                            <td><input th:type="checkbox" name="tableList" lay-skin="primary" th:value="${item.name}"/>
+                            </td>
                             <td th:text="${item.name}">表名</td>
                             <td th:text="${item.comment}">表描述</td>
                         </tr>
-                        </tbody>
 
 
                     </table>
-                </div>
-
 
 
 
@@ -292,30 +289,69 @@
 </div>
 
 <script>
-    layui.use(['form'], function () {
+    layui.use(['form', 'jquery'], function () {
 
+        $ = layui.jquery;
         $('#param').val('useSSL=false&amp;useUnicode=true');
 
-
         var form = layui.form;
+
 
         form.render();
 
 
         form.on("select(db)", function (data) {
+            var table = data.value;
+            if (table != '') {
+                $.get("/create/tableListToJson", {"db": table}, function (res) {
+
+                    $("#tableList tr:gt(0)").remove();
+                    tableList = res.data;
+                    var newRow = "";
+                    for (var i = 0; i < tableList.length; i++) {
+
+                        newRow = "<tr>";
+
+                        newRow += "<td>";
+                        newRow +='<input type="checkbox" name="tableList" lay-skin="primary" value="'+tableList[i].name+'"/>';
+                        newRow += "</td>";
+
+
+                        newRow += "<td>";
+                        newRow +=tableList[i].name;
+                        newRow += "</td>";
+
+                        newRow += "<td>";
+                        newRow +=tableList[i].comment;
+                        newRow += "</td>";
+
+                        newRow += "</tr>";
+
+
+                        $("#tableList tr:last").after(newRow);
+
+                    }
+
+                    form.render();
+
+
+                });
+
+
+
+            }
 
 
         });
 
 
-        form.on('checkbox(allChoose)', function(data){
+        form.on('checkbox(allChoose)', function (data) {
             var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
-            child.each(function(index, item){
+            child.each(function (index, item) {
                 item.checked = data.elem.checked;
             });
             form.render('checkbox');
         });
-
 
 
         form.on("select(controller)", function (data) {
@@ -333,9 +369,6 @@
         form.on('submit(go)', function (data) {
 
 
-
-
-
             $("#dataForm").attr("action", "[[${action}]]");
             $("#dataForm").attr("target", "_blank");
             $("#dataForm").submit();
@@ -343,18 +376,15 @@
             $("#dataForm").attr("target", "");
 
 
+            /*  // console.log(json);
+              postData("[[${action}]]", data.field, function (res, request) {
+
+                  layer.msg("生成成功", {time: 2000}, function () {
+                      top.location.href = "/create/file";
+                  });
 
 
-
-          /*  // console.log(json);
-            postData("[[${action}]]", data.field, function (res, request) {
-
-                layer.msg("生成成功", {time: 2000}, function () {
-                    top.location.href = "/create/file";
-                });
-
-
-            });*/
+              });*/
 
 
             /*  postData("[[${action}]]", data.field, function (res, request) {

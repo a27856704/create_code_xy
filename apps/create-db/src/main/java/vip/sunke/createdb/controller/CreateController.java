@@ -20,6 +20,7 @@ import vip.sunke.domain.TableField;
 import vip.sunke.domain.TableKeyColumn;
 import vip.sunke.mybatis.*;
 import vip.sunke.pubInter.exception.BusinessException;
+import vip.sunke.web.common.SkJsonResult;
 import vip.sunke.web.common.SkMap;
 
 import javax.annotation.Resource;
@@ -228,6 +229,30 @@ public class CreateController {
 
 
     }
+
+    /**
+     * 数据表页面
+     *
+     * @return
+     * @throws BusinessException
+     */
+    @GetMapping("tableListToJson")
+    @ResponseBody
+    public SkJsonResult tableListToJson(@RequestParam(required = false, defaultValue = "") String db) throws BusinessException {
+
+        if (StringUtil.isEmpty(db)) {
+            db = CreateDbApplication.getDB();
+        } else {
+            CreateDbApplication.setDB(db);
+        }
+        SkJsonResult skJsonResult = SkJsonResult.ok();
+        skJsonResult.setData(getTableCommentList(db));
+
+        return skJsonResult;
+
+
+    }
+
 
     /**
      * 数据表字段列表页面
