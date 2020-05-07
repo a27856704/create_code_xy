@@ -248,6 +248,31 @@
 
                 </div>-->
 
+                <div  th:if="${tableList!=null}">
+
+                    <table class="layui-table" lay-even lay-size="sm">
+                        <thead>
+                        <tr>
+                            <th><input th:type="checkbox" id="all" lay-skin="primary" lay-filter="allChoose"/></th>
+                            <th>表名</th>
+                            <th>表描述</th>
+
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item,stat:${tableList}">
+                            <td><input th:type="checkbox" name="tableList" lay-skin="primary"  th:value="${item.name}"/></td>
+                            <td th:text="${item.name}">表名</td>
+                            <td th:text="${item.comment}">表描述</td>
+                        </tr>
+                        </tbody>
+
+
+                    </table>
+                </div>
+
+
+
 
                 <div class="layui-form-item">
                     <label class="layui-form-label"></label>
@@ -281,6 +306,17 @@
 
 
         });
+
+
+        form.on('checkbox(allChoose)', function(data){
+            var child = $(data.elem).parents('table').find('tbody input[type="checkbox"]');
+            child.each(function(index, item){
+                item.checked = data.elem.checked;
+            });
+            form.render('checkbox');
+        });
+
+
 
         form.on("select(controller)", function (data) {
             var routeName = $("#route").val();

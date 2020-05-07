@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author sunke
@@ -289,8 +290,14 @@ public class CreateController {
     @GetMapping("file")
     public String file(Model model) throws BusinessException {
 
+        String db = CreateDbApplication.getDB();
+        List<TableComment> tableList = null;
+        if (StringUtil.isNotEmpty(db)) {
+            tableList = getTableCommentList(db);
+            model.addAttribute("tableList", tableList);
+        }
 
-        model.addAttribute("db", CreateDbApplication.getDB());
+        model.addAttribute("db", db);
         model.addAttribute("url", url);
         model.addAttribute("username", username);
         model.addAttribute("password", password);
@@ -333,6 +340,21 @@ public class CreateController {
         Main.clearMenuList();
         CreateDbApplication.setDB(db);
         List<TableKeyColumn> list = getTableKeyColumnList(db);
+        List<TableKeyColumn> tableList = null;
+        List<String> tableNameList = generatorDto.getTableList();
+        if (StringUtil.isNotObjEmpty(tableNameList)) {
+
+            tableList = list.parallelStream().filter(tableKeyColumn ->
+
+                    tableNameList.stream().anyMatch(name -> tableKeyColumn.getTableName().equalsIgnoreCase(name))
+
+            ).collect(Collectors.toList());
+
+
+        } else {
+            tableList = list;
+        }
+
 
         generatorDto.setConnectionUrl("jdbc:mysql://" + generatorDto.getConnectionUrl() + "/" + generatorDto.getDb() + (StringUtil.isEmpty(generatorDto.getParam()) ? "" : "?" + generatorDto.getParam()));
 
@@ -347,7 +369,7 @@ public class CreateController {
 
         Map<String, Object> dataMap = new HashMap<String, Object>();
 
-        dataMap.put("tableList", list);
+        dataMap.put("tableList", tableList);
         dataMap.put("driveJar", StringUtil.isNullToDefault(generatorDto.getDriveJar(), "/sk/lib/mysql-connector-java-5.1.20-bin.jar"));
         dataMap.put("projectName", StringUtil.isNullToDefault(generatorDto.getProjectName(), "后台管理系统"));
         dataMap.put("copyright", StringUtil.isNullToDefault(generatorDto.getCopyright(), "vip.sunke"));
@@ -364,7 +386,7 @@ public class CreateController {
         dataMap.put("password", StringUtil.isNullToDefault(generatorDto.getPassword(), "123456"));
         dataMap.put("modelTargetPackage", StringUtil.isNullToDefault(generatorDto.getPackageAppProject(), "vip.sunke") + ".model");
         dataMap.put("modelTargetProject", StringUtil.isNullToDefault(generatorDto.getModelTargetProject(), xmlDir + "/create"));
-        dataMap.put("activeProfile",CreateDbApplication.getActiveProfile());
+        dataMap.put("activeProfile", CreateDbApplication.getActiveProfile());
 
 
         if (StringUtil.isBlank(generatorDto.getModelRootClass())) {
@@ -1073,7 +1095,7 @@ public class CreateController {
 
 
         sql.append("PRIMARY KEY (" + key + ")");
-        sql.append(") COMMENT='" + tableDesc + "';");
+        sql.append(") CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='" + tableDesc + "';");
 
         return executeSql(sql.toString());
 
@@ -1098,14 +1120,13 @@ public class CreateController {
         remark.append("|");
 
 
-
-        if(fieldDto.isShowListPage() && fieldDto.isShowDetailPage()){
+        if (fieldDto.isShowListPage() && fieldDto.isShowDetailPage()) {
             remark.append("2");
 
-        }else if(fieldDto.isShowListPage()){
+        } else if (fieldDto.isShowListPage()) {
             remark.append("1");
 
-        }else{
+        } else {
             remark.append("0");
         }
 
@@ -1161,7 +1182,9 @@ public class CreateController {
         if (!StringUtil.isEmpty(fieldDto.getDefaultValue())) {
             sql.append(" DEFAULT '" + fieldDto.getDefaultValue() + "'");
         }
-
+        if ("varchar".equalsIgnoreCase(fieldDto.getType())) {
+            sql.append(" CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
+        }
         sql.append(" COMMENT '" + getRemark(fieldDto) + "'");
 
         sql.append(";");

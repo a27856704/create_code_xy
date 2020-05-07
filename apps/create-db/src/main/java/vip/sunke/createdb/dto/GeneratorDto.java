@@ -1,6 +1,7 @@
 package vip.sunke.createdb.dto;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author sunke
@@ -36,6 +37,17 @@ public class GeneratorDto implements Serializable {
     private String searchTemplate;//search类模板
     private String controllerTemplate;//controller类模板
     private String route;//route根
+
+    private List<String> tableList;//
+
+    public List<String> getTableList() {
+        return tableList;
+    }
+
+    public GeneratorDto setTableList(List<String> tableList) {
+        this.tableList = tableList;
+        return this;
+    }
 
     public String getDriveJar() {
         return driveJar;

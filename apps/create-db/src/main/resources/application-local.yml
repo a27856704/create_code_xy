@@ -3,8 +3,10 @@ server:
 spring:
   datasource:
     url:  jdbc:mysql://127.0.0.1:3306/mysql?useSSL=true&useUnicode=true
+   # url:  jdbc:mysql://10.19.151.71:8000/mysql?useSSL=false&useUnicode=true
     username: root
     password: 123456
+    #password: W7sjb1G_%Jpl
     driver-class-name:  com.mysql.jdbc.Driver
 
   thymeleaf:

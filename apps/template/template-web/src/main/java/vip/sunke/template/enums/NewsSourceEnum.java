@@ -44,11 +44,14 @@ public enum NewsSourceEnum {
             type="0";
         }
 
+
         for (NewsSourceEnum var : NewsSourceEnum.values()) {
             if (type.equalsIgnoreCase(var.getType()))
                 return var.getDesc();
              }
             return NewsSourceEnum.values()[0].getDesc();
         }
+
+
 
 }
