@@ -24,12 +24,12 @@ file:
   upload:
     root: /Users/upload
     tempRoot: /Users/upload/temp
-xmlDir: /Users/upload/createdb
+xmlDir: /opt/create-db-file
 datasource:
   url:  10.19.151.76:3306
   username: root
   password: nbrc@123
-  driver: /Users/upload/createdb/lib/mysql-connector-java-5.1.20-bin.jar
+  driver: /opt/mysql-connector-java-5.1.21.jar
 controllerTemplate: RestfulController.ftl
 searchTemplate: SourceSearch.ftl
 modelRootClass: BaseSourceDoMain
