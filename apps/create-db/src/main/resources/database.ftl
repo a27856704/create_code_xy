@@ -952,7 +952,7 @@
                             <w:rFonts w:hint="fareast"/>
                             <wx:font wx:val="Songti SC"/>
                         </w:rPr>
-                        <w:t>${item.comment}</w:t>
+                        <w:t><#if item??> ${item.comment!""}</#if></w:t>
                     </w:r>
                     <w:r wsp:rsidRPr="00A00A4A">
                         <w:rPr>
@@ -1049,28 +1049,28 @@
                                 </w:r>
                             </w:p>
                         </w:tc>
-                        <w:tc>
-                            <w:tcPr>
-                                <w:tcW w:w="2018" w:type="dxa"/>
-                                <w:shd w:val="clear" w:color="auto" w:fill="E7E6E6"/>
-                            </w:tcPr>
-                            <w:p wsp:rsidR="00A00A4A" wsp:rsidRPr="00147D3F" wsp:rsidRDefault="00A00A4A"
-                                 wsp:rsidP="00285B18">
-                                <w:pPr>
-                                    <w:pStyle w:val="a3"/>
-                                    <w:ind w:first-line-chars="0" w:first-line="0"/>
-                                    <w:rPr>
-                                        <w:rFonts w:hint="fareast"/>
-                                    </w:rPr>
-                                </w:pPr>
-                                <w:r wsp:rsidRPr="00147D3F">
-                                    <w:rPr>
-                                        <w:rFonts w:hint="fareast"/>
-                                    </w:rPr>
-                                    <w:t>值描述</w:t>
-                                </w:r>
-                            </w:p>
-                        </w:tc>
+<#--                        <w:tc>-->
+<#--                            <w:tcPr>-->
+<#--                                <w:tcW w:w="2018" w:type="dxa"/>-->
+<#--                                <w:shd w:val="clear" w:color="auto" w:fill="E7E6E6"/>-->
+<#--                            </w:tcPr>-->
+<#--                            <w:p wsp:rsidR="00A00A4A" wsp:rsidRPr="00147D3F" wsp:rsidRDefault="00A00A4A"-->
+<#--                                 wsp:rsidP="00285B18">-->
+<#--                                <w:pPr>-->
+<#--                                    <w:pStyle w:val="a3"/>-->
+<#--                                    <w:ind w:first-line-chars="0" w:first-line="0"/>-->
+<#--                                    <w:rPr>-->
+<#--                                        <w:rFonts w:hint="fareast"/>-->
+<#--                                    </w:rPr>-->
+<#--                                </w:pPr>-->
+<#--                                <w:r wsp:rsidRPr="00147D3F">-->
+<#--                                    <w:rPr>-->
+<#--                                        <w:rFonts w:hint="fareast"/>-->
+<#--                                    </w:rPr>-->
+<#--                                    <w:t>值描述</w:t>-->
+<#--                                </w:r>-->
+<#--                            </w:p>-->
+<#--                        </w:tc>-->
                     </w:tr>
                     <#list item.fieldList as field>
                     <w:tr wsp:rsidR="00A00A4A" wsp:rsidRPr="00147D3F" wsp:rsidTr="00A00A4A">
@@ -1137,28 +1137,28 @@
                                 </w:r>
                             </w:p>
                         </w:tc>
-                        <w:tc>
-                            <w:tcPr>
-                                <w:tcW w:w="2018" w:type="dxa"/>
-                                <w:shd w:val="clear" w:color="auto" w:fill="auto"/>
-                            </w:tcPr>
-                            <w:p wsp:rsidR="00A00A4A" wsp:rsidRPr="00147D3F" wsp:rsidRDefault="00A00A4A"
-                                 wsp:rsidP="00285B18">
-                                <w:pPr>
-                                    <w:pStyle w:val="a3"/>
-                                    <w:ind w:first-line-chars="0" w:first-line="0"/>
-                                    <w:rPr>
-                                        <w:rFonts w:hint="fareast"/>
-                                    </w:rPr>
-                                </w:pPr>
-                                <w:r wsp:rsidRPr="00147D3F">
-                                    <w:rPr>
-                                        <w:rFonts w:hint="fareast"/>
-                                    </w:rPr>
-                                    <w:t><![CDATA[<#if (field.valueString!="")>${field.valueString?js_string}</#if>]]></w:t>
-                                </w:r>
-                            </w:p>
-                        </w:tc>
+<#--                        <w:tc>-->
+<#--                            <w:tcPr>-->
+<#--                                <w:tcW w:w="2018" w:type="dxa"/>-->
+<#--                                <w:shd w:val="clear" w:color="auto" w:fill="auto"/>-->
+<#--                            </w:tcPr>-->
+<#--                            <w:p wsp:rsidR="00A00A4A" wsp:rsidRPr="00147D3F" wsp:rsidRDefault="00A00A4A"-->
+<#--                                 wsp:rsidP="00285B18">-->
+<#--                                <w:pPr>-->
+<#--                                    <w:pStyle w:val="a3"/>-->
+<#--                                    <w:ind w:first-line-chars="0" w:first-line="0"/>-->
+<#--                                    <w:rPr>-->
+<#--                                        <w:rFonts w:hint="fareast"/>-->
+<#--                                    </w:rPr>-->
+<#--                                </w:pPr>-->
+<#--                                <w:r wsp:rsidRPr="00147D3F">-->
+<#--                                    <w:rPr>-->
+<#--                                        <w:rFonts w:hint="fareast"/>-->
+<#--                                    </w:rPr>-->
+<#--                                    <w:t><![CDATA[<#if (field.valueString!="")>${field.valueString?js_string}</#if>]]></w:t>-->
+<#--                                </w:r>-->
+<#--                            </w:p>-->
+<#--                        </w:tc>-->
                     </w:tr>
                     </#list>
                 </w:tbl>

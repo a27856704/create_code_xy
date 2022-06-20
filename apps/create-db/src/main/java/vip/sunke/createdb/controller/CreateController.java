@@ -737,7 +737,8 @@ public class CreateController {
             conn = DriverManager.getConnection(url, skDatasource.getUsername(), skDatasource.getPassword());
 
             stat = conn.createStatement();
-            resultSet = stat.executeQuery("show DATABASES;");
+//            resultSet = stat.executeQuery("show DATABASES;");
+            resultSet = stat.executeQuery("select datname from pg_database;;");
 
             List<String> dataBaseList = new ArrayList<String>();
 
@@ -800,7 +801,30 @@ public class CreateController {
 
             conn = getCreateConnection();
             stat = conn.createStatement();
-            String sql = "select column_name,column_type,column_comment from information_schema.columns where table_schema ='" + db + "' and table_name='" + table + "';";
+//            String sql = "select column_name,column_type,column_comment from information_schema.columns where table_schema ='" + db + "' and table_name='" + table + "';";
+            String sql = "SELECT  DISTINCT (A.attnum)  ,C.relname table_name," +
+                    "CAST ( obj_description ( relfilenode, 'pg_class' ) AS VARCHAR ) table_comment," +
+                    "A.attname column_name," +
+                    "d.description column_comment," +
+                    "concat_ws ( '', T.typname, SUBSTRING ( format_type ( A.atttypid, A.atttypmod ) FROM '\\(.*\\)' ) ) AS column_type " +
+                    "FROM" +
+                    " information_schema.COLUMNS s," +
+                    "pg_class C," +
+                    "pg_attribute A LEFT JOIN  pg_description d on  (d.objoid = A.attrelid AND d.objsubid = A.attnum )," +
+                    "pg_type T" +
+                    "  " +
+                    "WHERE A.attnum > 0 " +
+                    "AND A.attrelid = ( SELECT oid FROM pg_class WHERE relname = s.TABLE_NAME )" +
+                    "AND A.attrelid = C.oid " +
+                    "AND A.atttypid = T.oid " +
+//                    "AND C.relname IN ( SELECT tablename FROM pg_tables WHERE (schemaname = 'geo' or schemaname='dictory') AND POSITION ( '_2' IN tablename ) = 0 ) " +
+                    "AND C.relname='" + table + "'" +
+                    "ORDER BY " +
+                    "C.relname," +
+                    "A.attnum;";
+
+
+            System.out.println(sql + "\n");
             resultSet = stat.executeQuery(sql);
 
             List<TableField> tableList = new ArrayList<TableField>();
@@ -820,7 +844,7 @@ public class CreateController {
 
 
         } catch (Exception e) {
-            // e.printStackTrace();
+//            e.printStackTrace();
         } finally {
             closeConn(resultSet, stat, conn);
 
@@ -894,7 +918,11 @@ public class CreateController {
             conn = getCreateConnection();
             stat = conn.createStatement();
 
-            String sql = "select table_name,table_comment from information_schema.tables where table_schema = '" + db + "';";
+//            String sql = "select table_name,table_comment from information_schema.tables where table_schema = '" + db + "';";
+            String sql = "select distinct on (table_name) table_name,cast(obj_description(relfilenode,'pg_class') as varchar) as table_comment from information_schema.columns a LEFT JOIN pg_class b on a.table_name=b.relname " +
+                    " WHERE ( table_schema='geo' or table_schema='dictory') and table_catalog ='" + db + "';";
+
+
             resultSet = stat.executeQuery(sql);
 
             List<TableComment> tableList = new ArrayList<TableComment>();
@@ -926,7 +954,9 @@ public class CreateController {
 
             conn = getCreateConnection();
             stat = conn.createStatement();
-            resultSet = stat.executeQuery("show tables;");
+//            resultSet = stat.executeQuery("show tables;");
+//            resultSet = stat.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'dictory';");
+            resultSet = stat.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'geo';");
 
             List<String> tableList = new ArrayList<String>();
             while (resultSet.next()) {
