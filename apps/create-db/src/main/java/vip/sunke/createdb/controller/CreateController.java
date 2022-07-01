@@ -1,5 +1,6 @@
 package vip.sunke.createdb.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/create/")
+@Slf4j
 public class CreateController {
 
 
@@ -381,7 +383,8 @@ public class CreateController {
         }
 
 
-        generatorDto.setConnectionUrl("jdbc:mysql://" + generatorDto.getConnectionUrl() + "/" + generatorDto.getDb() + (StringUtil.isEmpty(generatorDto.getParam()) ? "" : "?" + generatorDto.getParam()));
+        generatorDto.setConnectionUrl(generatorDto.getConnectionUrl() + "/" + generatorDto.getDb() + (StringUtil.isEmpty(generatorDto.getParam()) ? "" : "?" + generatorDto.getParam()));
+//        generatorDto.setConnectionUrl("jdbc:postgresql://192.168.110.9:5432/sophon_sharing_video?currentSchema=dictory,public,geo");
 
 
         FileUtil.mkdirs(generatorDto.getTargetProject());
@@ -401,7 +404,7 @@ public class CreateController {
         dataMap.put("packageProject", StringUtil.isNullToDefault(generatorDto.getPackageProject(), "vip.sunke"));
         dataMap.put("packageAppProject", StringUtil.isNullToDefault(generatorDto.getPackageAppProject(), "vip.sunke"));
         dataMap.put("targetProject", StringUtil.isNullToDefault(generatorDto.getTargetProject(), xmlDir + "/create"));
-        dataMap.put("dbType", StringUtil.isNullToDefault(generatorDto.getDbType(), "mysql"));
+        dataMap.put("dbType", StringUtil.isNullToDefault(generatorDto.getDbType(), "postgresql"));
         dataMap.put("author", StringUtil.isNullToDefault(generatorDto.getAuthor(), "sunke"));
         dataMap.put("templateDir", StringUtil.isNullToDefault(generatorDto.getTemplateDir(), "/work/vip-sunke/apps/mybatis-generator/src/main/resources/template/feng/templates"));
         dataMap.put("templateRoot", StringUtil.isNullToDefault(generatorDto.getTemplateRoot(), "/work/vip-sunke/apps/mybatis-generator/src/main/resources/template"));
@@ -872,7 +875,18 @@ public class CreateController {
             conn = getCreateConnection();
             stat = conn.createStatement();
 
-            String sql = "select  table_name,column_name from  INFORMATION_SCHEMA.KEY_COLUMN_USAGE  t where t.table_schema = '" + db + "'and constraint_name='PRIMARY';";
+//            String sql = "select  table_name,column_name from  INFORMATION_SCHEMA.KEY_COLUMN_USAGE  t where t.table_schema = '" + db + "'and constraint_name='PRIMARY';";
+            String sql = "\t\tselect \n" +
+                    "       kcu.table_name,\n" +
+                    "       kcu.column_name as column_name\n" +
+                    "from information_schema.table_constraints tco\n" +
+                    "join information_schema.key_column_usage kcu \n" +
+                    "     on kcu.constraint_name = tco.constraint_name\n" +
+                    "     and kcu.constraint_schema = tco.constraint_schema\n" +
+                    "     and kcu.constraint_name = tco.constraint_name\n" +
+                    "where tco.constraint_type = 'PRIMARY KEY'\n" +
+                    "and ( kcu.table_schema = 'geo' OR kcu.table_schema = 'dictory' )\n" +
+                    "and kcu.ordinal_position=1 and kcu.table_catalog= '" + db + "';";
             resultSet = stat.executeQuery(sql);
 
             List<TableKeyColumn> tableList = new ArrayList<TableKeyColumn>();
@@ -919,10 +933,18 @@ public class CreateController {
             stat = conn.createStatement();
 
 //            String sql = "select table_name,table_comment from information_schema.tables where table_schema = '" + db + "';";
-            String sql = "select distinct on (table_name) table_name,cast(obj_description(relfilenode,'pg_class') as varchar) as table_comment from information_schema.columns a LEFT JOIN pg_class b on a.table_name=b.relname " +
-                    " WHERE ( table_schema='geo' or table_schema='dictory') and table_catalog ='" + db + "';";
+            String sql = "SELECT DISTINCT ON\n" +
+                    "\t( relname ) relname as table_name,\n" +
+                    "\tpg_description.description AS table_comment \n" +
+                    "FROM\n" +
+                    "\tpg_description\n" +
+                    "\tJOIN pg_class ON pg_description.objoid = pg_class.oid\n" +
+                    "\tLEFT JOIN information_schema.COLUMNS B ON pg_class.relname = B.TABLE_NAME \n" +
+                    "WHERE\n" +
+                    "\t( B.table_schema = 'geo' OR B.table_schema = 'dictory' ) \n" +
+                    "\tAND pg_description.objsubid =0 and B.table_catalog ='" + db + "';";
 
-
+            log.debug("sql:{}", sql);
             resultSet = stat.executeQuery(sql);
 
             List<TableComment> tableList = new ArrayList<TableComment>();
@@ -935,7 +957,7 @@ public class CreateController {
 
 
         } catch (Exception e) {
-            // e.printStackTrace();
+            e.printStackTrace();
         } finally {
             closeConn(resultSet, stat, conn);
         }
