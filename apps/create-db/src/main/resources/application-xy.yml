@@ -2,7 +2,7 @@ server:
   port: 8089
 spring:
   datasource:
-    url: jdbc:postgresql://192.168.110.9:5432/sophon_sharing_video?currentSchema=dictory,public,geo
+    url: jdbc:postgresql://183.249.87.107:5433/sophon_sharing_video?currentSchema=dictory,public,geo
     username: postgres
     password: skzz@123
     driver-class-name: org.postgresql.Driver
@@ -26,10 +26,10 @@ file:
     tempRoot: /Users/upload/temp
 xmlDir: /Users/upload/createdb
 datasource:
-  url: jdbc:postgresql://192.168.110.9:5432
+  url: jdbc:postgresql://183.249.87.107:5433
   username: postgres
   password: skzz@123
-  driver: D:\mavenStorage\.m2\repository\org\postgresql\postgresql\42.2.12\postgresql-42.2.12.jar
+  driver: D:\project\.m2\repository\org\postgresql\postgresql\42.2.12\postgresql-42.2.12.jar
 controllerTemplate: BackController.ftl
 searchTemplate: Search.ftl
 modelRootClass: BaseTimeDoMain

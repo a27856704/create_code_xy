@@ -36,7 +36,7 @@
         <commentGenerator>
             <property name="suppressAllComments" value="true"/>
         </commentGenerator>
-        <jdbcConnection driverClass="${driverClass!'com.mysql.jdbc.Driver'}"
+        <jdbcConnection driverClass="${driverClass!'org.postgresql.Driver'}"
                         connectionURL="${connectionUrl}" userId="${userId!'root'}"
                         password="${password!'123456'}"></jdbcConnection>
 
