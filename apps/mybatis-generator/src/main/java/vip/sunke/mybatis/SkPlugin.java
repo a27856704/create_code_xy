@@ -1664,7 +1664,8 @@ public class SkPlugin extends PluginAdapter {
 
         //if (!dbType.equalsIgnoreCase(DB_TYPE_MSSERVER))
 
-        selectStr.append("\t\t<include refid=\"" + BeanName.getSearchMapperOrderBy() + "\"></include>");
+        //pgsql 逻辑中的,需要
+//        selectStr.append("\t\t<include refid=\"" + BeanName.getSearchMapperOrderBy() + "\"></include>");
 
 
         listCountElement.addElement(new TextElement(selectStr.toString()));
@@ -1737,9 +1738,9 @@ public class SkPlugin extends PluginAdapter {
 
         } else if (dbType.equalsIgnoreCase(DB_TYPE_MYSQL)) {
 */
-        selectStr = new StringBuffer("");
-        selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
-        selectStr.append("\t\tlimit #{start},#{limit}");
+//        selectStr = new StringBuffer("");
+//        selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
+//        selectStr.append("\t\tlimit #{start},#{limit}");
 /*
         } else if (dbType.equalsIgnoreCase(DB_TYPE_ORACLE)) {
 
@@ -1751,6 +1752,13 @@ public class SkPlugin extends PluginAdapter {
             selectStr.append(" where b.row_num between #{start} and #{end}");
 
         }*/
+
+        /**
+         * pgsql的逻辑  可以跟mysql通用
+         */
+        selectStr = new StringBuffer("");
+        selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
+        selectStr.append("\t\tlimit #{limit} OFFSET #{start}");
 
 
         listElement.addElement(new TextElement(selectStr.toString()));
