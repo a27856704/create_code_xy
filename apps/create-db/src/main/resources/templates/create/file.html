@@ -73,7 +73,7 @@
                     <label class="layui-form-label">驱动类</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input" name="driverClass" id="driverClass"
-                               value="com.mysql.jdbc.Driver">
+                               value="org.postgresql.Driver">
                     </div>
 
 
@@ -292,7 +292,7 @@
     layui.use(['form', 'jquery'], function () {
 
         $ = layui.jquery;
-        $('#param').val('useSSL=false&amp;useUnicode=true');
+        $('#param').val('currentSchema=dictory,public,geo');
 
         var form = layui.form;
 
