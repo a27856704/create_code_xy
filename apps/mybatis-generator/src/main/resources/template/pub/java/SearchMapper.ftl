@@ -8,7 +8,7 @@ package ${pubPackage}.pubInter;
  */
 
 
-public interface SearchMapper<T extends AbstractBaseDoMain, TS extends BaseSearch, KeyType> extends IBaseFindMapper<T, TS, KeyType> {
+public interface SearchMapper<T extends BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> extends IBaseFindMapper<T, TS, KeyType> {
 
 
 }

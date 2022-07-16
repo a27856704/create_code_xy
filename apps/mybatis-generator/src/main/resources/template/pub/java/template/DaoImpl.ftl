@@ -1,7 +1,7 @@
 package ${package};
 
 import ${modelExtClass};
-import ${modelSearchClass};
+import ${modelSearchExtClass};
 import ${abstractBaseDaoClass};
 import ${mapperExtClass};
 import ${iDaoClass};
@@ -16,13 +16,13 @@ import javax.annotation.Resource;
  *    @description ${description}
  */
 @Repository(value = "${daoVar}")
-public class ${daoImpl} extends ${abstractBaseDao}<${modelExt}, ${modelSearch},String> implements ${iDao} {
+public class ${daoImpl} extends ${abstractBaseDao}<${modelExt}, ${modelSearchExt},${keyType}> implements ${iDao} {
 
-    @Resource(name = "${mapperExtVar}")
+    @Resource
     private ${mapperExt} ${mapperExtVar};
 
     @Override
-    public IBaseMapper<${modelExt},  ${modelSearch},String> getMapper() {
+    public IBaseMapper<${modelExt},  ${modelSearchExt},${keyType}> getMapper() {
         return ${mapperExtVar};
     }
 }

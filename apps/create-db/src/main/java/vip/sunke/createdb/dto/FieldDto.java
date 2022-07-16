@@ -14,8 +14,12 @@ import java.util.List;
 @Data
 public class FieldDto implements Serializable {
 
+
+
     private String db;
     private String tableName;
+
+
 
     private String fieldPrefix;//字段前缀
 
@@ -39,6 +43,8 @@ public class FieldDto implements Serializable {
     private int inputType;//输入框
 
     private List<FieldValueDto> fieldValueList;
+
+
 
 
 }

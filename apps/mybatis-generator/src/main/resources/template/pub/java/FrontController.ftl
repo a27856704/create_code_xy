@@ -13,7 +13,6 @@ import java.util.Date;
 * @Date ${createTime}
 * @description 前台controller基础
 */
-
 public class FrontController extends BaseController {
     public static String MY_SECRET = "mysecret";
     public static String USER_HEADER_KEY = "authorization";
@@ -26,6 +25,7 @@ public class FrontController extends BaseController {
                 .compact();
         response.addHeader(USER_HEADER_KEY, USER_HEADER_KEY_PREFIX + token);
     }
+
 
 
 }

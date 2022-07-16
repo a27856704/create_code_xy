@@ -2,6 +2,7 @@ package ${pubPackage}.pubInter;
 
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 /**
 * @author ${author}
@@ -9,12 +10,12 @@ import java.util.List;
 * @description
 */
 
-public interface IBaseFindMapper<T extends AbstractBaseDoMain, TS extends BaseSearch, KeyType> {
+public interface IBaseFindMapper<T extends  BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> {
     T getDetail(KeyType id);
 
-    List<T> getList(TS search);
+    List<T> getList(@Param("search") TS search);
 
-    int getListCount(TS search);
+    int getListCount(@Param("search") TS search);
 
     /**
      * 返回全部数据
@@ -22,5 +23,5 @@ public interface IBaseFindMapper<T extends AbstractBaseDoMain, TS extends BaseSe
      * @param search
      * @return
      */
-    List<T> getAllList(TS search);
+    List<T> getAllList(@Param("search") TS search);
 }

@@ -11,6 +11,40 @@ import java.util.List;
  */
 
 public class FileUtil {
+
+
+    public static void writeInputStreamToOutputStream(InputStream stream, OutputStream outputStream) throws Exception {
+
+
+
+
+
+        byte buff[] = new byte[1024];
+        int length = 0;
+        try {
+            while ((length = stream.read(buff)) > 0) {
+                outputStream.write(buff, 0, length);
+            }
+
+
+        } catch (IOException e) {
+
+        } finally {
+            try {
+                stream.close();
+
+                outputStream.close();
+
+                outputStream.flush();
+            } catch (Exception e) {
+
+            }
+        }
+
+
+    }
+
+
     public static void getFolderFiles(File f, String suffix, List<String> fileNameList, String fontFilePath) {
 
 

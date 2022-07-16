@@ -17,21 +17,8 @@ import ${abstractDTOClass};
 */
 @ApiModel("${remark}")
 @Data
-@Accessors(chain = true)
-public class ${modelDTO} extends ${abstractDTO} {
+public class ${modelDTO} extends ${modelDomainDTO} {
 
-<#list columnList as item>
-    <#if item.show>
-    /**
-     * ${item.descName}
-    <#if item.valueString??>
-     * ${item.valueString?replace("@",":")}
-    </#if>
-     */
-    @ApiModelProperty(value = "${item.descName}<#if item.valueString??> ${item.valueString?replace("@",":")}</#if>")
-    private ${item.javaType} ${item.name};
 
-    </#if>
-</#list>
 
 }

@@ -16,9 +16,9 @@ import ${baseVOClass};
 */
 
 @Data
-@Accessors(chain = true)
+
 @ApiModel("${remark}")
-public class ${modelVO} extends ${baseVO}<String> {
+public class ${modelVO} extends ${baseVO}<${keyType}> {
 
 
 <#list columnList as item>

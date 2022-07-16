@@ -84,7 +84,7 @@ public abstract class AbstractBaseFindService<T extends AbstractBaseDoMain, TS e
      *
      * @param search
      * @return
-     * @throws BusinessException key = "'86400#'+#root.targetClass+'.page.'+#search.toString()"
+     * @throws SkException key = "'86400#'+#root.targetClass+'.page.'+#search.toString()"
      */
     public Map<String, Object> paginate(TS search) throws SkException {
         Map<String, Object> resultMap = new HashMap<>();

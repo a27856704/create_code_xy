@@ -316,9 +316,11 @@ jQuery.fn.extend({
         var defaultEditorHtml = prevObj.text();
         $(this).parent().append('<textarea class="wu_editor_textarea" id="editorText' + editorOptions.inputName + '" name="' + editorOptions.inputName + '">' + defaultEditorHtml + '</textarea>')
         myEditor.customConfig.onchange = function (htmlData) {
+            htmlData=htmlData.replace(/&lt;/ig, "<").replace(/&gt;/ig, ">").replace(/&nbsp;/ig, " ");
             $("#editorText" + editorOptions.inputName).val(htmlData)
         }
         myEditor.create()
+        Editor.viewSource.init(myEditor);
         // var defaultEditorHtml=editorThis.html();
         prevObj.empty()
         // $("#editorText"+editorOptions.inputName).val(defaultEditorHtml)

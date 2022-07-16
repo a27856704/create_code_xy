@@ -10,19 +10,18 @@
         <dl>
             <dt class="second"><a class="icon_font no_child" href="#"><i class="icon_font home"></i>系统首页</a></dt>
         </dl>
-
         <#list menuList as item>
             <dl>
-                <dt th:class="${r'${menuName=='+"'"+item.menuName+"'}?'second active':'second'"}"><a class="icon_font"
-                                                                                                     href="#"><i
-                                class="icon_font shop"></i>${item.menuTitle}</a></dt>
+                <dt th:class="${r'${menuName=='+"'"+item.menuName+"'}?'second active':'second'"}">
+                    <a class="icon_font" href="#">${item.menuTitle}</a>
+                </dt>
                 <dd th:class="${r'${menuName=='+"'"+item.menuName+"'}?'second active':'second'"}">
                     <ul>
                         <#list item.subList as subItem>
-                            <li th:class="${r'${currPage=='+"'"+subItem.subMenu+"'&& menuName=='"+item.menuName+"'}?'active'"}">
-                                <a href="${subItem.url}"><i>●</i>${subItem.title}</a></li>
+                            <li th:class="${r'${currPage=='+"'"+subItem.subMenu+"'}?'active'"}">
+                                <a href="${subItem.url}"><i>●</i>${subItem.title}</a>
+                            </li>
                         </#list>
-
                     </ul>
                 </dd>
             </dl>

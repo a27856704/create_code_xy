@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="${namespace}">
+
+
     <resultMap extends="${mapperClass}.oneResultMap" id="baseResultMap" type="${modelExt}">
 
     </resultMap>
@@ -8,12 +10,20 @@
         from ${table}
     </sql>
 
+    <sql id="includeOtherField">
+
+    </sql>
+
     <sql id="baseSmallColumnList">
         <include refid="${mapperClass}.oneSmallColumnList"/>
+
+        <include refid="${namespace}.includeOtherField"/>
     </sql>
 
     <sql id="baseColumnList">
         <include refid="${mapperClass}.oneColumnList"/>
+
+        <include refid="${namespace}.includeOtherField"/>
     </sql>
 
     <sql id="includeWhereSql">

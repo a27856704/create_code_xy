@@ -1,20 +1,22 @@
 package vip.sunke.createdb.controller;
 
+import com.deepoove.poi.XWPFTemplate;
+import com.deepoove.poi.config.Configure;
+import com.deepoove.poi.config.ConfigureBuilder;
+import com.deepoove.poi.plugin.table.LoopRowTableRenderPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 import vip.sunke.CreateDbApplication;
-import vip.sunke.common.FileUtil;
-import vip.sunke.common.SkList;
-import vip.sunke.common.StringUtil;
-import vip.sunke.common.ZipUtils;
+import vip.sunke.common.*;
 import vip.sunke.createdb.config.SkDatasource;
 import vip.sunke.createdb.dto.FieldDto;
 import vip.sunke.createdb.dto.FieldValueDto;
 import vip.sunke.createdb.dto.GeneratorDto;
+import vip.sunke.createdb.tools.WordListen;
+import vip.sunke.createdb.tools.WordUtils;
 import vip.sunke.domain.TableComment;
 import vip.sunke.domain.TableField;
 import vip.sunke.domain.TableKeyColumn;
@@ -26,8 +28,12 @@ import vip.sunke.web.common.SkMap;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +57,8 @@ public class CreateController {
     private SkDatasource skDatasource;
     @Value("${xmlDir}")
     private String xmlDir;
+    @Value("${file.upload.tempRoot}")
+    private String tempRoot;
 
     @Value("${datasource.url}")
     private String url;
@@ -76,13 +84,15 @@ public class CreateController {
     public Connection getCreateConnection() throws Exception {
 
 
-        if (StringUtil.isEmpty(CreateDbApplication.getDB()))
+        if (StringUtil.isEmpty(CreateDbApplication.getDB())) {
             throw new BusinessException("请先选择数据库");
+        }
 
 
         synchronized (CreateController.class) {
-            if (connection == null)
+            if (connection == null) {
                 return DriverManager.getConnection(getUrl(), skDatasource.getUsername(), skDatasource.getPassword());
+            }
         }
         return connection;
     }
@@ -152,6 +162,210 @@ public class CreateController {
         return getBaseView() + "db";
     }
 
+    /**
+     * 生成admin
+     *
+     * @throws Exception
+     */
+    private void createAdminTable() throws Exception {
+
+        String sql = "DROP TABLE IF EXISTS `admin`;";
+
+        executeSql(sql);
+
+        sql = "CREATE TABLE `admin` (\n" +
+                "  `a_id` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '主键',\n" +
+                "  `a_create_time` datetime DEFAULT NULL COMMENT '创建时间|0|0|0|0|1',\n" +
+                "  `a_update_time` datetime DEFAULT NULL COMMENT '更新时间|0|0|0|0|1',\n" +
+                "  `a_username` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '用户名|2|1|1|0|1',\n" +
+                "  `a_password` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '密码|0|1|0|0|1',\n" +
+                "  `a_truename` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '姓名|0|1|1|0|1',\n" +
+                "  `a_phone` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '手机号码|1|1|1|0|1',\n" +
+                "  `a_forbidden` int(2) DEFAULT '0' COMMENT '是否禁用|4|1|1|0|1',\n" +
+                "  `a_role_id` int(4) DEFAULT '1' COMMENT '角色|2|1|1|0|2|1@客服@Customer,2@账务@Finance,3@管理员@manage',\n" +
+                "  `a_sort_num`  int(11)  COMMENT '排序|3|1|1|0|1'," +
+                "  `a_show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|1|1|0|2|1@是@Y,0@否@N'," +
+                "  `a_del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'," +
+                "  PRIMARY KEY (`a_id`)\n" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='系统用户';\n";
+
+        executeSql(sql);
+
+
+        String current = YXDate.getFormatDate2String(new java.util.Date());
+
+
+        sql = "INSERT INTO `admin`  VALUES ('" + IdGen.uuid() + "', '" + current + "', '" + current + "', 'admin', 'e10adc3949ba59abbe56e057f20f883e',  'admin', '13800000000', 0,3,1,1,0);";
+
+
+        executeSql(sql);
+
+
+    }
+
+
+    //权限相关
+    private void createRightsRelevance() throws Exception {
+
+        createRightsTable();
+        createPermissionGroupTable();
+        createGroupRightsTable();
+        createAdminGroupTable();
+
+
+    }
+
+
+    /**
+     * 生成权限
+     *
+     * @throws Exception
+     */
+    private void createRightsTable() throws Exception {
+
+        String sql = "DROP TABLE IF EXISTS `rights`;";
+
+        executeSql(sql);
+
+        sql = "CREATE TABLE `rights` (" +
+                "  `r_id` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '主键|4|0|0|0|1'," +
+                "  `r_create_time` datetime DEFAULT NULL COMMENT '创建时间|0|0|0|0|7'," +
+                "  `r_update_time` datetime DEFAULT NULL COMMENT '更新时间|0|0|0|0|7'," +
+                "  `r_name` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '名称|1|1|1|0|1'," +
+                "  `r_value` varchar(500) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '路由|1|1|1|0|1'," +
+                "  `r_remarks` varchar(500) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注|0|1|0|0|5'," +
+                "  `r_up_id` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '上级ID|2|1|1|0|1'," +
+                "  `r_order_num` int(10) DEFAULT NULL COMMENT '同级排序|3|1|1|0|1'," +
+                "  `r_menu_flag` int(2) DEFAULT NULL COMMENT '类型|4|1|1|0|2|1@顶部@TOP,2@左侧@LEFT,3@按钮@BUTTON'," +
+                "  `r_api_path` varchar(2000) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '后端接口|1|1|1|0|1'," +
+                "  `r_sort_num`  int(11)  COMMENT '排序|3|1|1|0|1'," +
+                "  `r_show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|1|1|0|2|1@是@Y,0@否@N'," +
+                "  `r_del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'," +
+                "  PRIMARY KEY (`r_id`) USING BTREE" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='权限表';";
+        executeSql(sql);
+
+    }
+
+    /**
+     * 生成权限组
+     *
+     * @throws Exception
+     */
+    private void createPermissionGroupTable() throws Exception {
+
+        String sql = "DROP TABLE IF EXISTS `permission_group`;";
+
+        executeSql(sql);
+
+        sql = "CREATE TABLE `permission_group` (" +
+                "  `pg_id` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '主键|4|0|0|0|1'," +
+                "  `pg_create_time` datetime DEFAULT NULL COMMENT '创建时间|0|0|0|0|7'," +
+                "  `pg_update_time` datetime DEFAULT NULL COMMENT '更新时间|0|0|0|0|7'," +
+                "  `pg_name` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '权限组名|1|1|1|0|1'," +
+                "  `pg_remarks` varchar(500) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '备注|1|1|0|0|5'," +
+                "  `pg_sort_num`  int(11)  COMMENT '排序|3|1|1|0|1'," +
+                "  `pg_show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|1|1|0|2|1@是@Y,0@否@N'," +
+                "  `pg_del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'," +
+                "  PRIMARY KEY (`pg_id`)" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='权限组';";
+        executeSql(sql);
+
+    }
+
+
+    /**
+     * 生成权限组和权限关系表
+     *
+     * @throws Exception
+     */
+    private void createGroupRightsTable() throws Exception {
+
+        String sql = "DROP TABLE IF EXISTS `group_rights`;";
+
+        executeSql(sql);
+
+        sql = "CREATE TABLE `group_rights` (" +
+                "  `gr_id` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '主键|4|0|0|0|1'," +
+                "  `gr_create_time` datetime DEFAULT NULL COMMENT '创建时间|0|0|0|0|7'," +
+                "  `gr_update_time` datetime DEFAULT NULL COMMENT '更新时间|0|0|0|0|7'," +
+                "  `gr_group_id` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '组ID|2|1|1|0|1'," +
+                "  `gr_rights_id` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '权限ID|2|1|1|0|1'," +
+                "  `gr_sort_num`  int(11)  COMMENT '排序|3|1|1|0|1'," +
+                "  `gr_show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|1|1|0|2|1@是@Y,0@否@N'," +
+                "  `gr_del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'," +
+                "  PRIMARY KEY (`gr_id`)" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='权限组权限关联';";
+        executeSql(sql);
+
+    }
+
+    /**
+     * 生成权限组和人员关系表
+     *
+     * @throws Exception
+     */
+    private void createAdminGroupTable() throws Exception {
+
+        String sql = "DROP TABLE IF EXISTS `admin_permission_group`;";
+
+        executeSql(sql);
+
+        sql = "CREATE TABLE `admin_permission_group` (" +
+                "  `apg_id` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '主键|4|0|0|0|1'," +
+                "  `apg_create_time` datetime DEFAULT NULL COMMENT '创建时间|0|0|0|0|7'," +
+                "  `apg_update_time` datetime DEFAULT NULL COMMENT '更新时间|0|0|0|0|7'," +
+                "  `apg_staff_id` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '员工ID|2|1|1|0|1'," +
+                "  `apg_group_id` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '权限组ID|2|1|1|0|1'," +
+                "  `apg_sort_num`  int(11)  COMMENT '排序|3|1|1|0|1'," +
+                "  `apg_show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|1|1|0|2|1@是@Y,0@否@N'," +
+                "  `apg_del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'," +
+                "  PRIMARY KEY (`apg_id`)" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='员工权限组';";
+        executeSql(sql);
+
+    }
+
+
+    /**
+     * 生成日志
+     *
+     * @throws Exception
+     */
+    private void createSysLogTable() throws Exception {
+
+        String sql = "DROP TABLE IF EXISTS `sys_oper_log`;";
+
+        executeSql(sql);
+
+        sql = "CREATE TABLE `sys_oper_log` (" +
+                "  `ol_id` varchar(32) COLLATE utf8mb4_bin NOT NULL COMMENT '主键'," +
+                "  `ol_create_time` datetime DEFAULT NULL COMMENT '创建时间|0|0|0|0|1'," +
+                "  `ol_update_time` datetime DEFAULT NULL COMMENT '更新时间|0|0|0|0|1'," +
+                "  `ol_title` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '模块标题|1|1|1|0|1'," +
+                "  `ol_business_type` int(2) DEFAULT '0' COMMENT '业务类型|4|1|1|0|2|0@其它@OTHER,1@新增@INSERT,2@修改@UPDATE,3@删除@DELETE,4@授权@GRANT,5@导出@EXPORT,6@导入@IMPORT,7@强退@FORCE,8@生成代码@GENCODE,9@清空@CLEAN,10@详情@detail,11@列表@list,12@查询@query'," +
+                "  `ol_method` varchar(100) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '方法名称|1|1|1|0|1'," +
+                "  `ol_operator_type` int(2) DEFAULT NULL COMMENT '操作类别|4|1|1|0|2|0@其它@OTHER,1@后台用户@MANAGE,2@手机端用户@MOBILE'," +
+                "  `ol_oper_name` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '操作人员|1|1|1|0|1'," +
+                "  `ol_dept_name` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '部门名称|1|1|1|0|1'," +
+                "  `ol_oper_url` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '请求URL|1|1|1|0|1'," +
+                "  `ol_oper_ip` varchar(50) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '主机地址|1|1|1|0|1'," +
+                "  `ol_oper_location` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL COMMENT '操作地点|1|1|1|0|1'," +
+                "  `ol_oper_param` text COLLATE utf8mb4_bin COMMENT '请求参数|0|1|1|0|1'," +
+                "  `ol_status` int(2) DEFAULT '0' COMMENT '操作状态（0正常 1异常）|4|1|1|0|2'," +
+                "  `ol_error_msg` text COLLATE utf8mb4_bin COMMENT '错误消息|0|1|1|0|1'," +
+                "  `ol_oper_time` datetime DEFAULT NULL COMMENT '操作时间|6|1|1|0|7'," +
+                "  `ol_sort_num`  int(11)  COMMENT '排序|3|1|1|0|1'," +
+                "  `ol_show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|1|1|0|2|1@是@Y,0@否@N'," +
+                "  `ol_del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'," +
+                "  PRIMARY KEY (`ol_id`)" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='操作日志记录';";
+
+        executeSql(sql);
+
+    }
+
+
     @PostMapping("/postCreateDB")
     @ResponseBody
     public SkMap postCreateDB(String dbName) throws Exception {
@@ -166,17 +380,23 @@ public class CreateController {
 
         CreateDbApplication.setDB(dbName);
 
-        //创建数据库hello
-        stat.executeUpdate(" CREATE DATABASE `" + dbName + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;");
+        //创建数据库
+        stat.executeUpdate(" CREATE DATABASE `" + dbName + "` CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;");
 
 
         closeConn(null, stat, conn);
+
+        createSysLogTable();//日志
+        createAdminTable();//管理员
+
+        createRightsRelevance();//权限相关
 
 
         return SkMap.ok();
 
 
     }
+
 
     /**
      * 创建表页面
@@ -296,7 +516,7 @@ public class CreateController {
         String sql = "ALTER TABLE " + table + " DROP COLUMN  " + field;
 
 
-        executeSql(sql.toString());
+        executeSql(sql);
 
 
         return SkMap.ok();
@@ -363,6 +583,7 @@ public class CreateController {
         String db = generatorDto.getDb();
 
         Main.clearMenuList();
+        Main.clearTableIndex();
         CreateDbApplication.setDB(db);
         List<TableKeyColumn> list = getTableKeyColumnList(db);
         List<TableKeyColumn> tableList = null;
@@ -427,7 +648,7 @@ public class CreateController {
 
         dataMap.put("searchTemplate", StringUtil.isNullToDefault(generatorDto.getSearchTemplate(), "Search.ftl"));
         dataMap.put("controllerTemplate", StringUtil.isNullToDefault(generatorDto.getControllerTemplate(), "BackController.ftl"));
-        dataMap.put("route", StringUtil.isNullToDefault(generatorDto.getRoute(), "/back/"));
+        dataMap.put("route", StringUtil.isNullToDefault(generatorDto.getRoute(), "/"));
 
         String page = "generatorConfig.xml";
 
@@ -444,7 +665,7 @@ public class CreateController {
 
         File configFile = new File(xmlPath);
 
-
+        SkPlugin.dbType = SkPlugin.DB_TYPE_MYSQL;
         Main.create(configFile);
 
 
@@ -500,12 +721,154 @@ public class CreateController {
 
     }
 
-    @PostMapping("postDoc")
+    /**
+     * 临时用
+     * @param db
+     * @param response
+     * @throws Exception
+     */
+    @GetMapping("addDelFlag")
+    public void addDelFlag(@RequestParam String db, HttpServletResponse response) throws Exception {
 
+        CreateDbApplication.setDB(db);
+
+        List<TableComment> tableCommentList = getTableCommentList(db);
+
+
+
+        for(TableComment table:tableCommentList){
+
+
+            try {
+
+
+                FieldDto fieldDto=new FieldDto();
+                fieldDto.setNullable(true);
+                fieldDto.setDb(db);
+                fieldDto.setLength(1);
+
+                fieldDto.setTableName(table.getName());
+                fieldDto.setName("del_flag");
+                fieldDto.setType("int");
+                fieldDto.setDefaultValue("0");
+                fieldDto.setDescName("是否删除");
+                fieldDto.setInputType(InputTypeEnum.RADIO.getType());
+                fieldDto.setSearchFlag(SearchTypeEnum.EQUAL.getType());
+                fieldDto.setShowDetailPage(false);
+                fieldDto.setShowListPage(false);
+                fieldDto.setNeed(false);
+                fieldDto.setShowPage(false);
+                List<FieldValueDto> valueLit=new ArrayList<>();
+                FieldValueDto valueDto=new FieldValueDto();
+                valueDto.setEnName("Y");
+                valueDto.setValue("1");
+                valueDto.setDesc("删除");
+                valueLit.add(valueDto);
+                valueDto=new FieldValueDto();
+                valueDto.setEnName("N");
+                valueDto.setValue("0");
+                valueDto.setDesc("正常");
+                valueLit.add(valueDto);
+
+                fieldDto.setFieldValueList(valueLit);
+
+
+
+                postField(fieldDto);
+                //    executeSql(sql.toString());
+
+            }catch (Exception e){
+
+            }
+
+
+
+        }
+
+
+
+
+
+
+
+    }
+
+
+
+    @PostMapping("postDoc")
+    public void postDoc(@RequestParam String db, HttpServletResponse response) throws Exception {
+
+        String fileName = null;
+        try {
+            fileName = URLEncoder.encode(db + "数据库设计" + ".docx", "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+
+        }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.wordprocessingml.document;charset=utf-8");
+        response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+
+
+        CreateDbApplication.setDB(db);
+
+        List<TableComment> tableCommentList = getTableCommentList(db);
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("db", db);
+
+        ConfigureBuilder config = Configure.builder().useSpringEL();
+
+
+        LoopRowTableRenderPolicy loopRowTableRenderPolicy = new LoopRowTableRenderPolicy(true);
+        if (tableCommentList != null) {
+
+
+            for (TableComment tableComment : tableCommentList) {
+
+
+                List<TableField> fieldList = getTableFieldList(db, tableComment.getName());
+                tableComment.setFieldList(fieldList);
+                // dataMap.put("fieldList",fieldList);
+                config = config.bind("fieldList", loopRowTableRenderPolicy);
+
+
+            }
+
+
+            dataMap.put("list", tableCommentList);
+
+
+        }
+
+
+        // String wordTemplateRes= ClassUtils.getDefaultClassLoader().getResource("").getPath()+"database.docx";
+
+
+        // String wordTemplate= "/Users/work/create-code/apps/create-db/src/main/resources/database.docx";
+
+
+        //  String wordTemplate=tempRoot+File.separator+"database.docx";
+
+        InputStream is = CreateController.class.getResourceAsStream("/database.docx");
+
+
+        // FileUtil.writeInputStreamToOutputStream(is,new FileOutputStream(new File(wordTemplate)));
+
+
+        WordUtils.createWord(is, response.getOutputStream(), config.build(), dataMap, new WordListen() {
+            @Override
+            public void receive(XWPFTemplate xwpfTemplate) {
+
+            }
+        });
+
+
+    }
+
+    /*@PostMapping("postDoc")
     public void postDoc(String db, HttpServletResponse response) throws Exception {
 
         String fileName = URLDecoder.decode(db + "数据库设计.doc", "UTF-8");
-        fileName = new String(fileName.getBytes("UTF-8"), "iso-8859-1");
+        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         response.setContentType("application/msword");
 
 
@@ -548,7 +911,7 @@ public class CreateController {
         freeMarkerUtil.print("database.ftl", dataMap, path, out);
 
 
-    }
+    }*/
 
 
     /**
@@ -562,7 +925,7 @@ public class CreateController {
 
 
         String fileName = URLDecoder.decode("数据库设计.doc", "UTF-8");
-        fileName = new String(fileName.getBytes("UTF-8"), "iso-8859-1");
+        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         response.setContentType("application/msword");
 
 
@@ -598,8 +961,9 @@ public class CreateController {
 
                 List<TableField> fieldList = getTableFieldList(db, tableComment.getName());
 
-                if (fieldList == null && fieldList.size() == 0)
+                if (fieldList == null && fieldList.size() == 0) {
                     return;
+                }
 
                 XWPFTable table = document.createTable(fieldList.size() + 1, 3);
 
@@ -748,8 +1112,9 @@ public class CreateController {
                         || "mysql".equalsIgnoreCase(databaseName)
                         || "sys".equalsIgnoreCase(databaseName)
 
-                        || "performance_schema".equalsIgnoreCase(databaseName))
+                        || "performance_schema".equalsIgnoreCase(databaseName)) {
                     continue;
+                }
 
                 dataBaseList.add(databaseName);
 
@@ -779,7 +1144,7 @@ public class CreateController {
     public SkMap getTables(String db) {
 
         CreateDbApplication.setDB(db);
-        return SkMap.ok("tableList", getTables());
+        return SkMap.ok("tableList", getTableCommentList(db));
 
 
     }
@@ -894,13 +1259,14 @@ public class CreateController {
             conn = getCreateConnection();
             stat = conn.createStatement();
 
-            String sql = "select table_name,table_comment from information_schema.tables where table_schema = '" + db + "';";
+            String sql = "select table_name,table_comment,create_time from information_schema.tables where table_schema = '" + db + "' order by table_name asc;";
             resultSet = stat.executeQuery(sql);
 
             List<TableComment> tableList = new ArrayList<TableComment>();
+            int index = 1;
             while (resultSet.next()) {
-                tableList.add(new TableComment(resultSet.getString("table_name"), resultSet.getString("table_comment"), null));
-
+                tableList.add(new TableComment(resultSet.getString("table_name"), resultSet.getString("table_comment"), resultSet.getDate("create_time"), index + "", null));
+                index = index + 1;
             }
 
             return tableList;
@@ -957,8 +1323,8 @@ public class CreateController {
     public SkMap postTable(String db, String tableName, String fieldPrefix, String tableDesc, boolean sourceFlag) throws Exception {
 
 
-        CreateDbApplication.setFieldPrefix("");
         CreateDbApplication.setTABLE("");
+        CreateDbApplication.setFieldPrefix("");
 
         if (db != null && !db.equalsIgnoreCase(CreateDbApplication.getDB())) {
 
@@ -970,13 +1336,13 @@ public class CreateController {
         }
 
 
-        if (StringUtil.isEmpty(CreateDbApplication.getDB()))
+        if (StringUtil.isEmpty(CreateDbApplication.getDB())) {
             throw new BusinessException("请先创建数据库");
+        }
 
-
+        CreateDbApplication.setTABLE(tableName);
         CreateDbApplication.setFieldPrefix(fieldPrefix);
         createTable(tableName, CreateDbApplication.getFieldPrefix(), tableDesc, sourceFlag);
-        CreateDbApplication.setTABLE(tableName);
 
 
         return SkMap.ok();
@@ -1000,7 +1366,7 @@ public class CreateController {
 
         model.addAttribute("databaseList", getDataBases());
 
-        model.addAttribute("tableList", getTables());
+        model.addAttribute("tableList", getTableCommentList(CreateDbApplication.getDB()));
 
 
         model.addAttribute("fieldPrefix", CreateDbApplication.getFieldPrefix());
@@ -1021,8 +1387,38 @@ public class CreateController {
     public SkMap postField(@RequestBody FieldDto fieldDto) throws Exception {
 
 
-        if (!fieldDto.getDb().equalsIgnoreCase(CreateDbApplication.getDB()))
+        if (!fieldDto.getDb().equalsIgnoreCase(CreateDbApplication.getDB())) {
             CreateDbApplication.setDB(fieldDto.getDb());
+        }
+
+        if (fieldDto.getLength() == 0 && "varchar".equalsIgnoreCase(fieldDto.getType())) {
+            fieldDto.setLength(50);
+        }
+
+        if ("int".equalsIgnoreCase(fieldDto.getType())
+
+                && fieldDto.getInputType() == InputTypeEnum.RADIO.getType()
+                && fieldDto.getInputType() == InputTypeEnum.CHECKBOX.getType()
+                && (fieldDto.getFieldValueList() == null || fieldDto.getFieldValueList().size() == 0)
+
+
+        ) {
+            List<FieldValueDto> fvList = new ArrayList<>();
+
+            FieldValueDto dto = new FieldValueDto();
+            dto.setEnName("YES");
+            dto.setDesc("是");
+            dto.setValue("1");
+            fvList.add(dto);
+
+            dto = new FieldValueDto();
+            dto.setEnName("NO");
+            dto.setDesc("否");
+            dto.setValue("0");
+            fvList.add(dto);
+            fieldDto.setFieldValueList(fvList);
+
+        }
 
 
         if (fieldDto.getInputType() == InputTypeEnum.CHECKBOX.getType()) {
@@ -1061,14 +1457,15 @@ public class CreateController {
         CreateDbApplication.setFieldPrefix(fieldDto.getFieldPrefix());
 
 
-        if (StringUtil.isEmpty(CreateDbApplication.getTABLE()))
+        if (StringUtil.isEmpty(CreateDbApplication.getTABLE())) {
             throw new BusinessException("请先创建数据表");
+        }
 
 
         StringBuffer sql = new StringBuffer();
 
 
-        sql.append("ALTER TABLE `" + CreateDbApplication.getDB() + "`.`" + CreateDbApplication.getTABLE() + "` ADD COLUMN");
+        sql.append("ALTER TABLE `" + CreateDbApplication.getDB() + "`.`" + CreateDbApplication.getTABLE() + "` ADD COLUMN ");
 
 
         buildFields(fieldDto, sql);
@@ -1087,7 +1484,7 @@ public class CreateController {
             stat = conn.createStatement();
 
             //创建表test
-            stat.executeUpdate(sql.toString());
+            stat.executeUpdate(sql);
 
         } finally {
             closeConn(null, stat, conn);
@@ -1104,19 +1501,26 @@ public class CreateController {
 
         StringBuffer sql = new StringBuffer();
         String key = "`" + fieldPrefix + "id`";
-        String keyStr = key + " varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '主键'";
-        String createTimeStr = "`" + fieldPrefix + "create_time` datetime  COMMENT '创建时间|0|0|0|0|1'";
+        String keyStr = key + " varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT '主键|4|0|0|0|1'";
+        String createTimeStr = "`" + fieldPrefix + "create_time` datetime  COMMENT '创建时间|0|0|1|0|7'";
         String source = "`" + fieldPrefix + "source` int(11)  COMMENT '来源|0|0|0|0|1'";
-        String updateTimeStr = "`" + fieldPrefix + "update_time` datetime  COMMENT '更新时间|0|0|0|0|1'";
+        String updateTimeStr = "`" + fieldPrefix + "update_time` datetime  COMMENT '更新时间|0|0|1|0|7'";
+        String sortNumStr = "`" + fieldPrefix + "sort_num` int(11)  COMMENT '排序|3|0|1|0|1'";
+        String showFlagStr = "`" + fieldPrefix + "show_flag` int(2) NULL DEFAULT 1 COMMENT '是否显示|4|0|1|0|2|1@是@Y,0@否@N'";
+        String delFlagStr = "`" + fieldPrefix + "del_flag` int(2) NULL DEFAULT 0 COMMENT '是否删除|2|0|0|0|2|1@删除@Y,0@正常@N'";
 
 
         sql.append("CREATE TABLE `" + CreateDbApplication.getDB() + "`.`" + tableName + "` (");
 
         sql.append(keyStr + ",");
-        if (sourceFlag)
+        if (sourceFlag) {
             sql.append(source + ",");
+        }
         sql.append(createTimeStr + ",");
         sql.append(updateTimeStr + ",");
+        sql.append(sortNumStr + ",");
+        sql.append(showFlagStr + ",");
+        sql.append(delFlagStr + ",");
 
 
         sql.append("PRIMARY KEY (" + key + ")");
@@ -1130,8 +1534,9 @@ public class CreateController {
 
     private String getRemark(FieldDto fieldDto) {
 
-        if (fieldDto == null)
+        if (fieldDto == null) {
             return "";
+        }
 
         StringBuffer remark = new StringBuffer();
 
@@ -1187,6 +1592,7 @@ public class CreateController {
         return remark.toString();
     }
 
+
     private void buildFields(FieldDto fieldDto, StringBuffer sql) {
 
 
@@ -1200,16 +1606,43 @@ public class CreateController {
             }
 
         }
+
+        if ("varchar".equalsIgnoreCase(fieldDto.getType()) ||
+                "text".equalsIgnoreCase(fieldDto.getType()) ||
+                "longtext".equalsIgnoreCase(fieldDto.getType())
+
+
+        ) {
+            sql.append(" CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
+        }
+
         if (!fieldDto.isNullable()) {
 
             sql.append(" NOT NULL");
+        }else {
+            sql.append(" NULL");
+
         }
+
+
         if (!StringUtil.isEmpty(fieldDto.getDefaultValue())) {
-            sql.append(" DEFAULT '" + fieldDto.getDefaultValue() + "'");
+
+            if ("varchar".equalsIgnoreCase(fieldDto.getType()) ||
+                    "text".equalsIgnoreCase(fieldDto.getType()) ||
+                    "longtext".equalsIgnoreCase(fieldDto.getType())
+
+
+            ) {
+
+                sql.append(" DEFAULT '" + fieldDto.getDefaultValue() + "'");
+
+            } else {
+                sql.append(" DEFAULT " + fieldDto.getDefaultValue());
+            }
+
+
         }
-        if ("varchar".equalsIgnoreCase(fieldDto.getType())) {
-            sql.append(" CHARACTER SET utf8mb4 COLLATE utf8mb4_bin");
-        }
+
         sql.append(" COMMENT '" + getRemark(fieldDto) + "'");
 
         sql.append(";");

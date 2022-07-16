@@ -46,14 +46,7 @@ public enum DaoExceptionEnum implements ExceptionEnum<DaoExceptionEnum> {
         return message;
     }
 
-    @Override
-    public DaoExceptionEnum getEnum(int code) {
-        for (DaoExceptionEnum business : DaoExceptionEnum.values()) {
-            if (code == business.getCode())
-                return business;
-        }
-        return null;
-    }
+
 
 
 }

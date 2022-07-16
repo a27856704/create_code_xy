@@ -14,50 +14,50 @@ import java.util.*;
 * @Date ${createTime}
 * @description
 */
-@ApiModel(value = "搜索条件",description = "搜索条件基类")
+@ApiModel(value = "搜索条件", description = "搜索条件基类")
 public abstract class BaseSearch implements Serializable {
 
 
     private static final long serialVersionUID = 1L;
-
     public static String DESC_ORDER = "desc";
     public static String ASC_ORDER = "asc";
-
-    @ApiModelProperty(value = "排序字段",hidden = true)
+    @ApiModelProperty("自定义sql")
+    private String customSql;
+    @ApiModelProperty(value = "排序字段", hidden = true)
     private String orderBy;// 排序字段
-    @ApiModelProperty(value = "倒序，顺序",hidden = true)
+    @ApiModelProperty(value = "倒序，顺序", hidden = true)
     private String orderDesc = DESC_ORDER;// 倒序，顺序
-    @ApiModelProperty(value = "排序字段",hidden = true)
+    @ApiModelProperty(value = "排序字段", hidden = true)
     private String orderBy1;
-    @ApiModelProperty(value = "倒序，顺序",hidden = true)
+    @ApiModelProperty(value = "倒序，顺序", hidden = true)
     private String orderDesc1 = DESC_ORDER;
-    @ApiModelProperty(value = "排序字段",hidden = true)
+    @ApiModelProperty(value = "排序字段", hidden = true)
     private String orderBy2;
-    @ApiModelProperty(value = "倒序，顺序",hidden = true)
+    @ApiModelProperty(value = "倒序，顺序", hidden = true)
     private String orderDesc2 = DESC_ORDER;
-
     @ApiModelProperty(value = "创建开始时间")
     private Date createTimeStart;//开始时间
     @ApiModelProperty(value = "创建结束时间")
     private Date createTimeEnd;//结束时间
-
-    @ApiModelProperty(value = "显示那个页面",hidden = true)
+    @ApiModelProperty(value = "更新开始时间")
+    private Date updateTimeStart;//开始时间
+    @ApiModelProperty(value = "更新结束时间")
+    private Date updateTimeEnd;//结束时间
+    @ApiModelProperty(value = "显示那个页面", hidden = true)
     private String showView;//显示那个页面
     @ApiModelProperty(hidden = true)
     private long start;
     @ApiModelProperty(hidden = true)
-    private long limit = 10;
-
-    @ApiModelProperty(value = "每页数量")
-    private long pageSize=10;
-
+    private long limit = 15;
+    @ApiModelProperty(value = "每页数量", example = "15")
+    private long pageSize = 15;
     @ApiModelProperty(hidden = true)
     private long end = limit;
     @ApiModelProperty(hidden = true)
     private String customField;//自定义排序字段
     @ApiModelProperty(hidden = true)
     private String customOrder;//自定义排序顺序
-    @ApiModelProperty(value = "当前页码",example = "1")
+    @ApiModelProperty(value = "当前页码", example = "1")
     private long pageNumber;//当前页面
     @ApiModelProperty(hidden = true)
     private String groupBy;
@@ -68,9 +68,9 @@ public abstract class BaseSearch implements Serializable {
     @ApiModelProperty(hidden = true)
     private Map<String, String> equalMap = null;
     @ApiModelProperty(hidden = true)
-    private Map<String, Integer> numberGreaterMap = null;//大於等於的
+    private Map<String, Object> numberGreaterMap = null;//大於等於的
     @ApiModelProperty(hidden = true)
-    private Map<String, Integer> numberLessMap = null;//小於等於的
+    private Map<String, Object> numberLessMap = null;//小於等於的
     @ApiModelProperty(hidden = true)
     private Map<String, List<Object>> inMap;
     @ApiModelProperty(hidden = true)
@@ -80,11 +80,128 @@ public abstract class BaseSearch implements Serializable {
     @ApiModelProperty(hidden = true)
     private Map<String, Date> dateEndMap;//<=
     private Map<String, Integer> bitMap;//位运算
-
-   // private Map<String, Integer[]> arrayMap;
+    private Map<String, List<Integer>> notBitMap;//((field & value)!=value)位运算
+    private Map<String, Integer> orBitMap;//位运算 field|value==value（包含）
+    @ApiModelProperty(hidden = true)
+    private Set<String> nullSet;//为null
+    @ApiModelProperty(hidden = true)
+    private Set<String> notNullSet; //不为null
+    /**
+     * 用来保持是否附加其实数据
+     */
+    private Set<String> fullConfigSet;
+    /**
+     * 要排除的附加数据
+     */
+    private Set<String> unFullConfigSet;
 
     public static String getDescOrder() {
         return DESC_ORDER;
+    }
+
+    public String getCustomSql() {
+        return customSql;
+    }
+
+    public void setCustomSql(String customSql) {
+        this.customSql = customSql;
+    }
+
+    public Set<String> getUnFullConfigSet() {
+        return unFullConfigSet;
+    }
+
+    public void setUnFullConfigSet(Set<String> unFullConfigSet) {
+        this.unFullConfigSet = unFullConfigSet;
+    }
+
+    public Set<String> getFullConfigSet() {
+        return fullConfigSet;
+    }
+
+    public void setFullConfigSet(Set<String> fullConfigSet) {
+        this.fullConfigSet = fullConfigSet;
+    }
+
+    public void putUnFullConfigSet(String key) {
+        if (StringUtil.isNullOrEmpty(unFullConfigSet)) {
+            unFullConfigSet = new HashSet<>();
+        }
+        unFullConfigSet.add(key);
+    }
+
+    public void putFullConfigSet(String key) {
+        if (StringUtil.isNullOrEmpty(fullConfigSet)) {
+            fullConfigSet = new HashSet<>();
+        }
+        fullConfigSet.add(key);
+    }
+
+
+    public Map<String, List<Integer>> getNotBitMap() {
+        return notBitMap;
+    }
+
+   /* public void setNotBitMap(Map<String, Integer> notBitMap) {
+        this.notBitMap = notBitMap;
+    }*/
+
+    public Set<String> getNotNullSet() {
+        return notNullSet;
+    }
+
+    public Set<String> getNullSet() {
+        return nullSet;
+    }
+
+    public void setFieldNotNull(String field) {
+
+        if (StringUtil.isNullOrEmpty(field)) {
+            return;
+        }
+        if (notNullSet == null) {
+            notNullSet = new HashSet<>();
+        }
+        notNullSet.add(field);
+
+    }
+
+    public void setFieldNull(String field) {
+
+        if (StringUtil.isNullOrEmpty(field)) {
+            return;
+        }
+        if (nullSet == null) {
+            nullSet = new HashSet<>();
+        }
+        nullSet.add(field);
+    }
+
+    public Date getUpdateTimeStart() {
+        return updateTimeStart;
+    }
+
+    public void setUpdateTimeStart(Date updateTimeStart) {
+        this.updateTimeStart = updateTimeStart;
+        if (StringUtil.isNotEmpty(updateTimeFiled())) {
+            setDateStartField(updateTimeFiled(), updateTimeStart);
+
+        }
+
+    }
+
+    public Date getUpdateTimeEnd() {
+        return updateTimeEnd;
+    }
+
+    // private Map<String, Integer[]> arrayMap;
+
+    public void setUpdateTimeEnd(Date updateTimeEnd) {
+        this.updateTimeEnd = updateTimeEnd;
+        if (StringUtil.isNotEmpty(updateTimeFiled())) {
+            setDateEndField(updateTimeFiled(), updateTimeEnd);
+        }
+
     }
 
     public String getShowView() {
@@ -97,6 +214,10 @@ public abstract class BaseSearch implements Serializable {
 
     public Map<String, Integer> getBitMap() {
         return bitMap;
+    }
+
+    public Map<String, Integer> getOrBitMap() {
+        return orBitMap;
     }
 
     public Map<String, Date> getDateEndMap() {
@@ -119,11 +240,11 @@ public abstract class BaseSearch implements Serializable {
         return notInMap;
     }
 
-    public Map<String, Integer> getNumberGreaterMap() {
+    public Map<String, Object> getNumberGreaterMap() {
         return numberGreaterMap;
     }
 
-    public Map<String, Integer> getNumberLessMap() {
+    public Map<String, Object> getNumberLessMap() {
         return numberLessMap;
     }
 
@@ -131,7 +252,7 @@ public abstract class BaseSearch implements Serializable {
         return arrayMap;
     }
 
-    protected void setArrayMap(String field, Integer[] value) {
+    public void setArrayMap(String field, Integer[] value) {
         if (value == null) {
             return;
         }
@@ -141,48 +262,108 @@ public abstract class BaseSearch implements Serializable {
         arrayMap.put(field, value);
     }*/
 
-    protected void setBitField(String field, Integer value) {
-        if (value == null)
-            return;
-        if (bitMap == null)
+    public void setBitField(String field, Integer value) {
+
+        if (bitMap == null) {
             bitMap = new HashMap<String, Integer>();
+        }
 
-        bitMap.put(field, value);
+        if (value == null) {
+            bitMap.remove(field);
+
+        } else {
+            bitMap.put(field, value);
+        }
+
+
+    }
+
+    public void setNotBitField(String field, Integer value) {
+
+        if (notBitMap == null) {
+            notBitMap = new HashMap<String, List<Integer>>();
+        }
+
+        if (value == null) {
+            notBitMap.remove(field);
+
+        } else {
+            if (notBitMap.containsKey(field)) {
+                notBitMap.get(field).add(value);
+            } else {
+                notBitMap.put(field, SkList.getInstance().addObjToList(value));
+            }
+
+
+        }
+
+
+    }
+
+    public void setOrBitField(String field, Integer value) {
+
+        if (orBitMap == null) {
+            orBitMap = new HashMap<String, Integer>();
+        }
+
+        if (value == null) {
+            orBitMap.remove(field);
+
+        } else {
+            orBitMap.put(field, value);
+        }
+
 
     }
 
 
-    protected void setDateEndField(String field, Date value) {
+    public void setDateEndField(String field, Date value) {
 
-        if (value == null)
+        if (value == null) {
+            if (dateEndMap != null) {
+                dateEndMap.remove(field);
+            }
             return;
-        if (dateEndMap == null)
+        }
+        if (dateEndMap == null) {
             dateEndMap = new HashMap<String, Date>();
+        }
 
 
-        dateEndMap.put(field, YXDate.getTimeDayLastSecond(value));
+        dateEndMap.put(field, value);
 
     }
 
-    protected void setDateStartField(String field, Date value) {
+    public void setDateStartField(String field, Date value) {
 
-        if (value == null)
+        if (value == null) {
+            if (dateStartMap != null) {
+                dateStartMap.remove(field);
+            }
             return;
-        if (dateStartMap == null)
+        }
+        if (dateStartMap == null) {
             dateStartMap = new HashMap<String, Date>();
+        }
 
 
-        dateStartMap.put(field, YXDate.getTimeDayFirstSecond(value));
+        dateStartMap.put(field, value);
 
     }
 
 
-    protected void setNotInField(String field, List<Object> value) {
+    public void setNotInField(String field, List<Object> value) {
 
-        if (value == null)
+        if (value == null) {
+
+            if (notInMap != null) {
+                notInMap.remove(field);
+            }
             return;
-        if (notInMap == null)
+        }
+        if (notInMap == null) {
             notInMap = new HashMap<String, List<Object>>();
+        }
 
 
         addInMap(field, notInMap, value);
@@ -196,33 +377,40 @@ public abstract class BaseSearch implements Serializable {
         List<Object> realValue = new ArrayList<Object>();
 
         value.forEach(o -> {
-            if (o != null && !"".equalsIgnoreCase(o.toString()))
+            if (o != null && !"".equalsIgnoreCase(o.toString())) {
                 realValue.add(o);
+            }
         });
 
-        if (realValue.size() > 0)
-
+        if (realValue.size() > 0) {
             map.put(field, realValue);
+        }
 
     }
 
 
-    protected void setInField(String field, List<Object> value) {
-        if (value == null)
+    public void setInField(String field, List<Object> value) {
+        if (value == null) {
+            if (inMap != null) {
+                inMap.remove(field);
+            }
             return;
-        if (inMap == null)
+        }
+        if (inMap == null) {
             inMap = new HashMap<String, List<Object>>();
+        }
 
         addInMap(field, inMap, value);
 
     }
 
 
-    protected void setLessField(String field, int value) {
+    public void setLessField(String field, Object value) {
 
 
-        if (numberLessMap == null)
-            numberLessMap = new HashMap<String, Integer>();
+        if (numberLessMap == null) {
+            numberLessMap = new HashMap<String, Object>();
+        }
 
 
         numberLessMap.put(field, value);
@@ -230,37 +418,46 @@ public abstract class BaseSearch implements Serializable {
     }
 
 
-    protected void setGreaterField(String field, int value) {
-        if (numberGreaterMap == null)
-            numberGreaterMap = new HashMap<String, Integer>();
+    public void setGreaterField(String field, Object value) {
+        if (numberGreaterMap == null) {
+            numberGreaterMap = new HashMap<String, Object>();
+        }
         numberGreaterMap.put(field, value);
 
     }
 
 
-    protected void setEqualField(String field, String value) {
+    public void setEqualField(String field, Object value) {
 
-        if (StringUtil.isNullOrEmpty(value))
+        if (StringUtil.isNullOrEmpty(value)) {
+            if (equalMap != null) {
+                equalMap.remove(field);
+            }
             return;
+        }
 
-
-        if (equalMap == null)
+        if (equalMap == null) {
             equalMap = new HashMap<String, String>();
-        equalMap.put(field, value.trim());
+        }
+        equalMap.put(field, StringUtil.toString(value).trim());
 
 
     }
 
 
-    protected void setLikeField(String field, String value) {
+    public void setLikeField(String field, Object value) {
 
-        if (StringUtil.isNullOrEmpty(value))
+        if (StringUtil.isNullOrEmpty(value)) {
+            if (likeMap != null) {
+                likeMap.remove(field);
+            }
             return;
+        }
 
-
-        if (likeMap == null)
+        if (likeMap == null) {
             likeMap = new HashMap<String, String>();
-        likeMap.put(field, value.trim());
+        }
+        likeMap.put(field, StringUtil.toString(value).trim());
 
 
     }
@@ -270,12 +467,24 @@ public abstract class BaseSearch implements Serializable {
         return likeMap;
     }
 
+
+    public String createTimeFiled() {
+        return "";
+    }
+
+    public String updateTimeFiled() {
+        return "";
+    }
+
     public Date getCreateTimeStart() {
         return createTimeStart;
     }
 
     public void setCreateTimeStart(Date createTimeStart) {
         this.createTimeStart = createTimeStart;
+        if (StringUtil.isNotEmpty(createTimeFiled())) {
+            setDateStartField(createTimeFiled(), createTimeStart);
+        }
     }
 
     public Date getCreateTimeEnd() {
@@ -284,6 +493,11 @@ public abstract class BaseSearch implements Serializable {
 
     public void setCreateTimeEnd(Date createTimeEnd) {
         this.createTimeEnd = createTimeEnd;
+        if (StringUtil.isNotEmpty(createTimeFiled())) {
+            setDateEndField(createTimeFiled(), createTimeEnd);
+        }
+
+
     }
 
     public long getEnd() {
@@ -310,6 +524,8 @@ public abstract class BaseSearch implements Serializable {
     }
 
     public abstract String setDefaultField();
+
+    public abstract String pkField();
 
 
     public long getPageNumber() {
@@ -377,8 +593,9 @@ public abstract class BaseSearch implements Serializable {
     private void setStart() {
 
         long offset = limit * (pageNumber - 1);
-        if (offset <= 0)
+        if (offset <= 0) {
             offset = 0;
+        }
 
         this.start = offset;
         this.end = offset + limit;
@@ -419,20 +636,5 @@ public abstract class BaseSearch implements Serializable {
 
     public void setOrderDesc(String orderDesc) {
         this.orderDesc = orderDesc;
-    }
-
-    @Override
-    public String toString() {
-        return ",BaseSearch{" +
-                "orderBy='" + orderBy + '\'' +
-                ", orderDesc='" + orderDesc + '\'' +
-                ", orderBy1='" + orderBy1 + '\'' +
-                ", orderDesc1='" + orderDesc1 + '\'' +
-                ", orderBy2='" + orderBy2 + '\'' +
-                ", orderDesc2='" + orderDesc2 + '\'' +
-                ", start=" + start +
-                ", end=" + end +
-                ", groupBy='" + groupBy + '\'' +
-                '}';
     }
 }

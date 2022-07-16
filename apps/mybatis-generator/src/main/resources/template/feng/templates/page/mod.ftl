@@ -4,38 +4,32 @@
 <body>
 <div class="container_main">
     <div th:replace="inc/top::top"/>
-    <div th:replace="inc/menu::menu('${menuName}','list')"/>
+    <div th:replace="inc/menu::menu(${r'${menuModelName}'},${r'${menuModelPage}'})"/>
     <div class="container_box">
         <div class="container_block">
             <div class="container_title" th:text="${r'${menuModel}'}">模块名称</div>
-
             <div class="container_tab">
                 <ul>
-                    <li class="active"><a href="#" th:text="${r'${modTitle}'}">修改</a></li>
+                    <li class="active"><a href="#" th:text="${r'${modTitle==null?'+'\'修改\''+':modTitle}'}">修改</a></li>
                 </ul>
-
             </div>
-
             <div class="post_box">
                 <#assign add=false>
                 <form id="postForm" th:action="${r'${action}'}" method="post">
                     <div class="container_fluid clear_box">
                         <#list list as item>
                             <#if item.inputType==6||item.inputType==8|| item.inputType==9>
-                                <div class="row col_12">
-                                    <#include "filed/${item.inputTag}.ftl">
-
-                                </div>
+                        <div class="row col_12">
+                            <#include "filed/${item.inputTag}.ftl">
+                        </div>
                             <#else>
-                                <div class="row col_6">
-                                    <#include "filed/${item.inputTag}.ftl">
-
-                                </div>
+                        <div class="row col_12">
+                            <#include "filed/${item.inputTag}.ftl">
+                        </div>
                             </#if>
                         </#list>
                         <div class="row col_12">
                             <#include "filed/SUBMIT.ftl">
-
                         </div>
                     </div>
                 </form>

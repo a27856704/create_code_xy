@@ -38,9 +38,9 @@
                             <select name="tableName" id="tableName" lay-search="" lay-verify="required"
                                     lay-filter="table">
 
-                                <option th:each="item:${tableList}" th:value="${item}"
-                                        th:text="${item}"
-                                        th:selected="${item==table}"
+                                <option th:each="item:${tableList}" th:value="${item.name}"
+                                        th:text="${item.name +'('+item.comment+')'}"
+                                        th:selected="${item.name==table}"
                                 ></option>
 
                             </select>
@@ -56,7 +56,7 @@
                         <label class="layui-form-label">字段前缀</label>
                         <div class="layui-input-inline">
 
-                            <input type="text" name="fieldPrefix" autocomplete="off"
+                            <input type="text" name="fieldPrefix"  lay-filter="db" id="fieldPrefix" autocomplete="off"
                                    placeholder="请输入字段前缀"
                                    class="layui-input" th:value="${fieldPrefix}">
 
@@ -113,7 +113,7 @@
                     <div class="layui-inline">
                         <label class="layui-form-label">类型</label>
                         <div class="layui-input-inline">
-                            <select name="type" class="type" lay-search="">
+                            <select name="type" class="type" lay-search=""  lay-filter="type" >
 
                                 <option th:each="item:${fieldTypes}" th:value="${item.type}"
                                         th:text="${item.desc}"></option>
@@ -125,7 +125,7 @@
                     <div class="layui-inline">
                         <label class="layui-form-label">长度</label>
                         <div class="layui-input-inline">
-                            <input type="text" name="length" autocomplete="off"
+                            <input type="text" name="length" id="length" autocomplete="off"
                                    placeholder="长度"
                                    class="layui-input length">
                         </div>
@@ -133,7 +133,7 @@
                     <div class="layui-inline">
                         <label class="layui-form-label">小数</label>
                         <div class="layui-input-inline">
-                            <input type="text" name="decimals" autocomplete="off"
+                            <input type="text" name="decimals" id="decimals" autocomplete="off"
                                    placeholder="小数"
                                    class="layui-input decimals">
                         </div>
@@ -152,7 +152,7 @@
                         <label class="layui-form-label">搜索类型</label>
                         <div class="layui-input-inline">
 
-                            <select name="searchFlag" class="searchFlag" lay-search="">
+                            <select name="searchFlag" id="searchFlag" class="searchFlag" lay-search="">
                                 <option value="0">不搜索</option>
                                 <option th:each="item:${searchFlags}" th:value="${item.type}"
                                         th:text="${item.desc}"></option>
@@ -167,7 +167,7 @@
                         <label class="layui-form-label">输入框类型</label>
                         <div class="layui-input-inline">
 
-                            <select name="inputType" class="inputType" lay-search="">
+                            <select name="inputType" id="inputType" class="inputType" lay-search="">
                                 <option th:each="item:${inputTypes}" th:value="${item.type}"
                                         th:text="${item.desc}"></option>
                             </select>
@@ -300,6 +300,7 @@
 
         form.render();
         var size = 0;
+        typeChange("varchar");
 
 
         var currentDb = $("#currentDb").val();
@@ -318,17 +319,19 @@
                 var currentTable = $("#currentTable").val();
                 var selected = "selected";
                 for (var i = 0; i < size; i++) {
-                    if (tableList[i] == currentTable) {
+                    if (tableList[i].name == currentTable) {
                         selected = "selected";
                     } else {
                         selected = "";
                     }
-                    htmls += '<option value = "' + tableList[i] + '" ' + selected + '>' + tableList[i] + '</option>'
+                    htmls += '<option value = "' + tableList[i].name + '" ' + selected + '>' + tableList[i].name+ '('+tableList[i].comment+')' + '</option>'
                 }
 
                 $("#tableName").html(htmls);
 
+                $("#fieldPrefix").val("");
 
+                form.render('db');
                 form.render('select');
 
 
@@ -337,11 +340,50 @@
         }
 
 
+        form.on('select(table)',function () {
+
+            $("#fieldPrefix").val("");
+            form.render('db');
+        });
+
+
         form.on('select(db)', function (data) {
 
             setTables(data.value);
 
-        })
+        });
+
+        form.on('select(type)',function (data){
+            let value=data.value;
+            typeChange(value);
+
+        });
+
+
+        function typeChange(value){
+
+            if("varchar"==value){
+                $("#length").val(50);
+                $("#searchFlag option").eq(1).prop("selected",true);
+            }else if("int"==value){
+                $("#length").val(11);
+                $("#searchFlag option").eq(3).prop("selected",true);
+            }else if("float"==value || "decimal"==value || "double"==value){
+                $("#length").val(10);
+                $("#decimals").val(2);
+                $("#searchFlag option").eq(3).prop("selected",true);
+
+            }else if("datetime"==value){
+                $("#searchFlag option").eq(6).prop("selected",true);
+                $("#inputType option").eq(6).prop("selected",true);
+                $("#length").val("");
+                $("#decimals").val("");
+            }else{
+                $("#searchFlag option").eq(0).prop("selected",true);
+            }
+            form.render('select');
+
+        }
 
 
         $(document).on("click", '.addFiledValueBtn', function () {

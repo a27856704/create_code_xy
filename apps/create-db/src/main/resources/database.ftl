@@ -952,14 +952,14 @@
                             <w:rFonts w:hint="fareast"/>
                             <wx:font wx:val="Songti SC"/>
                         </w:rPr>
-                        <w:t>${item.comment}</w:t>
+                        <w:t>${item.name}</w:t>
                     </w:r>
                     <w:r wsp:rsidRPr="00A00A4A">
                         <w:rPr>
                             <w:rFonts w:hint="fareast"/>
                             <wx:font wx:val="Songti SC"/>
                         </w:rPr>
-                        <w:t>（${item.name}）</w:t>
+                        <w:t>（${item.comment}）</w:t>
                     </w:r>
                 </w:p>
                 <w:tbl>

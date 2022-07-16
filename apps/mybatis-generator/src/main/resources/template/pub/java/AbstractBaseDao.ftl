@@ -8,6 +8,7 @@ import ${pubPackage}.pubInter.exception.SkException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 /**
 * @author ${author}
@@ -15,7 +16,7 @@ import java.util.UUID;
 * @description
 */
 
-public abstract class AbstractBaseDao<T extends AbstractBaseDoMain, TS extends BaseSearch, KeyType> extends AbstractBaseFindDao<T, TS, KeyType> {
+public abstract class AbstractBaseDao<T extends BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> extends AbstractBaseFindDao<T, TS, KeyType> {
     public abstract IBaseMapper<T, TS, KeyType> getMapper();
 
     public int insert(T t) throws SkException {
@@ -107,4 +108,38 @@ public abstract class AbstractBaseDao<T extends AbstractBaseDoMain, TS extends B
             }
         }
     }
+    /**
+    * 按map里的数据更新
+    * @param dataMap ，key 是字段名 value 要更新的数据
+    * @return
+    */
+    public boolean updateDataBySearch(Map<String,Object>dataMap,TS search) throws SkException{
+       try{
+
+            return getMapper().updateDataBySearch(dataMap,search)>0;
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new DaoException(DaoExceptionEnum.DAO_UPDATE_ERROR);
+
+        }
+    }
+
+    /**
+    * 按map里的数据更新
+    * @param dataMap ，key 是字段名 value 要更新的数据
+    * @return
+    */
+    public boolean updateDataById(Map<String,Object>dataMap,KeyType id) throws SkException{
+        try{
+            return getMapper().updateDataById(dataMap,id)>0;
+
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new DaoException(DaoExceptionEnum.DAO_UPDATE_ERROR);
+
+        }
+
+    }
+
+
 }

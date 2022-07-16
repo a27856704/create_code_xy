@@ -17,12 +17,13 @@ import java.util.List;
  */
 
 public abstract class ReadRestfulController<DTO extends AbstractDTO
-        , T extends BaseIdDoMain
+        , PageDTO extends AbstractPageDTO
+        , T extends BaseIdDoMain<KeyType>
         , TS extends BaseSearch
-        , DomainVO extends AbstractDomainVO<String>
+        , DomainVO extends AbstractDomainVO<KeyType>
         , DetailDomainVO extends DomainVO
         , DataVO extends AbstractDataVO<DetailDomainVO>
-        , ListVO extends AbstractPageVO<DomainVO>> extends RestfulController<DTO, T, TS, DomainVO, DetailDomainVO,DataVO, ListVO> {
+        , ListVO extends AbstractPageVO<DetailDomainVO>> extends RestfulController<DTO, PageDTO,T, TS, DomainVO, DetailDomainVO,DataVO, ListVO,KeyType> {
 
 
     @Override
@@ -31,17 +32,17 @@ public abstract class ReadRestfulController<DTO extends AbstractDTO
     }
 
     @Override
-    public SkJsonResult<DataVO> postMod(String id, @Valid DTO dto,  HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult<DataVO> postMod(KeyType id, @Valid DTO dto,  HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 
     @Override
-    public SkJsonResult postDelete(String id, HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult postDelete(KeyType id, HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 
     @Override
-    public SkJsonResult postDeleteAll(List<String> ids,  HttpServletRequest request, HttpSession session) throws SkException {
+    public SkJsonResult postDeleteAll(List<KeyType> ids,  HttpServletRequest request, HttpSession session) throws SkException {
         throw new BusinessException("非法操作");
     }
 }

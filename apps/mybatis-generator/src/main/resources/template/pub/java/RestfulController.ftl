@@ -11,6 +11,10 @@ import ${pubPackage}.pubInter.common.PageBean;
 import ${pubPackage}.pubInter.common.PubConst;
 import ${pubPackage}.pubInter.exception.SkException;
 import ${pubPackage}.web.common.SkJsonResult;
+import ${pubPackage}.pubInter.baseVO.AbstractDataVO;
+import ${pubPackage}.pubInter.baseVO.AbstractPageVO;
+import ${pubPackage}.pubInter.baseVO.DecorateModel;
+import ${pubPackage}.pubInter.baseVO.DecoratePageList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -18,6 +22,8 @@ import javax.validation.Valid;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 import java.util.Map;
+
+
 
 /**
 * @author ${author}
@@ -28,14 +34,15 @@ import java.util.Map;
 @RestController
 public abstract class RestfulController<
         DTO extends AbstractDTO
-        , T extends BaseIdDoMain
+        , PageDTO extends AbstractPageDTO
+        , T extends BaseIdDoMain<KeyType>
         , TS extends BaseSearch
-        , DomainVO extends AbstractDomainVO<String>
+        , DomainVO extends AbstractDomainVO<KeyType>
         , DetailDomainVO extends DomainVO
         , DetailVO extends AbstractDataVO<DetailDomainVO>
-        , ListVO extends AbstractPageVO<DomainVO>> extends BaseController {
+        , ListVO extends AbstractPageVO<DetailDomainVO>,KeyType> extends BaseController {
 
-    public abstract IBaseService<T, TS, String> getBaseService() throws SkException;
+      public abstract IBaseService<T, TS, KeyType> getBaseService() throws SkException;
 
     public abstract String getBaseRoute() throws SkException;
 
@@ -44,40 +51,45 @@ public abstract class RestfulController<
         return (Class) type.getActualTypeArguments()[0];
     }
 
-    public final Class<T> getDomainClass() {
+    public final Class<PageDTO> getPageDtoClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[1];
     }
 
-    public final Class<TS> getSearchClass() {
+    public final Class<T> getDomainClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[2];
     }
 
-    public final Class<DomainVO> getDomainVOClass() {
+    public final Class<TS> getSearchClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[3];
     }
 
-    public final Class<DetailDomainVO> getDomainDetailVOClass() {
+    public final Class<DomainVO> getDomainVOClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[4];
     }
 
-
-    public final Class<DetailVO> getDetailVOClass() {
+    public final Class<DetailDomainVO> getDomainDetailVOClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[5];
     }
 
 
-    public final Class<ListVO> getListVOClass() {
+    public final Class<DetailVO> getDetailVOClass() {
         ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
         return (Class) type.getActualTypeArguments()[6];
     }
 
 
-    /**
+    public final Class<ListVO> getListVOClass() {
+        ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
+        return (Class) type.getActualTypeArguments()[7];
+    }
+
+
+     /**
      * 列表页面路由
      *
      * @return
@@ -114,6 +126,13 @@ public abstract class RestfulController<
     public String getDetailPageRoute() throws SkException {
         return getBaseRoute() + "detail";
     }
+    /**
+    * 当前模板名称
+    * @return
+    */
+    public String getModelName(){
+        return "";
+    }
 
 
     /**
@@ -127,16 +146,16 @@ public abstract class RestfulController<
 
 
     @ApiOperation(value = "详情页面", notes = "详情页面接口", httpMethod = "GET")
-    @GetMapping("detail/{id}")
+    @GetMapping({"detail/{id}"})
     @ResponseBody
-    public SkJsonResult<DetailVO> getDetail(@ApiParam("id") @PathVariable String id
-            , @ApiParam(name = "request", hidden = true) @RequestParam(required = false) HttpServletRequest request,
-                                            @ApiParam(name = "session", hidden = true)
-                                            @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<DetailVO> getDetail(@ApiParam("id") @PathVariable KeyType id
+            ,  HttpServletRequest request,HttpSession session) throws SkException {
         T domain = getBaseService().getDetail(id);
         SkJsonResult<DetailVO> jsonResult = SkJsonResult.ok();
-        jsonResult.setData(map(new DecorateModel<DetailDomainVO>(map(domain, getDomainDetailVOClass())), getDetailVOClass()));
+        //jsonResult.setData(map(new DecorateModel<DetailDomainVO>(map(domain, getDomainDetailVOClass())), getDetailVOClass()));
+        jsonResult.setData(map(new DecorateModel<T>(domain), getDetailVOClass()));
         detailExtend(domain, jsonResult.getData(), request, session);
+
         return jsonResult;
 
     }
@@ -158,43 +177,46 @@ public abstract class RestfulController<
     /**
      * 添加数据前检测
      *
+     * @param dto
      * @param domain
      * @param session
      * @return
      * @throws SkException
      */
-    public boolean beforePostAdd(T domain, HttpServletRequest request, HttpSession session) throws SkException {
+    public boolean beforePostAdd(DTO dto,T domain, HttpServletRequest request, HttpSession session) throws SkException {
         return true;
     }
 
     @ApiOperation(value = "通用添加接口", notes = "通用添加接口", httpMethod = "POST")
-    @PostMapping(value = "postAdd")
+    @PostMapping("postAdd")
     @ResponseBody
     public SkJsonResult<DetailVO> postAdd(@ApiParam(required = true, name = "dto", value
-            = "通用基础dto") @Valid DTO dto, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+            = "通用基础dto") @Valid @RequestBody DTO dto,  HttpServletRequest request,  HttpSession session) throws SkException {
         SkJsonResult<DetailVO> jsonResult = SkJsonResult.ok();
-        if (dto == null)
+        if (dto == null) {
             return jsonResult;
+        }
         T domain = map(dto, getDomainClass());
-        if (!beforePostAdd(domain, request, session)) {
+        if (!beforePostAdd(dto,domain, request, session)) {
             return SkJsonResult.fail("beforePostAdd false;");
         }
         getBaseService().insert(domain);
         jsonResult.setData(map(new DecorateModel<T>(domain), getDetailVOClass()));
-        afterPostAdd(domain, jsonResult.getData(), request, session);
+        afterPostAdd(dto,domain, jsonResult.getData(), request, session);
         return jsonResult;
     }
 
     /**
      * 添加插入数据后的操作
      *
+     * @param dto
      * @param domain
      * @param detailVO
      * @param request
      * @param session
      * @throws SkException
      */
-    public void afterPostAdd(T domain, DetailVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostAdd(DTO dto,T domain, DetailVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -210,24 +232,104 @@ public abstract class RestfulController<
     @ApiOperation(value = "通用修改接口", notes = "通用修改接口", httpMethod = "POST")
     @PostMapping("postMod/{id}")
     @ResponseBody
-    public SkJsonResult<DetailVO> postMod(@ApiParam("id") @PathVariable String id, @Valid DTO dto, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<DetailVO> postMod(@ApiParam("id") @PathVariable KeyType id, @Valid @RequestBody DTO dto,  HttpServletRequest request,  HttpSession session) throws SkException {
 
         SkJsonResult<DetailVO> jsonResult = SkJsonResult.ok();
-        if (dto == null)
+        if (dto == null) {
             return jsonResult;
-
-        if (!beforePostMod(dto, request, session)) {
+        }
+        T newDomain = map(dto, getDomainClass());
+        T oldDomain = getBaseService().getDetail(id);
+        if (!beforePostMod(dto, newDomain,oldDomain,request, session)) {
             return SkJsonResult.fail("beforePostMod false;");
         }
-        T oldDomain = getBaseService().getDetail(id);
-        T newDomain = map(dto, getDomainClass());
+
         org.springframework.beans.BeanUtils.copyProperties(newDomain, oldDomain, postModNoUpdate(newDomain));
         getBaseService().update(oldDomain);
         jsonResult.setData(map(new DecorateModel<T>(oldDomain), getDetailVOClass()));
-        afterPostMod(oldDomain, jsonResult.getData(), request, session);
+        afterPostMod(dto,oldDomain, jsonResult.getData(), request, session);
         return jsonResult;
 
     }
+
+
+    /**
+     * 删除单个
+     *
+     * @param id
+     * @return
+     * @throws SkException
+     */
+    @ApiOperation(value = "通用删除接口", notes = "通用删除接口", httpMethod = "POST")
+    @PostMapping("postDelete/{id}")
+    @ResponseBody
+    public SkJsonResult<String> postDelete(@ApiParam("id") @PathVariable("id") KeyType id,  HttpServletRequest request,  HttpSession session) throws SkException {
+        if (!beforePostDelete(id, request, session)) {
+            return SkJsonResult.fail("beforePostDelete false");
+        }
+        getBaseService().delete(id);
+        afterPostDelete(id, request, session);
+        return SkJsonResult.ok();
+    }
+
+    /**
+     * 删除
+     *
+     * @param ids
+     * @return
+     * @throws
+     */
+    @ApiOperation(value = "通用批量删除接口", notes = "通用批量删除接口", httpMethod = "POST")
+    @PostMapping("postDeleteAll")
+    @ResponseBody
+    public SkJsonResult<String> postDeleteAll(@ApiParam("主键IDs") @RequestParam(name = "ids[]") @RequestBody List<KeyType> ids,  HttpServletRequest request,  HttpSession session) throws SkException {
+
+        if (ids == null || ids.size() == 0) {
+            return SkJsonResult.fail("删除的条目为空");
+        }
+        if (beforePostDeleteAll(ids, request, session)) {
+            return SkJsonResult.fail("beforePostDeleteAll false");
+        }
+        getBaseService().batchDelete(ids);
+        afterPostDeleteAll(ids, request, session);
+        return SkJsonResult.ok();
+    }
+
+
+    /**
+     * 列表页面
+     *
+     * @param pageDTO
+     * @param session
+     * @return
+     * @throws SkException
+     */
+    @ApiOperation(value = "通用列表接口", notes = "通用列表接口")
+    @RequestMapping(value = "list", method = {RequestMethod.POST})
+    @ResponseBody
+    public SkJsonResult<ListVO> list(@ApiParam("搜索条件") @RequestBody PageDTO pageDTO,  HttpServletRequest request,  HttpSession session) throws SkException {
+        TS search = pageDTOToSearch(pageDTO);
+        searchConditionExtend(search, request, session);//附加搜索条件
+        return listSkJsonResult(search, request, session);
+    }
+
+    public SkJsonResult<ListVO> listSkJsonResult(TS search, HttpServletRequest request, HttpSession session) throws SkException {
+        SkJsonResult<ListVO> jsonResult = SkJsonResult.ok();
+        fillListData(search, jsonResult, request, session);
+        listPageExtend(search, jsonResult.getData(), request, session);
+        return jsonResult;
+    }
+
+
+    public TS pageDTOToSearch(PageDTO pageDTO) {
+        return map(pageDTO, getSearchClass());
+    }
+
+
+
+
+
+
 
     /**
      * 排除不要修改的字段
@@ -237,11 +339,13 @@ public abstract class RestfulController<
      */
     private String[] postModNoUpdate(T domain) {
         String[] excludeFiledArr = BeanUtils.getNullPropertyNames(domain);
-        if (excludeFiledArr == null)
+        if (excludeFiledArr == null) {
             excludeFiledArr = new String[0];
+        }
         String excludeFiledStr = addExcludeUpdateField(domain);
-        if (excludeFiledStr == null || "".equals(excludeFiledStr))
+        if (excludeFiledStr == null || "".equals(excludeFiledStr)) {
             return excludeFiledArr;
+        }
         String[] excludeFiled = excludeFiledStr.split(",");
         for (int i = 0; i < excludeFiled.length; i++) {
             excludeFiledArr = ArrayUtils.add(excludeFiledArr, excludeFiled[i]);
@@ -263,23 +367,26 @@ public abstract class RestfulController<
      * 修改数据前
      *
      * @param dto
+     * @param newDomain
+     * @param oldDomain
      * @param session
      * @return
      * @throws SkException
      */
-    public boolean beforePostMod(DTO dto, HttpServletRequest request, HttpSession session) throws SkException {
+    public boolean beforePostMod(DTO dto,T newDomain, T,oldDomain,HttpServletRequest request, HttpSession session) throws SkException {
         return true;
     }
 
     /**
      * 修改插入数据后的操作
      *
+     * @param dto
      * @param domain
      * @param detailVO
      * @param session
      * @throws SkException
      */
-    public void afterPostMod(T domain, DetailVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostMod(DTO dto,T domain, DetailVO detailVO, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -292,7 +399,7 @@ public abstract class RestfulController<
      * @return
      * @throws SkException
      */
-    public boolean beforePostDelete(String id, HttpServletRequest request, HttpSession session) throws SkException {
+    public boolean beforePostDelete(KeyType id, HttpServletRequest request, HttpSession session) throws SkException {
         return true;
     }
 
@@ -303,28 +410,10 @@ public abstract class RestfulController<
      * @param session
      * @throws SkException
      */
-    public void afterPostDelete(String id, HttpServletRequest request, HttpSession session) throws SkException {
+    public void afterPostDelete(KeyType id, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
-    /**
-     * 删除单个
-     *
-     * @param id
-     * @return
-     * @throws SkException
-     */
-    @ApiOperation(value = "通用删除接口", notes = "通用删除接口", httpMethod = "POST")
-    @PostMapping("postDelete")
-    @ResponseBody
-    public SkJsonResult<String> postDelete(@ApiParam("id") @RequestParam("id") String id, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
-        if (!beforePostDelete(id, request, session)) {
-            return SkJsonResult.fail("beforePostDelete false");
-        }
-        getBaseService().delete(id);
-        afterPostDelete(id, request, session);
-        return SkJsonResult.ok();
-    }
 
     /**
      * 删除数据前
@@ -334,7 +423,7 @@ public abstract class RestfulController<
      * @return
      * @throws SkException
      */
-    public boolean beforePostDeleteAll(List<String> ids, HttpServletRequest request, HttpSession session) throws SkException {
+    public boolean beforePostDeleteAll(List<KeyType> ids, HttpServletRequest request, HttpSession session) throws SkException {
         return true;
     }
 
@@ -345,57 +434,7 @@ public abstract class RestfulController<
      * @param session
      * @throws SkException
      */
-    public void afterPostDeleteAll(List<String> ids, HttpServletRequest request, HttpSession session) throws SkException {
-
-    }
-
-
-    /**
-     * 删除
-     *
-     * @param ids
-     * @return
-     * @throws
-     */
-    @ApiOperation(value = "通用批量删除接口", notes = "通用批量删除接口", httpMethod = "POST")
-    @PostMapping(value = "postDeleteAll")
-    @ResponseBody
-    public SkJsonResult<String> postDeleteAll(@ApiParam("主键IDs") @RequestParam(name = "ids[]") List<String> ids, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
-
-        if (ids == null || ids.size() == 0)
-            return SkJsonResult.fail("删除的条目为空");
-        if (beforePostDeleteAll(ids, request, session)) {
-            return SkJsonResult.fail("beforePostDeleteAll false");
-        }
-        getBaseService().batchDelete(ids);
-        afterPostDeleteAll(ids, request, session);
-        return SkJsonResult.ok();
-    }
-
-
-    /**
-     * 列表页面
-     *
-     * @param search
-     * @param session
-     * @return
-     * @throws SkException
-     */
-    @ApiOperation(value = "通用列表接口", notes = "通用列表接口")
-    @RequestMapping(value = "list", method = {RequestMethod.POST, RequestMethod.GET})
-    @ResponseBody
-    public SkJsonResult<ListVO> list(@ApiParam("搜索条件") TS search, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
-
-        searchConditionExtend(search, request, session);//附加搜索条件
-
-        SkJsonResult<ListVO> jsonResult = SkJsonResult.ok();
-
-        fillListData(search, jsonResult, request, session);
-
-        listPageExtend(search, jsonResult.getData(), request, session);
-
-        return jsonResult;
-
+    public void afterPostDeleteAll(List<KeyType> ids, HttpServletRequest request, HttpSession session) throws SkException {
 
     }
 
@@ -424,6 +463,7 @@ public abstract class RestfulController<
      */
     public void fillListData(TS search, SkJsonResult<ListVO> jsonResult, HttpServletRequest request, HttpSession session) throws SkException {
         Map<String, Object> skMap = getBaseService().paginate(search);
+
         DecoratePageList pageList = new DecoratePageList(decorateList((List<T>) skMap.get(PubConst.PAGINATE_DATA_KEY)), (PageBean) skMap.get(PubConst.PAGINATE_PAGE_KEY));
         jsonResult.setData(map(pageList, getListVOClass()));
     }
@@ -445,6 +485,6 @@ public abstract class RestfulController<
      * @throws SkException
      */
     public void searchConditionExtend(TS search, HttpServletRequest request, HttpSession session) throws SkException {
-        
+
     }
 }

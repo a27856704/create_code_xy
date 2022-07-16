@@ -13,10 +13,31 @@ public class Main {
 
     private static SkList<MenuDomain> menuList = new SkList<MenuDomain>();
 
+    private static int TABLE_INDEX=0;
+
 
     public static void clearMenuList() {
         Main.menuList.clear();
     }
+
+    public static void clearTableIndex() {
+        Main.TABLE_INDEX=0;
+    }
+
+    public static String getTableIndex() {
+
+        int tableIndex= Main.TABLE_INDEX++;
+
+        if(tableIndex<10)
+            return tableIndex+"00";
+
+        if(tableIndex<100)
+            return tableIndex+"0";
+
+        return tableIndex+"";
+
+    }
+
 
     public static void addMenu(MenuDomain menuDomain) {
         menuList.addObjToList(menuDomain);
@@ -52,6 +73,7 @@ public class Main {
         ClassLoader classLoader = Main.class.getClassLoader();
         String configPath = classLoader.getResource("").getFile();
         File configFile = new File(configPath + ("/generatorConfig.xml"));
+        SkPlugin.dbType=SkPlugin.DB_TYPE_MSSERVER;
         create(configFile);
 
 
