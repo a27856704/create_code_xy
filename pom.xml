@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>vip.sunke</groupId>
-    <artifactId>vip-sunke</artifactId>
+    <artifactId>create-code-xy</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>

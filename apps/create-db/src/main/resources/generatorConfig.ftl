@@ -37,8 +37,8 @@
             <property name="suppressAllComments" value="true"/>
         </commentGenerator>
         <jdbcConnection driverClass="${driverClass!'org.postgresql.Driver'}"
-                        connectionURL="${connectionUrl}" userId="${userId!'root'}"
-                        password="${password!'123456'}"></jdbcConnection>
+                        connectionURL="${connectionUrl}" userId="${userId!'postgres'}"
+                        password="${password!'skzz@123'}"></jdbcConnection>
 
         <javaTypeResolver>
             <property name="forceBigDecimals" value="false"/>
