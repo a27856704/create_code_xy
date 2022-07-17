@@ -3,6 +3,7 @@ package vip.sunke;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import vip.sunke.common.StringUtil;
 import vip.sunke.createdb.controller.CreateController;
 
 @SpringBootApplication
@@ -19,8 +20,31 @@ public class CreateDbApplication {
         return FIELD_PREFIX;
     }
 
+
+
+
     public static void setFieldPrefix(String fieldPrefix) {
-        FIELD_PREFIX = fieldPrefix;
+
+        String tab=getTABLE();
+        //说明没设置表前缀，根据表名自动设置
+        if(StringUtil.isNullOrEmpty(fieldPrefix) && StringUtil.isNotEmpty(tab)) {
+            String[] tabArr = tab.split("_");
+            fieldPrefix="";
+            for(int i=0;i<tabArr.length;i++){
+                fieldPrefix=fieldPrefix+tabArr[i].substring(0,1).toLowerCase();
+
+            }
+            fieldPrefix=fieldPrefix+"_";
+
+        }
+
+
+            FIELD_PREFIX = fieldPrefix;
+
+
+
+
+
         /*if (StringUtil.isEmpty(fieldPrefix) || fieldPrefix.endsWith("_")) {
             FIELD_PREFIX = fieldPrefix;
         } else {
@@ -31,6 +55,7 @@ public class CreateDbApplication {
     }
 
     public static void main(String[] args) {
+
         applicationContext = SpringApplication.run(CreateDbApplication.class, args);
     }
 

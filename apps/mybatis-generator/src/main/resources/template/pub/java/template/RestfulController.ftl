@@ -7,13 +7,16 @@ import ${pubInterPackage}.exception.SkException;
 import ${iBaseServiceClass};
 import ${restfulControllerClass};
 import ${modelDTOClass};
+import ${modelPageDTOClass};
 import ${modelExtClass};
-import ${modelSearchClass};
+import ${modelSearchExtClass};
 import ${iServiceClass};
 import ${detailVOClass};
 import ${listVOClass};
 import ${modelVOClass};
 import ${detailModelVOClass};
+import ${baseController}.ApiManageController;
+import org.springframework.validation.annotation.Validated;
 
 /**
 *    @author ${author}
@@ -23,13 +26,16 @@ import ${detailModelVOClass};
 @Api(tags = "${apiTags}", description = "${apiDesc}")
 @RestController(value ="${controllerName}")
 @RequestMapping("${route}")
-public class ${controllerClass} extends ApiManageController<${modelDTO},${modelExt}, ${modelSearch},${modelVO},${detailModelVO},${detailVO},${listVO}> {
+@Validated
+public class ${controllerClass} extends ApiManageController<${modelDTO},${modelPageDTO},${modelExt}, ${modelSearchExt},${modelVO},${detailModelVO},${detailVO},${listVO},${keyType}> {
 
 	@Resource(name = "${serviceVar}")
 	private ${iService} ${serviceVar};
 
+
+
 	@Override
-	public IBaseService<${modelExt}, ${modelSearch},String> getBaseService() throws SkException {
+	public IBaseService<${modelExt}, ${modelSearchExt},${keyType}> getBaseService() throws SkException {
 		return ${serviceVar};
 	}
 
@@ -37,5 +43,17 @@ public class ${controllerClass} extends ApiManageController<${modelDTO},${modelE
 	public String getBaseRoute() {
 		return "${route}";
 	}
+
+	/**
+	* 当前模板名称
+	* @return
+	*/
+	@Override
+	public String getModelName(){
+		return "${modelName}";
+	}
+
+
+
 
 }

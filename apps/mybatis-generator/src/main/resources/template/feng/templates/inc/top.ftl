@@ -3,10 +3,10 @@
     <div class="header_container">
         <div class="header-content">
             <div class="header_module">
-                <ul>
+               <#-- <ul>
                     <li class="active"><a href="#">员工管理</a></li>
                     <li><a href="#">会员管理</a></li>
-                </ul>
+                </ul>-->
             </div>
             <div class="header_nav">
                 <ul id="adminInfo">
@@ -15,7 +15,7 @@
                     </li>
                     <li>
                         <p th:if="${r'${session.user_session}'}" th:text="${r'${session.user_session}'}">admin</p>
-                        <p>技术部</p>
+                        <#--<p>技术部</p>-->
                     </li>
                 </ul>
             </div>

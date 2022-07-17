@@ -14,7 +14,6 @@
                     th:classappend="${r'${menuName=='+"'"+item.menuName+"'}?'layui-nav-itemed'"}">
                     <a class="" href="javascript:;">${item.menuTitle}</a>
                     <#list item.subList as subItem>
-
                         <dl class="layui-nav-child">
                             <dd><a href="${subItem.url}"
                                    th:classappend="${r'${currPage=='+"'"+subItem.subMenu+"'&& menuName=='"+item.menuName+"'}?'layui-this'"}">${subItem.title}</a>

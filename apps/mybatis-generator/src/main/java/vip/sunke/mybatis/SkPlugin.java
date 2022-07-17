@@ -2,10 +2,7 @@ package vip.sunke.mybatis;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateHashModel;
-import org.mybatis.generator.api.ConnectionFactory;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
-import org.mybatis.generator.api.PluginAdapter;
+import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.*;
 import org.mybatis.generator.api.dom.xml.Attribute;
 import org.mybatis.generator.api.dom.xml.Document;
@@ -17,6 +14,7 @@ import org.mybatis.generator.internal.JDBCConnectionFactory;
 import org.mybatis.generator.internal.ObjectFactory;
 import vip.sunke.common.FileUtil;
 import vip.sunke.common.StringUtil;
+import vip.sunke.common.YXDate;
 import vip.sunke.mybatis.parser.ColumnRemark;
 import vip.sunke.mybatis.parser.ColumnValue;
 import vip.sunke.mybatis.parser.IParser;
@@ -39,18 +37,21 @@ import java.util.*;
 
 public class SkPlugin extends PluginAdapter {
 
-    private static String DB_TYPE_MYSQL = "mysql";
-    private static String DB_TYPE_MSSERVER = "msserver";
-    private static String DB_TYPE_ORACLE = "oracle";
+    public static String DB_TYPE_MYSQL = "mysql";
+    public static String DB_TYPE_MSSERVER = "msserver";
+    public static String DB_TYPE_ORACLE = "oracle";
 
-    private String dbType = DB_TYPE_MYSQL;
+    public static String DB_TYPE_PGSQL = "pgsql";
+
+    public static String dbType = DB_TYPE_MYSQL;
 
     // 注释生成器
     private CommentGeneratorConfiguration commentCfg;
 
     public static String getFormatDate2String(Date date, String formatStr) {
-        if (date == null)
+        if (date == null) {
             return "";
+        }
 
         SimpleDateFormat sdf = new SimpleDateFormat(formatStr);
 
@@ -62,7 +63,7 @@ public class SkPlugin extends PluginAdapter {
         try {
             delAllFile(folderPath); //删除完里面所有内容
             String filePath = folderPath;
-            filePath = filePath.toString();
+            filePath = filePath;
             File myFilePath = new File(filePath);
             myFilePath.delete(); //删除空文件夹
         } catch (Exception e) {
@@ -99,6 +100,114 @@ public class SkPlugin extends PluginAdapter {
         return flag;
     }
 
+    @Override
+    public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles(IntrospectedTable introspectedTable) {
+        return super.contextGenerateAdditionalJavaFiles(introspectedTable);
+    }
+
+    /**
+     * 返回数据库的所有表名和注释
+     *
+     * @return
+     */
+    public List<TableComment> getTableCommentList() {
+
+        Statement stat = null;
+        Connection conn = null;
+        ResultSet resultSet = null;
+        try {
+
+            String db = getConnection().getCatalog();
+
+            conn = getConnection();
+            stat = conn.createStatement();
+
+            String sql = "select table_name,table_comment,create_time from information_schema.tables where table_schema = '" + db + "' order by table_name asc;";
+            resultSet = stat.executeQuery(sql);
+
+            List<TableComment> tableList = new ArrayList<TableComment>();
+            while (resultSet.next()) {
+                tableList.add(new TableComment(resultSet.getString("table_name"), resultSet.getString("table_comment")));
+
+            }
+
+            return tableList;
+
+
+        } catch (Exception e) {
+            // e.printStackTrace();
+        } finally {
+
+        }
+
+        return null;
+
+
+    }
+
+    public List<String> getTables() {
+        Statement stat = null;
+        Connection conn = null;
+        ResultSet resultSet = null;
+        try {
+
+            conn = getConnection();
+            stat = conn.createStatement();
+            resultSet = stat.executeQuery("show tables;");
+
+            List<String> tableList = new ArrayList<String>();
+            while (resultSet.next()) {
+                tableList.add(resultSet.getString(1));
+
+            }
+
+            return tableList;
+
+
+        } catch (Exception e) {
+
+        } finally {
+
+
+        }
+
+
+        return null;
+
+
+    }
+
+    @Override
+    public List<GeneratedJavaFile> contextGenerateAdditionalJavaFiles() {
+
+        try {
+            List<TableComment> tableList = getTableCommentList();
+
+            // String tableObj="";
+            String varTable = "";
+            for (TableComment table : tableList) {
+
+                //  tableObj=BeanName.getTableObjectByDbTable(table);
+                varTable = table.getName().toUpperCase();
+                FieldEnum field = new FieldEnum();
+                field.setName(varTable + "_FULL_DETAIL");
+                field.setDesc(table.getComment() + "详情");
+
+                SkDefaultShellCallback.addFullKeyMap(field.getName(), field);
+
+                field = new FieldEnum();
+                field.setName(varTable + "_FULL_LIST");
+                field.setDesc(table.getComment() + "列表");
+                SkDefaultShellCallback.addFullKeyMap(field.getName(), field);
+
+
+            }
+        } catch (Exception e) {
+
+        }
+
+        return super.contextGenerateAdditionalJavaFiles();
+    }
 
     @Override
     public boolean validate(List<String> warnings) {
@@ -127,22 +236,17 @@ public class SkPlugin extends PluginAdapter {
 
         clearOldDir(BeanName.getTargetProject());
 
+        SkDefaultShellCallback.enumMap = new HashMap<>();
+        SkDefaultShellCallback.fullKeyMap = new HashMap<>();
 
     }
 
 
     private boolean isBigType(String jdbcTypeName) {
 
-        if (
-                "LONGVARCHAR".equalsIgnoreCase(jdbcTypeName)
-                        || "CLOB".equalsIgnoreCase(jdbcTypeName)
-                        || "BLOB".equalsIgnoreCase(jdbcTypeName)
-
-        ) {
-
-            return true;
-        }
-        return false;
+        return "LONGVARCHAR".equalsIgnoreCase(jdbcTypeName)
+                || "CLOB".equalsIgnoreCase(jdbcTypeName)
+                || "BLOB".equalsIgnoreCase(jdbcTypeName);
 
     }
 
@@ -169,13 +273,26 @@ public class SkPlugin extends PluginAdapter {
 
         try {
 
-            if (!StringUtil.isEmpty(introspectedTable.getRemarks()))
+            if (!StringUtil.isEmpty(introspectedTable.getRemarks())) {
                 return;
+            }
 
+            String remarkSql = "";
+
+            if (dbType == DB_TYPE_MSSERVER) {
+                remarkSql = "SELECT DISTINCT CAST (d.name AS VARCHAR (500)) AS name,CAST (f.value AS VARCHAR (500)) AS COMMENT FROM syscolumns a LEFT JOIN systypes b ON a.xusertype=b.xusertype INNER JOIN sysobjects d ON a.id=d.id AND d.xtype='U' AND d.name<> 'dtproperties' LEFT JOIN syscomments e ON a.cdefault=e.id LEFT JOIN sys.extended_properties g ON a.id=G.major_id AND a.colid=g.minor_id LEFT JOIN sys.extended_properties f ON d.id=f.major_id AND f.minor_id= 0" +
+
+                        " where  d.name like '" + introspectedTable.getFullyQualifiedTableNameAtRuntime() + "'";
+            } else {
+                remarkSql = "show table status like '" + introspectedTable.getFullyQualifiedTableNameAtRuntime() + "'";
+            }
             Statement statement = getConnection().createStatement();
 
-            ResultSet rs = statement.executeQuery("show table status like '" + introspectedTable.getFullyQualifiedTableNameAtRuntime() + "'");
+            ResultSet rs = statement.executeQuery(remarkSql);
             while (rs.next()) {
+
+                // System.out.println(rs.getString(1));
+                // System.out.println(rs.getString(2));
                 introspectedTable.setRemarks(rs.getString("COMMENT"));
             }
             rs.close();
@@ -183,6 +300,7 @@ public class SkPlugin extends PluginAdapter {
 
 
         } catch (Exception e) {
+
 
         }
 
@@ -215,22 +333,24 @@ public class SkPlugin extends PluginAdapter {
 
         interfaze.addImportedType(new FullyQualifiedJavaType(BeanName.getFullBaseMapperClassName()));//导入IBaseMapper
 
-        interfaze.addImportedType(new FullyQualifiedJavaType(BeanName.getFullSearchClassName(entityName)));
+        interfaze.addImportedType(new FullyQualifiedJavaType(BeanName.getFullSearchExtClassName(entityName)));
 
-        interfaze.addSuperInterface(new FullyQualifiedJavaType(BeanName.getShortBaseMapperClassName() + "<" + BeanName.getShortModelExtClassName(entityName) + "," + BeanName.getShortSearchClassName(entityName) + "," + keyType + ">"));
+        interfaze.addSuperInterface(new FullyQualifiedJavaType(BeanName.getShortBaseMapperClassName() + "<" + BeanName.getShortModelExtClassName(entityName) + "," + BeanName.getShortSearchExtClassName(entityName) + "," + keyType + ">"));
 
 
         List<ColumnRemark> columnRemarkList = getColumnRemarkListByTable(introspectedTable);
 
         createMapperExt(introspectedTable, keyType);
-        createModelExt(introspectedTable, keyType, columnRemarkList);//生成DO
+        createModelDesc(introspectedTable, keyType, columnRemarkList);//生成ModelExt
+        createModelExt(introspectedTable, keyType, columnRemarkList);//生成ModelDesc
+
         createDO(introspectedTable, keyType);//生成DO
 
         createDao(introspectedTable, keyType);//生成dao
         createService(introspectedTable, keyType);//生成service
         createSearch(introspectedTable, columnRemarkList, keyType);//生成search
 
-        createController(entityName, introspectedTable.getRemarks(), keyType);//生成controller
+        createController(entityName, introspectedTable.getRemarks(), keyType, columnRemarkList);//生成controller
 
 
         createDomainVO(introspectedTable, keyType, columnRemarkList);//创建DomainVO
@@ -242,8 +362,43 @@ public class SkPlugin extends PluginAdapter {
         createWebSite(introspectedTable, columnRemarkList, keyType);//创建页面
 
 
+        createExceptionMessage(introspectedTable);//生成错误码
+
+
         return true;
     }
+
+    /**
+     * 生成每个表错误码
+     *
+     * @param introspectedTable
+     */
+    private void createExceptionMessage(IntrospectedTable introspectedTable) {
+
+        try {
+            String tableName = BeanName.getFirstUpperCase(getEntityName(introspectedTable));
+
+            String tableDesc = introspectedTable.getRemarks();
+
+            String keyType = introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType().getShortName();
+            Map<String, Object> dataMap = new HashMap<>();
+
+            setComment(dataMap, tableName, "ExceptionMessage", tableDesc);
+            setBaseInfo(dataMap, tableName, keyType, tableDesc);
+            dataMap.put("package", BeanName.getExceptionPackage());
+            dataMap.put("tableName", tableName);
+            dataMap.put("tableDesc", tableDesc);
+            dataMap.put("tableIndex", Main.getTableIndex());
+
+
+            BeanName.getFreeMarkerUtil().printFile("ExceptionMessage.ftl", dataMap, BeanName.getExceptionMessage(tableName) + ".java", BeanName.getExceptionMessagePath(), BeanName.getTempInPubJavaDir() + "/exception");
+        } catch (Exception e) {
+
+        }
+
+
+    }
+
 
     /**
      * 生成mapperExt
@@ -286,6 +441,49 @@ public class SkPlugin extends PluginAdapter {
 
     }
 
+
+    /**
+     * 生成Model Desc
+     *
+     * @param introspectedTable
+     * @param keyType
+     */
+    private void createModelDesc(IntrospectedTable introspectedTable, String keyType, List<ColumnRemark> columnRemarkList) {
+
+        String entityName = getEntityName(introspectedTable);
+        String remark = introspectedTable.getRemarks();
+        entityName = BeanName.getShortModelClassName(entityName);
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "Desc", remark);
+            dataMap.put("package", BeanName.getDescPackage());
+            dataMap.put("modelDesc", BeanName.getShortModelDescClassName(entityName));
+            dataMap.put("enumsPackage", BeanName.getPackageEnum());
+
+            List<ColumnRemark> columnList = new ArrayList<>();
+            if (columnRemarkList != null && columnRemarkList.size() > 0) {
+
+
+                columnRemarkList.forEach(columnRemark -> {
+
+                    if (columnRemark.getValueList() != null && columnRemark.getValueList().size() > 0) {
+                        columnList.add(columnRemark);
+                        return;
+                    }
+
+
+                });
+
+
+            }
+
+            dataMap.put("columnList", columnList);
+            setBaseInfo(dataMap, entityName, keyType, remark);
+            BeanName.getFreeMarkerUtil().printFile("Desc.ftl", dataMap, BeanName.getShortModelDescClassName(entityName) + ".java", BeanName.getDescPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+        }
+
+    }
 
     /**
      * 生成Model Ext
@@ -375,7 +573,7 @@ public class SkPlugin extends PluginAdapter {
             dataMap.put("package", BeanName.getVOPackage());
 
 
-            setBaseInfo(dataMap, entityName, keyType, remark);
+            setBaseInfo(dataMap, entityName, keyType, remark + "DetailVO");
 
 
             BeanName.getFreeMarkerUtil().printFile("DetailVO.ftl", dataMap, BeanName.getShortDetailVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
@@ -400,9 +598,9 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "ListVO", remark);
             dataMap.put("package", BeanName.getVOPackage());
-            dataMap.put("remark", remark);
+            // dataMap.put("remark", remark+"ListVO");
 
-            setBaseInfo(dataMap, entityName, keyType, remark);
+            setBaseInfo(dataMap, entityName, keyType, remark + "ListVO");
 
 
             BeanName.getFreeMarkerUtil().printFile("ListVO.ftl", dataMap, BeanName.getShortListVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
@@ -431,7 +629,7 @@ public class SkPlugin extends PluginAdapter {
             dataMap.put("shortDetailDomainVO", BeanName.getShortDetailDomainVOClassName(entityName));
             dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
             dataMap.put("columnList", columnRemarkList);
-            setBaseInfo(dataMap, entityName, keyType, remark + "详情");
+            setBaseInfo(dataMap, entityName, keyType, remark + "DetailDomainVO");
             BeanName.getFreeMarkerUtil().printFile("DetailDomainVO.ftl", dataMap, BeanName.getShortDetailDomainVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
         }
@@ -458,7 +656,7 @@ public class SkPlugin extends PluginAdapter {
             dataMap.put("shortVO", BeanName.getShortVOClassName(entityName));
             dataMap.put("shortBaseVOClass", BeanName.getShortBaseVOClass());
             dataMap.put("columnList", columnRemarkList);
-            setBaseInfo(dataMap, entityName, keyType, remark);
+            setBaseInfo(dataMap, entityName, keyType, remark + "DomainVO");
             BeanName.getFreeMarkerUtil().printFile("DomainVO.ftl", dataMap, BeanName.getShortVOClassName(entityName) + ".java", BeanName.getVOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
         }
@@ -478,25 +676,185 @@ public class SkPlugin extends PluginAdapter {
         entityName = BeanName.getShortModelClassName(entityName);
         try {
             Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "DomainDTO", remark);
+            dataMap.put("package", BeanName.getDTOPackage());
+            dataMap.put("columnList", columnRemarkList);
+            // dataMap.put("remark", remark+"ModelDTO");
+            setBaseInfo(dataMap, entityName, keyType, remark + "ModelDomainDTO");
+            BeanName.getFreeMarkerUtil().printFile("DomainDTO.ftl", dataMap, BeanName.getShortDomainDTOClassName(entityName) + ".java", BeanName.getDTOPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+
+
+        }
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "DTO", remark);
             dataMap.put("package", BeanName.getDTOPackage());
             dataMap.put("columnList", columnRemarkList);
-            dataMap.put("remark", remark);
-            setBaseInfo(dataMap, entityName, keyType, remark);
+            // dataMap.put("remark", remark+"ModelDTO");
+            setBaseInfo(dataMap, entityName, keyType, remark + "ModelDTO");
             BeanName.getFreeMarkerUtil().printFile("DTO.ftl", dataMap, BeanName.getShortDTOClassName(entityName) + ".java", BeanName.getDTOPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
+
+
         }
+
+
+
+
+
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "DomainPageDTO", remark);
+            dataMap.put("package", BeanName.getDTOPackage());
+            dataMap.put("columnList", columnRemarkList);
+            //  dataMap.put("extendsClass",BeanName.getShortDomainPageDTOClassName(entityName));
+            //  dataMap.put("remark", remark+"PageDTO");
+            setBaseInfo(dataMap, entityName, keyType, remark + "DomainPageDTO");
+            BeanName.getFreeMarkerUtil().printFile("DomainPageDTO.ftl", dataMap, BeanName.getShortDomainPageDTOClassName(entityName) + ".java", BeanName.getDTOPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+
+
+        }
+
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "PageDTO", remark);
+            dataMap.put("package", BeanName.getDTOPackage());
+            dataMap.put("extendsClass", BeanName.getShortDomainPageDTOClassName(entityName));
+            dataMap.put("columnList", columnRemarkList);
+            //  dataMap.put("remark", remark+"PageDTO");
+            setBaseInfo(dataMap, entityName, keyType, remark + "PageDTO");
+            BeanName.getFreeMarkerUtil().printFile("PageDTO.ftl", dataMap, BeanName.getShortPageDTOClassName(entityName) + ".java", BeanName.getDTOPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+
+
+        }
+
+
+    }
+
+
+    /**
+     * 解析remark
+     *
+     * @param introspectedTable
+     * @return
+     */
+    private List<ColumnRemark> getSqlServerColumnRemarkListByTable(IntrospectedTable introspectedTable) {
+
+        try {
+            String table = introspectedTable.getFullyQualifiedTableNameAtRuntime();
+            String entityName = getEntityName(introspectedTable);
+            String sql = "SELECT\n" +
+                    "B.name,\n" +
+                    "\tconvert(varchar(1000), C.\n" +
+                    "VALUE)\n" +
+                    "\tAS REMARKS\n" +
+                    "FROM\n" +
+                    "\tsys.tables A\n" +
+                    "INNER JOIN sys.columns B ON B.object_id = A.object_id\n" +
+                    "LEFT JOIN sys.extended_properties C ON C.major_id = B.object_id\n" +
+                    "AND C.minor_id = B.column_id\n" +
+                    "WHERE\n" +
+                    "\tA.name = '" + table + "'";
+
+            Statement statement = getConnection().createStatement();
+
+            ResultSet rs = statement.executeQuery(sql);
+
+            List<ColumnRemark> remarkList = new ArrayList<ColumnRemark>();
+
+
+            while (rs.next()) {
+
+                ColumnRemark columnRemark = new ColumnRemark();
+                String descName = rs.getString(2);
+                String column = rs.getString(1);
+                if (StringUtil.isEmpty(descName)) {
+                    descName = column;
+                }
+                columnRemark.setDescName(descName);
+                columnRemark.setDbName(column);
+                columnRemark.setShow(true);
+                if (!column.equalsIgnoreCase("id")) {
+                    columnRemark.setShowListPage(true);
+                }
+                columnRemark.setShowDetailPage(false);
+
+
+                columnRemark.parse(descName);
+                remarkList.add(columnRemark);
+            }
+            rs.close();
+            statement.close();
+
+            List<IntrospectedColumn> columns = introspectedTable.getAllColumns();
+
+            for (ColumnRemark columnRemark : remarkList) {
+
+
+                for (IntrospectedColumn column : columns) {
+                    if (columnRemark.getDbName().equalsIgnoreCase(column.getActualColumnName())) {
+
+                        columnRemark.setDefaultValue(column.getDefaultValue());
+                        columnRemark.setName(column.getJavaProperty());
+                        String jdbcTypeName = column.getJdbcTypeName();
+                        if ("INTEGER".equalsIgnoreCase(jdbcTypeName)) {
+                            columnRemark.setSearchFlag(SearchTypeEnum.NUMBER.getType());
+
+                        } else if ("VARCHAR".equalsIgnoreCase(jdbcTypeName)) {
+                            columnRemark.setSearchFlag(SearchTypeEnum.LIKE.getType());
+
+                        } else if ("DECIMAL".equalsIgnoreCase(jdbcTypeName)) {
+                            columnRemark.setSearchFlag(SearchTypeEnum.NUMBER.getType());
+
+
+                        } else if ("TIMESTAMP".equalsIgnoreCase(jdbcTypeName)) {
+                            columnRemark.setSearchFlag(SearchTypeEnum.DATE.getType());
+
+                        }
+
+
+                        // columnRemark.setDbName(column.getActualColumnName());
+                        columnRemark.setJdbcType(column.getJdbcTypeName());
+                        columnRemark.setJavaType(column.getFullyQualifiedJavaType().getShortName());
+                        columnRemark.setEntityName(entityName);
+                        column.setRemarks(columnRemark.getDescName());
+                        break;
+                    }
+
+
+                }
+
+
+            }
+
+
+            return remarkList;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return null;
+
 
     }
 
 
     private List<ColumnRemark> getColumnRemarkListByTable(IntrospectedTable introspectedTable) {
 
+        if (dbType == DB_TYPE_MSSERVER) {
+
+            return getSqlServerColumnRemarkListByTable(introspectedTable);
+        }
+
+
         String entityName = getEntityName(introspectedTable);
 
         List<IntrospectedColumn> columns = introspectedTable.getAllColumns();
-        if (columns == null || columns.size() == 0)
+        if (columns == null || columns.size() == 0) {
             return null;
+        }
 
 
         // ParserFactory parserFactory = ParserFactory.getInstance();
@@ -506,10 +864,13 @@ public class SkPlugin extends PluginAdapter {
 
         IParser parser = null;
         List<ColumnRemark> remarkList = new ArrayList<ColumnRemark>();
+
+
         for (IntrospectedColumn column : columns) {
             remark = column.getRemarks();
-            if (remark == null || "".equalsIgnoreCase(remark))
+            if (remark == null || "".equalsIgnoreCase(remark)) {
                 continue;
+            }
             columnRemark = new ColumnRemark();
             columnRemark.setDefaultValue(column.getDefaultValue());
             columnRemark.setName(column.getJavaProperty());
@@ -538,6 +899,7 @@ public class SkPlugin extends PluginAdapter {
                     fieldEnum.setDesc(columnValue.getDesc());
                     fieldEnum.setType(columnValue.getValue());
                     fieldEnum.setName(columnValue.getEnName());
+                    fieldEnum.setNumber("INTEGER".equalsIgnoreCase(columnRemark.getJdbcType()));
                     fieldEnumList.add(fieldEnum);
                 }
                 SkDefaultShellCallback.addFiledMap(fieldName, fieldEnumList);
@@ -557,23 +919,26 @@ public class SkPlugin extends PluginAdapter {
      */
     private void createWebSite(IntrospectedTable introspectedTable, List<ColumnRemark> columnRemarkList, String keyType) {
 
-        if (introspectedTable == null)
+        if (introspectedTable == null) {
             return;
+        }
         String entityName = BeanName.getFirstLowerCase(getEntityName(introspectedTable));
 
         String tableRemarks = introspectedTable.getRemarks();
 
 
-        if (columnRemarkList == null || columnRemarkList.size() == 0)
+        if (columnRemarkList == null || columnRemarkList.size() == 0) {
             return;
+        }
 
 
         List<ColumnRemark> showList = new ArrayList<ColumnRemark>();
 
         //    List<ColumnRemark> showListPageList = new ArrayList<ColumnRemark>();
         for (ColumnRemark columnRemark : columnRemarkList) {
-            if (columnRemark.isShow())
+            if (columnRemark.isShow()) {
                 showList.add(columnRemark);
+            }
 
           /*  if (columnRemark.isShowListPage()) {
                 showListPageList.add(columnRemark);
@@ -596,6 +961,7 @@ public class SkPlugin extends PluginAdapter {
         //  pageDir = "/work/vip-sunke/apps/template/template-web/src/main/resources/templates/back/" + entityName;
 
         createAddPage(pageDir, showList, entityName);
+        createDetailPage(pageDir, columnRemarkList, entityName);
         createListPage(pageDir, showList, entityName, tableRemarks);
         createModPage(pageDir, showList, entityName);
         addMenuData(entityName, tableRemarks);
@@ -658,7 +1024,7 @@ public class SkPlugin extends PluginAdapter {
     private void addMenuData(String entityName, String tableRemarks) {
 
         MenuDomain menuDomain = new MenuDomain(entityName, tableRemarks + "管理");
-        SubMenuDomain subMenu = new SubMenuDomain("/back/" + entityName + "/list", tableRemarks + "列表", "list");
+        SubMenuDomain subMenu = new SubMenuDomain("/back/" + entityName + "/list", tableRemarks + "列表", BeanName.getFirstLowerCase(entityName) + "/list");
         menuDomain.addSubMenu(subMenu);
         Main.addMenu(menuDomain);
     }
@@ -669,7 +1035,7 @@ public class SkPlugin extends PluginAdapter {
         dataMap.put("entityName", entityName);
         dataMap.put("menuName", entityName);
         dataMap.put("action", "action");
-        dataMap.put("listPage", "/" + BeanName.getRoute() + "/" + entityName + "/list");
+        dataMap.put("listPage", BeanName.getListPage(entityName));
         dataMap.put("contextPath", "pageContext.request.contextPath");
         dataMap.put("NumberUtil", BeanName.getPackageCommonProject() + ".NumberUtil");
         dataMap.put("manageController", BeanName.getFullBaseControllerClassName());
@@ -684,38 +1050,7 @@ public class SkPlugin extends PluginAdapter {
      * @param pageDir
      * @param columnRemarkList
      */
-    private void createAddPage(String pageDir, List<ColumnRemark> columnRemarkList, String entityName) {
 
-
-        try {
-            String tempPage = BeanName.getTemplatePageDir();
-
-            String page = "add.html";
-
-            Map<String, Object> dataMap = new HashMap<String, Object>();
-
-            dataMap.put("list", columnRemarkList);
-
-
-          /*  dataMap.put("entityName", entityName);
-            dataMap.put("menuName", entityName);
-
-*/
-
-            setPageMapData(dataMap, entityName);
-
-            FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil();
-
-
-            freeMarkerUtil.printFile(BeanName.getAddPageTemplateName(), dataMap, page, pageDir, tempPage);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-
-    }
 
     /**
      * 生成列表页面
@@ -727,7 +1062,7 @@ public class SkPlugin extends PluginAdapter {
         try {
             String tempPage = BeanName.getTemplatePageDir();
 
-            String page = "list.html";
+            String page = "list" + BeanName.createPageSuffix();
 
             Map<String, Object> dataMap = new HashMap<String, Object>();
 
@@ -759,6 +1094,46 @@ public class SkPlugin extends PluginAdapter {
     }
 
 
+    private void createAddPage(String pageDir, List<ColumnRemark> columnRemarkList, String entityName) {
+
+
+        try {
+            String tempPage = BeanName.getTemplatePageDir();
+
+            String page = "add" + BeanName.createPageSuffix();
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("list", columnRemarkList);
+            setPageMapData(dataMap, entityName);
+            FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil();
+            freeMarkerUtil.printFile(BeanName.getAddPageTemplateName(), dataMap, page, pageDir, tempPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * 生成详情页面
+     *
+     * @param pageDir
+     * @param columnRemarkList
+     */
+    private void createDetailPage(String pageDir, List<ColumnRemark> columnRemarkList, String entityName) {
+        try {
+
+            String tempPage = BeanName.getTemplatePageDir();
+            String page = "detail" + BeanName.createPageSuffix();
+            Map<String, Object> dataMap = new HashMap<String, Object>();
+            dataMap.put("list", columnRemarkList);
+            setPageMapData(dataMap, entityName);
+            FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil();
+            freeMarkerUtil.printFile(BeanName.getDetailPageTemplateName(), dataMap, page, pageDir, tempPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
     /**
      * 生成修改页面
      *
@@ -769,29 +1144,24 @@ public class SkPlugin extends PluginAdapter {
         try {
 
             String tempPage = BeanName.getTemplatePageDir();
-
-            String page = "mod.html";
-
+            String page = "mod" + BeanName.createPageSuffix();
             Map<String, Object> dataMap = new HashMap<String, Object>();
-
             dataMap.put("list", columnRemarkList);
-
             setPageMapData(dataMap, entityName);
             FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil();
             freeMarkerUtil.printFile(BeanName.getModPageTemplateName(), dataMap, page, pageDir, tempPage);
-
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
-    private void createController(String entityName, String remark, String keyType) {
+    private void createController(String entityName, String remark, String keyType, List<ColumnRemark> columnRemarkList) {
 
         if (BeanName.isApiController()) {
             createApiController(entityName, remark, keyType);
         } else {
-            createBackController(entityName, remark, keyType);
+            createBackController(entityName, remark, keyType, columnRemarkList);
         }
 
 
@@ -800,8 +1170,9 @@ public class SkPlugin extends PluginAdapter {
     private void createApiController(String entityName, String remark, String keyType) {
 
 
-        if (StringUtil.isEmpty(remark))
+        if (StringUtil.isEmpty(remark)) {
             remark = entityName;
+        }
 
         try {
             Map<String, Object> dataMap = new HashMap<>();
@@ -811,10 +1182,11 @@ public class SkPlugin extends PluginAdapter {
 
             dataMap.put("controllerName", BeanName.getFirstLowerCase(entityName) + "RestfulController");
 
-            dataMap.put("route", "/" + BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
-            dataMap.put("baseView", BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
+            dataMap.put("route", BeanName.getRouteByEntityName(entityName));
+            dataMap.put("baseView", BeanName.getBaseViewByEntityName(entityName));
             dataMap.put("controllerClass", BeanName.getShortControllerClassName(entityName));
-            dataMap.put("apiTags", remark + "相关");
+            dataMap.put("apiTags", BeanName.getProjectName() + "-" + remark + "相关");
+            dataMap.put("modelName", remark);
             dataMap.put("apiDesc", remark + "相关接口");
 
             BeanName.getFreeMarkerUtil().printFile("RestfulController.ftl", dataMap, BeanName.getShortControllerClassName(entityName) + ".java", BeanName.getApiControllerPath(), BeanName.getTempInPubJavaDir() + "/template");
@@ -824,11 +1196,12 @@ public class SkPlugin extends PluginAdapter {
     }
 
 
-    private void createBackController(String entityName, String remark, String keyType) {
+    private void createBackController(String entityName, String remark, String keyType, List<ColumnRemark> columnRemarkList) {
 
 
-        if (StringUtil.isEmpty(remark))
+        if (StringUtil.isEmpty(remark)) {
             remark = entityName;
+        }
 
         try {
             Map<String, Object> dataMap = new HashMap<>();
@@ -839,19 +1212,52 @@ public class SkPlugin extends PluginAdapter {
 
             dataMap.put("controllerName", BeanName.getFirstLowerCase(entityName) + "Controller");
 
-            dataMap.put("route", "/" + BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
-            dataMap.put("baseView", BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/");
+            dataMap.put("route", BeanName.getRouteByEntityName(entityName));
+            dataMap.put("baseView", BeanName.getBaseViewByEntityName(entityName));
             dataMap.put("controllerClass", BeanName.getShortControllerClassName(entityName));
 
+            dataMap.put("menuModelName", BeanName.getFirstLowerCase(entityName));
+            dataMap.put("menuPageName", BeanName.getFirstLowerCase(entityName) + "/list");
             dataMap.put("menuModel", remark + "管理");
+            dataMap.put("pageName", remark);
             dataMap.put("apiTags", remark + "相关");
+            dataMap.put("modelName", remark);
             dataMap.put("apiDesc", remark + "相关接口");
+            dataMap.put("enumsPackage", BeanName.getPackageEnum());
+
+            List<ColumnRemark> columnList = new ArrayList<>();
+            if (columnRemarkList != null && columnRemarkList.size() > 0) {
+
+
+                columnRemarkList.forEach(columnRemark -> {
+
+                    if (columnRemark.getValueList() != null && columnRemark.getValueList().size() > 0) {
+                        columnList.add(columnRemark);
+                        return;
+                    }
+
+
+                });
+
+
+            }
+
+            dataMap.put("columnList", columnList);
 
 
             BeanName.getFreeMarkerUtil().printFile("Controller.ftl", dataMap, BeanName.getShortControllerClassName(entityName) + ".java", BeanName.getControllerPath(), BeanName.getTempInPubJavaDir() + "/template");
+
+
         } catch (Exception e) {
 
         }
+
+
+        //创建index
+
+
+
+
 
 
 
@@ -950,8 +1356,9 @@ public class SkPlugin extends PluginAdapter {
     private String getKeyColumns(IntrospectedTable introspectedTable) {
         String tableName = introspectedTable.getFullyQualifiedTableNameAtRuntime();
         List<IntrospectedColumn> keyColumns = introspectedTable.getPrimaryKeyColumns();
-        if (keyColumns == null || keyColumns.size() == 0)
+        if (keyColumns == null || keyColumns.size() == 0) {
             return "";
+        }
 
 
         return tableName + "." + keyColumns.get(0).getActualColumnName();
@@ -962,16 +1369,18 @@ public class SkPlugin extends PluginAdapter {
     private void createSearchMethodOrField(String entityName, List<ColumnRemark> columnRemarkList, boolean field, StringBuffer sf) {
 
 
-        if (columnRemarkList == null || columnRemarkList.size() == 0)
+        if (columnRemarkList == null || columnRemarkList.size() == 0) {
             return;
+        }
 
         int searchFlag = 0;
 
         for (ColumnRemark columnRemark : columnRemarkList) {
             searchFlag = columnRemark.getSearchFlag();
 
-            if (searchFlag == 0)
+            if (searchFlag == 0) {
                 continue;
+            }
 
 
             if (searchFlag == SearchTypeEnum.LIKE.getType()
@@ -1027,16 +1436,45 @@ public class SkPlugin extends PluginAdapter {
             setComment(dataMap, entityName, "Search", remark);
             dataMap.put("package", BeanName.getSearchPackage());
             setBaseInfo(dataMap, entityName, keyType, remark);
-            StringBuffer sf = new StringBuffer();
-            createSearchMethodOrField(entityName, columnRemarkList, true, sf);
-            dataMap.put("searchField", sf.toString());
-            sf = new StringBuffer();
-            createSearchMethodOrField(entityName, columnRemarkList, false, sf);
-            dataMap.put("searchFieldMethod", sf.toString());
+            //  StringBuffer sf = new StringBuffer();
+            //  createSearchMethodOrField(entityName, columnRemarkList, true, sf);
+            //  dataMap.put("searchField", sf.toString());
+            dataMap.put("columnList", columnRemarkList);
+            //   sf = new StringBuffer();
+            // createSearchMethodOrField(entityName, columnRemarkList, false, sf);
+            // dataMap.put("searchFieldMethod", sf.toString());
             BeanName.getFreeMarkerUtil().printFile(BeanName.getSearchTemplate(), dataMap, BeanName.getShortSearchClassName(entityName) + ".java", BeanName.getSearchPath(), BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
 
         }
+
+        try {
+            Map<String, Object> dataMap = new HashMap<>();
+            setComment(dataMap, entityName, "SearchExt", remark);
+            dataMap.put("package", BeanName.getSearchExtPackage());
+            setBaseInfo(dataMap, entityName, keyType, remark);
+            // StringBuffer sf = new StringBuffer();
+            // createSearchMethodOrField(entityName, columnRemarkList, true, sf);
+            //  dataMap.put("searchField", sf.toString());
+            dataMap.put("columnList", columnRemarkList);
+            //  sf = new StringBuffer();
+            //  createSearchMethodOrField(entityName, columnRemarkList, false, sf);
+            // dataMap.put("searchFieldMethod", sf.toString());
+            String template = "SearchExt.ftl";
+            if (BeanName.getSearchTemplate().equalsIgnoreCase("SourceSearch.ftl")) {
+                template = "SourceSearchExt.ftl";
+            }
+            BeanName.getFreeMarkerUtil().printFile(template, dataMap, BeanName.getShortSearchExtClassName(entityName) + ".java", BeanName.getSearchExtPath(), BeanName.getTempInPubJavaDir() + "/template");
+        } catch (Exception e) {
+
+        }
+
+
+
+
+
+
+
 
        /* StringBuffer sf = new StringBuffer();
         sf.append("package " + BeanName.getSearchPackage() + ";\n\n");
@@ -1135,18 +1573,29 @@ public class SkPlugin extends PluginAdapter {
 
     private void setBaseInfo(Map<String, Object> dataMap, String entityName, String keyType, String remark) {
 
-
+        if (remark == null) {
+            remark = "";
+        }
         dataMap.put("remark", remark);
         dataMap.put("entityName", entityName);
         dataMap.put("keyType", keyType);
         dataMap.put("pubInterPackage", BeanName.getPubInterPackage());
+        dataMap.put("commonPackage", BeanName.getPackageCommon());
+        dataMap.put("webCommonPackage", BeanName.getPackageWebCommon());
+        dataMap.put("modelExtPackage", BeanName.getExtPackage());
+        dataMap.put("servicePackage", BeanName.getServicePackage());
         dataMap.put("daoVar", BeanName.getDaoObjectName(entityName));//dao变量名
         dataMap.put("serviceVar", BeanName.getServiceObjectName(entityName));//server 变量名
         dataMap.put("mapperExtVar", BeanName.getMapperExtObjectName(entityName));//mapperExt 变量名
+        dataMap.put("packageProject", BeanName.getPackageProject());//项目路径
+        dataMap.put("baseController", BeanName.getBaseControllerPackage());//项目路径
 
 
         dataMap.put("modelClass", BeanName.getFullModelClassName(entityName));
         dataMap.put("model", BeanName.getShortModelClassName(entityName));
+
+        dataMap.put("modelDescClass", BeanName.getFullModelDescClassName(entityName));
+        dataMap.put("modelDesc", BeanName.getShortModelDescClassName(entityName));
 
         dataMap.put("modelExtClass", BeanName.getFullModelExtClassName(entityName));
         dataMap.put("modelExt", BeanName.getShortModelExtClassName(entityName));
@@ -1157,9 +1606,21 @@ public class SkPlugin extends PluginAdapter {
         dataMap.put("modelSearchClass", BeanName.getFullSearchClassName(entityName));
         dataMap.put("modelSearch", BeanName.getShortSearchClassName(entityName));
 
+        dataMap.put("modelSearchExtClass", BeanName.getFullSearchExtClassName(entityName));
+        dataMap.put("modelSearchExt", BeanName.getShortSearchExtClassName(entityName));
+
 
         dataMap.put("modelDTOClass", BeanName.getFullModelDTOClassName(entityName));
         dataMap.put("modelDTO", BeanName.getShortDTOClassName(entityName));
+
+        dataMap.put("modelDomainDTOClass", BeanName.getFullModelDomainDTOClassName(entityName));
+        dataMap.put("modelDomainDTO", BeanName.getShortDomainDTOClassName(entityName));
+
+        dataMap.put("modelPageDTOClass", BeanName.getFullModelPageDTOClassName(entityName));
+        dataMap.put("modelPageDTO", BeanName.getShortPageDTOClassName(entityName));
+
+        dataMap.put("modelDomainPageDTOClass", BeanName.getFullModelDomainPageDTOClassName(entityName));
+        dataMap.put("modelDomainPageDTO", BeanName.getShortDomainPageDTOClassName(entityName));
 
 
         dataMap.put("modelVOClass", BeanName.getFullModelVOClassName(entityName));
@@ -1222,6 +1683,9 @@ public class SkPlugin extends PluginAdapter {
         dataMap.put("abstractDTOClass", BeanName.getFullBaseDTOClass());
         dataMap.put("abstractDTO", BeanName.getShortBaseDTOClass());
 
+        dataMap.put("abstractPageDTOClass", BeanName.getFullBasePageDTOClass());
+        dataMap.put("abstractPageDTO", BeanName.getShortBasePageDTOClass());
+
         dataMap.put("baseVOClass", BeanName.getFullBaseVOClass());
         dataMap.put("baseVO", BeanName.getShortBaseVOClass());
 
@@ -1230,6 +1694,7 @@ public class SkPlugin extends PluginAdapter {
 
         dataMap.put("baseListVOClass", BeanName.getFullBaseListVOClass());
         dataMap.put("baseListVO", BeanName.getShortBaseListVOClass());
+        dataMap.put("route", BeanName.getRoute());
 
 
     }
@@ -1312,8 +1777,9 @@ public class SkPlugin extends PluginAdapter {
 
     private void setComment(Map<String, Object> map, String entityName, String type, String remark) {
 
-        if (remark == null)
+        if (remark == null) {
             remark = "";
+        }
         map.put("author", BeanName.getAuthor());
         map.put("date", getFormatDate2String(new Date(), "yyyy-MM-dd HH:mm:ss"));
         map.put("description", entityName + type + "      " + remark);
@@ -1345,8 +1811,9 @@ public class SkPlugin extends PluginAdapter {
 
         File daoInterfaceFile = new File(filePath + "/" + fileName + ".java");
 
-        if (daoInterfaceFile.exists())
+        if (daoInterfaceFile.exists()) {
             daoInterfaceFile.delete();
+        }
 
 
         FileWriter writer = null;
@@ -1393,6 +1860,7 @@ public class SkPlugin extends PluginAdapter {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "Dao", remark);
             dataMap.put("package", BeanName.getDaoPackage());
+
             setBaseInfo(dataMap, entityName, keyType, remark);
             BeanName.getFreeMarkerUtil().printFile("IDao.ftl", dataMap, BeanName.getShortDaoClassName(entityName) + ".java", daoInterfacePath, BeanName.getTempInPubJavaDir() + "/template");
         } catch (Exception e) {
@@ -1552,8 +2020,41 @@ public class SkPlugin extends PluginAdapter {
     }
 
 
+    /**
+     * 生成model
+     *
+     * @param topLevelClass
+     * @param introspectedTable
+     * @return
+     */
     @Override
     public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+
+
+        setRemark(introspectedTable);
+
+        topLevelClass.addFileCommentLine("/**\n" +
+                "* @author " + BeanName.getAuthor() + "\n" +
+                "* @Date " + YXDate.getFormatDate2String(new Date()) + "\n" +
+                "* @description " + introspectedTable.getRemarks() + "\n" +
+                "*/");
+
+        if ("BaseIdDoMain".equalsIgnoreCase(topLevelClass.getSuperClass().getShortName())) {
+            String keyType = introspectedTable.getPrimaryKeyColumns().get(0).getFullyQualifiedJavaType().getShortName();
+            topLevelClass.setSuperClass("BaseIdDoMain<" + keyType + ">");
+        }
+        List<Field> fieldList = topLevelClass.getFields();
+        if (StringUtil.isNotObjEmpty(fieldList)) {
+            for (Field field : fieldList) {
+                if ("sortNum".equalsIgnoreCase(field.getName())) {
+                    field.setInitializationString("0");
+                } else if ("showFlag".equalsIgnoreCase(field.getName())) {
+                    field.setInitializationString("1");
+                } else if ("delFlag".equalsIgnoreCase(field.getName())) {
+                    field.setInitializationString("0");
+                }
+            }
+        }
 
 
         List<IntrospectedColumn> columnList = introspectedTable.getAllColumns();
@@ -1575,6 +2076,25 @@ public class SkPlugin extends PluginAdapter {
             topLevelClass.addField(field);
         }
 
+        field = new SkField();
+        field.setRemark("填充detail key");
+        field.setFinal(true);
+        field.setStatic(true);
+        field.setVisibility(JavaVisibility.PUBLIC);
+        field.setType(new FullyQualifiedJavaType("java.lang.String"));
+        field.setName((BeanName.underscoreName(tableName) + "_full_detail_key").toUpperCase());
+        field.setInitializationString("\"" + (BeanName.underscoreName(tableName) + "_full_detail").toUpperCase() + "\"");
+        topLevelClass.addField(field);
+        field = new SkField();
+        field.setRemark("填充list key");
+        field.setFinal(true);
+        field.setStatic(true);
+        field.setVisibility(JavaVisibility.PUBLIC);
+        field.setType(new FullyQualifiedJavaType("java.lang.String"));
+        field.setName((BeanName.underscoreName(tableName) + "_full_list_key").toUpperCase());
+        field.setInitializationString("\"" + (BeanName.underscoreName(tableName) + "_full_list").toUpperCase() + "\"");
+        topLevelClass.addField(field);
+
 
         topLevelClass.addImportedType("org.hibernate.validator.constraints.Length");
         topLevelClass.addImportedType("javax.validation.constraints.*");
@@ -1584,6 +2104,20 @@ public class SkPlugin extends PluginAdapter {
 
         return result;
     }
+
+
+    private XmlElement createCacheElement() {
+
+        return null;
+      /*  XmlElement cache = new XmlElement("cache");
+        Attribute attribute = new Attribute("type", BeanName.getPubInterPackage() + ".MybatisRedisCache");
+
+        cache.addAttribute(attribute);
+
+        return cache;*/
+
+    }
+
 
     @Override
     public boolean sqlMapDocumentGenerated(Document document, IntrospectedTable introspectedTable) {
@@ -1599,6 +2133,13 @@ public class SkPlugin extends PluginAdapter {
 
 
         String namespace = getNamespace(rootElement);
+
+        XmlElement cacheElement = createCacheElement();
+        if (cacheElement != null) {
+            rootElement.addElement(cacheElement);
+        }
+
+
         rootElement.addElement(createOneResultMap(introspectedTable));//resultMap
         // rootElement.addElement(createBaseResultMap(namespace, introspectedTable));//baseResultMap
 
@@ -1635,14 +2176,95 @@ public class SkPlugin extends PluginAdapter {
 
         rootElement.addElement(createListCount(introspectedTable));//getListCount
 
+        rootElement.addElement(updateDataBySearch(tableName, pkColumn, introspectedTable)); //更新字段根据搜索
+        rootElement.addElement(updateDataById(tableName, pkColumn, introspectedTable));//更新字段根据id
 
         return super.sqlMapDocumentGenerated(document, introspectedTable);
+    }
+
+
+    /**
+     * 根据搜索更新字段
+     *
+     * @param introspectedTable
+     * @return
+     */
+    private XmlElement updateDataBySearch(String tableName, IntrospectedColumn pkColumn, IntrospectedTable introspectedTable) {
+
+        XmlElement updateElement = new XmlElement("update");
+
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
+            updateElement.addAttribute(flushCache);
+        }
+
+        updateElement.addAttribute(new Attribute("id", "updateDataBySearch"));
+        // updateElement.addAttribute(new Attribute("parameterType", getEntityName(introspectedTable)));
+        StringBuilder updateStr = new StringBuilder("update " + tableName + "\n");
+        // List<IntrospectedColumn> columnList = introspectedTable.getAllColumns();
+
+
+        updateStr.append("\t<set>\n");
+
+        updateStr.append("\t\t<foreach collection=\"dataMap\" index=\"filed\" item=\"itemValue\">\n");
+        updateStr.append("\t\t\t${filed} =#{itemValue},\n");
+        updateStr.append("\t\t</foreach>\n");
+
+        updateStr.append("\t</set>\n");
+
+        String namespace = BeanName.getFullMapperExtClassName(getEntityName(introspectedTable));
+
+        updateStr.append(" \t<include refid=\"" + namespace + ".whereSql\"></include>\n");
+
+        updateElement.addElement(new TextElement(updateStr.toString()));
+        return updateElement;
+
+    }
+
+
+    /**
+     * 根据Id更新字段
+     *
+     * @param introspectedTable
+     * @return
+     */
+    private XmlElement updateDataById(String tableName, IntrospectedColumn pkColumn, IntrospectedTable introspectedTable) {
+
+
+        XmlElement updateElement = new XmlElement("update");
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
+            updateElement.addAttribute(flushCache);
+        }
+        updateElement.addAttribute(new Attribute("id", "updateDataById"));
+        // updateElement.addAttribute(new Attribute("parameterType", getEntityName(introspectedTable)));
+        StringBuilder updateStr = new StringBuilder("update " + tableName + "\n");
+        // List<IntrospectedColumn> columnList = introspectedTable.getAllColumns();
+
+
+        updateStr.append("\t<set>\n");
+
+        updateStr.append("\t\t<foreach collection=\"dataMap\" index=\"filed\" item=\"itemValue\">\n");
+        updateStr.append("\t\t\t${filed} =#{itemValue},\n");
+        updateStr.append("\t\t</foreach>\n");
+
+
+        updateStr.append("\t</set>\n");
+
+        String namespace = BeanName.getFullMapperExtClassName(getEntityName(introspectedTable));
+
+        updateStr.append("\t where " + pkColumn.getActualColumnName() + "=#{" + pkColumn.getJavaProperty() + "}");
+
+        updateElement.addElement(new TextElement(updateStr.toString()));
+        return updateElement;
+
     }
 
 
     private XmlElement createListCount(IntrospectedTable introspectedTable) {
 
 
+        String tableName = introspectedTable.getFullyQualifiedTableNameAtRuntime();
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
 
 
@@ -1652,21 +2274,20 @@ public class SkPlugin extends PluginAdapter {
         XmlElement listCountElement = new XmlElement("select");
         listCountElement.addAttribute(new Attribute("id", "getListCount"));
         listCountElement.addAttribute(new Attribute("resultType", "java.lang.Integer"));
-        listCountElement.addAttribute(new Attribute("parameterType", BeanName.getShortSearchClassName(entityName)));
+        // listCountElement.addAttribute(new Attribute("parameterType", BeanName.getShortSearchExtClassName(entityName)));
 
         IntrospectedColumn pkColumn = introspectedTable.getPrimaryKeyColumns().get(0);
 
-        StringBuilder selectStr = new StringBuilder("select count(DISTINCT " + pkColumn.getActualColumnName() + ")  \n");
+        StringBuilder selectStr = new StringBuilder("select count(DISTINCT " + tableName + "." + pkColumn.getActualColumnName() + ")  \n");
 
 
         selectStr.append(" \t\t<include refid=\"" + namespace + ".fromTable\"></include>\n");
         selectStr.append(" \t\t<include refid=\"" + namespace + ".whereSql\"></include>\n");
 
-        //if (!dbType.equalsIgnoreCase(DB_TYPE_MSSERVER))
+       /* if (!dbType.equalsIgnoreCase(DB_TYPE_MSSERVER)) {
 
-        //pgsql 逻辑中的,需要
-//        selectStr.append("\t\t<include refid=\"" + BeanName.getSearchMapperOrderBy() + "\"></include>");
-
+            selectStr.append("\t\t<include refid=\"" + BeanName.getSearchMapperOrderBy() + "\"></include>");
+        }*/
 
         listCountElement.addElement(new TextElement(selectStr.toString()));
 
@@ -1680,22 +2301,24 @@ public class SkPlugin extends PluginAdapter {
     private String getMsServerListSql(String namespace, IntrospectedTable introspectedTable) {
 
 
-        StringBuilder selectStr = new StringBuilder("select top ${limit} \n");
+        StringBuilder selectStr = new StringBuilder("select top ${search.limit} \n");
 
 
         String keyColumn = getKeyColumns(introspectedTable);
 
 
-        selectStr.append(" <include refid=\"" + namespace + "baseSmallColumnList\"></include>\n");
-        selectStr.append(" <include refid=\"" + namespace + "fromTable\"></include>\n");
+        selectStr.append(" <include refid=\"" + namespace + ".baseSmallColumnList\"></include>\n");
+        selectStr.append(" <include refid=\"" + namespace + ".fromTable\"></include>\n");
         selectStr.append(" \t<where>\n");
-        selectStr.append(" \t\t<include refid=\"" + namespace + "includeWhereSql\"></include>\n");
-        selectStr.append(" \t\t<if test=\"pageNumber>1\">\n");
+        selectStr.append(" \t\t<include refid=\"" + namespace + ".includeWhereSql\"></include>\n");
+        selectStr.append(" \t\t<if test=\"search.pageNumber>1\">\n");
         selectStr.append(" \t\t\t and " + keyColumn + " not in (\n");
-        selectStr.append(" \t\t\t\t select top ${start} " + keyColumn + " from " + introspectedTable.getFullyQualifiedTableNameAtRuntime() + "\n");
+        selectStr.append(" \t\t\t\t select top ${search.start} " + keyColumn + "\n");
+        selectStr.append(" \t\t\t\t  <include refid=\"" + namespace + ".fromTable\"></include> \n");
 
-        selectStr.append(" \t\t\t\t where 1=1 \n");
-        selectStr.append(" \t\t\t\t  <include refid=\"includeWhereSql\"></include> \n");
+        selectStr.append(" \t\t\t\t <where> \n");
+        selectStr.append(" \t\t\t\t\t  <include refid=\"" + namespace + ".includeWhereSql\"></include> \n");
+        selectStr.append(" \t\t\t\t </where> \n");
         selectStr.append(" \t\t\t\t  <include refid=\"" + BeanName.getPubInterPackage() + ".SearchMapper.searchGroupByAndOrderBy\"></include> \n");
 
         selectStr.append(" \t\t\t )\n");
@@ -1729,19 +2352,21 @@ public class SkPlugin extends PluginAdapter {
 
 
         listElement.addAttribute(new Attribute("id", "getList"));
+        listElement.addAttribute(new Attribute("fetchSize", "10000"));
+
         listElement.addAttribute(new Attribute("resultMap", namespace + ".baseResultMap"));
-        listElement.addAttribute(new Attribute("parameterType", BeanName.getShortSearchClassName(entityName)));
+        //    listElement.addAttribute(new Attribute("parameterType", BeanName.getShortSearchExtClassName(entityName)));
         StringBuffer selectStr = null;
-       /* if (dbType.equalsIgnoreCase(DB_TYPE_MSSERVER)) {
+        if (dbType.equalsIgnoreCase(DB_TYPE_MSSERVER)) {
 
             selectStr = new StringBuffer(getMsServerListSql(namespace, introspectedTable));
 
         } else if (dbType.equalsIgnoreCase(DB_TYPE_MYSQL)) {
-*/
-//        selectStr = new StringBuffer("");
-//        selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
-//        selectStr.append("\t\tlimit #{start},#{limit}");
-/*
+
+            selectStr = new StringBuffer();
+            selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
+            selectStr.append("\t\tlimit #{search.start},#{search.limit}");
+
         } else if (dbType.equalsIgnoreCase(DB_TYPE_ORACLE)) {
 
             selectStr = new StringBuffer(" select * from ( \n");
@@ -1751,14 +2376,14 @@ public class SkPlugin extends PluginAdapter {
             selectStr.append(") b\n");
             selectStr.append(" where b.row_num between #{start} and #{end}");
 
-        }*/
-
-        /**
-         * pgsql的逻辑  可以跟mysql通用
-         */
-        selectStr = new StringBuffer("");
-        selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
-        selectStr.append("\t\tlimit #{limit} OFFSET #{start}");
+        } else if(dbType.equalsIgnoreCase(DB_TYPE_PGSQL)){
+            /**
+             * pgsql的逻辑  可以跟mysql通用
+             */
+            selectStr = new StringBuffer("");
+            selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
+            selectStr.append("\t\tlimit #{limit} OFFSET #{start}");
+        }
 
 
         listElement.addElement(new TextElement(selectStr.toString()));
@@ -1802,6 +2427,8 @@ public class SkPlugin extends PluginAdapter {
 
     @Override
     public boolean modelFieldGenerated(Field field, TopLevelClass topLevelClass, IntrospectedColumn introspectedColumn, IntrospectedTable introspectedTable, ModelClassType modelClassType) {
+
+
         if ("id".equals(field.getName())) {
             return false;
         }
@@ -1882,7 +2509,6 @@ public class SkPlugin extends PluginAdapter {
 
         return entityType.getShortName();
 
-
     }
 
     private String getModelExtName(IntrospectedTable introspectedTable) {
@@ -1890,6 +2516,15 @@ public class SkPlugin extends PluginAdapter {
         FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
 
         return BeanName.getShortModelExtClassName(entityType.getShortName());
+
+
+    }
+
+    private String getModelDescName(IntrospectedTable introspectedTable) {
+
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+
+        return BeanName.getShortModelDescClassName(entityType.getShortName());
 
 
     }
@@ -1905,8 +2540,9 @@ public class SkPlugin extends PluginAdapter {
         XmlElement allListElement = new XmlElement("select");
 
         allListElement.addAttribute(new Attribute("id", "getAllList"));
+        allListElement.addAttribute(new Attribute("fetchSize", "10000"));
         allListElement.addAttribute(new Attribute("resultMap", namespace + ".baseResultMap"));
-        allListElement.addAttribute(new Attribute("parameterType", BeanName.getShortSearchClassName(entityName)));
+        //  allListElement.addAttribute(new Attribute("parameterType", BeanName.getShortSearchExtClassName(entityName)));
 
 
         allListElement.addElement(new TextElement("<include refid=\"" + namespace + ".getListSql\"></include>"));
@@ -1941,6 +2577,10 @@ public class SkPlugin extends PluginAdapter {
 
         deleteElement.addAttribute(new Attribute("id", "delete"));
 
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
+            deleteElement.addAttribute(flushCache);
+        }
         // deleteElement.addAttribute(new Attribute("parameterType", pkColumn.getFullyQualifiedJavaType().getFullyQualifiedNameWithoutTypeParameters()));
 
         deleteElement.addElement(new TextElement("delete from " + tableName + " where " + pkColumn.getActualColumnName() + "=#{0}"));
@@ -1959,7 +2599,10 @@ public class SkPlugin extends PluginAdapter {
         XmlElement deleteElement = new XmlElement("delete");
 
         deleteElement.addAttribute(new Attribute("id", "batchDelete"));
-
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
+            deleteElement.addAttribute(flushCache);
+        }
         StringBuffer sql = new StringBuffer();
         sql.append("delete from ");
         sql.append(tableName + "\n");
@@ -1981,7 +2624,10 @@ public class SkPlugin extends PluginAdapter {
         XmlElement insertElement = new XmlElement("insert");
         insertElement.addAttribute(new Attribute("id", "batchInsert"));
         insertElement.addAttribute(new Attribute("parameterType", "java.util.List"));
-
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
+            insertElement.addAttribute(flushCache);
+        }
 
         IntrospectedColumn keyColumn = getPrimaryKeyColumns(introspectedTable);
 
@@ -2062,6 +2708,10 @@ public class SkPlugin extends PluginAdapter {
 
 
         XmlElement updateElement = new XmlElement("update");
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
+            updateElement.addAttribute(flushCache);
+        }
 
         updateElement.addAttribute(new Attribute("id", "update"));
         updateElement.addAttribute(new Attribute("parameterType", getEntityName(introspectedTable)));
@@ -2071,8 +2721,9 @@ public class SkPlugin extends PluginAdapter {
 
         updateStr.append("\t<set>\n");
         for (IntrospectedColumn column : columnList) {
-            if (column.getActualColumnName().equalsIgnoreCase(pkColumn.getActualColumnName()))
+            if (column.getActualColumnName().equalsIgnoreCase(pkColumn.getActualColumnName())) {
                 continue;
+            }
 
 
             updateStr.append("\t\t<if test=\"" + column.getJavaProperty() + "!=null\">\n");
@@ -2113,9 +2764,9 @@ public class SkPlugin extends PluginAdapter {
      */
     private IntrospectedColumn getPrimaryKeyColumns(IntrospectedTable introspectedTable) {
 
-        if (introspectedTable.hasPrimaryKeyColumns())
-
+        if (introspectedTable.hasPrimaryKeyColumns()) {
             return introspectedTable.getPrimaryKeyColumns().get(0);
+        }
         return null;
     }
 
@@ -2125,18 +2776,22 @@ public class SkPlugin extends PluginAdapter {
     private boolean isAutoKey(IntrospectedTable introspectedTable) {
 
         IntrospectedColumn keyColumn = getPrimaryKeyColumns(introspectedTable);
-        if (keyColumn == null)
+        if (keyColumn == null) {
             return false;
+        }
 
         String shortName = getEntityName(introspectedTable);
 
-        if ("integer".equalsIgnoreCase(shortName) || "long".equalsIgnoreCase(shortName))
-            return true;
-        return false;
+        return "integer".equalsIgnoreCase(shortName) || "long".equalsIgnoreCase(shortName);
 
 
     }
 
+
+    private Attribute addFlushCache() {
+        return null;
+        // return new Attribute("flushCache","true");
+    }
 
     private XmlElement createInsert(String tableName, IntrospectedTable introspectedTable) {
 
@@ -2146,7 +2801,11 @@ public class SkPlugin extends PluginAdapter {
         XmlElement insertElement = new XmlElement("insert");
         insertElement.addAttribute(new Attribute("id", "insert"));
         insertElement.addAttribute(new Attribute("parameterType", getEntityName(introspectedTable)));
+        Attribute flushCache = addFlushCache();
+        if (flushCache != null) {
 
+            insertElement.addAttribute(flushCache);
+        }
 
         IntrospectedColumn keyColumn = getPrimaryKeyColumns(introspectedTable);
 
@@ -2237,7 +2896,7 @@ public class SkPlugin extends PluginAdapter {
         whereElement.addAttribute(new Attribute("id", "includeWhereSql"));
 
 
-        StringBuffer whereSql = new StringBuffer("");
+        StringBuffer whereSql = new StringBuffer();
 
         whereSql.append("\t<include refid=\"" + BeanName.getSearchMapperWhereSql() + "\"></include>");
 
@@ -2413,7 +3072,7 @@ public class SkPlugin extends PluginAdapter {
         resultMap.addAttribute(new Attribute("id", "oneResultMap"));
 
 
-        resultMap.addAttribute(new Attribute("type", getEntityName(introspectedTable)));
+        resultMap.addAttribute(new Attribute("type", getModelDescName(introspectedTable)));
         List<IntrospectedColumn> columnList = introspectedTable.getAllColumns();
 
         XmlElement resultElement = null;
@@ -2454,4 +3113,30 @@ public class SkPlugin extends PluginAdapter {
     }
 
 
+    private class TableComment {
+
+        private String name;
+        private String comment;
+
+        public TableComment(String name, String comment) {
+            this.name = name;
+            this.comment = comment;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getComment() {
+            return comment;
+        }
+
+        public void setComment(String comment) {
+            this.comment = comment;
+        }
+    }
 }

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import ${modelExtClass};
 import ${iDaoClass};
-import ${modelSearchClass};
+import ${modelSearchExtClass};
 import ${iBaseDaoClass};
 import ${abstractBaseServiceClass};
 import ${iServiceClass};
@@ -17,13 +17,13 @@ import ${iServiceClass};
 *    @description ${description}
 */
 @Service(value = "${serviceVar}")
-public class ${serviceImpl} extends ${abstractBaseService}<${modelExt}, ${modelSearch},String> implements ${iService} {
+public class ${serviceImpl} extends ${abstractBaseService}<${modelExt}, ${modelSearchExt},${keyType}> implements ${iService} {
 
     @Resource(name = "${daoVar}")
     private ${iDao} ${daoVar};
 
     @Override
-    public IBaseDao<${modelExt}, ${modelSearch},String> getDao() {
+    public IBaseDao<${modelExt}, ${modelSearchExt},${keyType}> getDao() {
         return ${daoVar};
     }
 }

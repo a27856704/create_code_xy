@@ -28,13 +28,32 @@ import java.util.Map;
  * @description 完成基本增删改详情列表等操作
  */
 @Validated
-public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSearch, KeyType> extends BaseController {
+public abstract class BackController<T extends BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> extends BaseController {
 
     public abstract IBaseService<T, TS, KeyType> getBaseService() throws SkException;
 
     public abstract String getBaseRoute() throws SkException;
 
     public abstract String getBaseView() throws SkException;
+
+    /**
+     * 左边菜单模块
+     *
+     * @return
+     */
+    public String getMenuModelName() {
+        return "";
+    }
+
+    /**
+     * 左边菜单页面
+     *
+     * @return
+     */
+    public String getMenuPageName() {
+        return "";
+    }
+
 
     public String getMenuModel() {
         return "";
@@ -104,20 +123,24 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
         return getBaseRoute() + "detail";
     }
 
+    public String getPageName(){
+        return "";
+    }
+
     public String getAddTitle() {
-        return "添加";
+        return getPageName()+"添加";
     }
 
     public String getDetailTitle() {
-        return "详情";
+        return getPageName()+"详情";
     }
 
     public String getModTitle() {
-        return "修改";
+        return getPageName()+"修改";
     }
 
     public String getListTitle() {
-        return "列表";
+        return getPageName()+"列表";
     }
 
     public String getAddBtnTitle() {
@@ -177,8 +200,17 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @throws SkException
      */
     public void pageExtend(T domain, Model model, HttpServletRequest request, HttpSession session) throws SkException {
+        allPageExtend(model, request, session);
         model.addAttribute("listPage", getListPageRoute());
         model.addAttribute("menuModel", getMenuModel());
+    }
+
+
+    public void allPageExtend(Model model, HttpServletRequest request, HttpSession session) throws SkException {
+
+        model.addAttribute("menuModelName", getMenuModelName());
+        model.addAttribute("menuModelPage", getMenuPageName());
+
     }
 
 
@@ -220,7 +252,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
     @ApiOperation(value = "添加提交数据", httpMethod = "POST")
     @PostMapping("postAdd")
     @ResponseBody
-    public SkJsonResult<String> postAdd(@Valid T domain, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<String> postAdd(@Valid T domain, @ApiParam(hidden = true)  Model model, HttpServletRequest request, HttpSession session) throws SkException {
         if (!beforePostAdd(domain, model, request, session)) {
             return SkJsonResult.fail("beforePostAdd false;");
         }
@@ -266,12 +298,12 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
     @ApiOperation(value = "修改提交数据", httpMethod = "POST")
     @PostMapping("postMod/{id}")
     @ResponseBody
-    public SkJsonResult<String> postMod(@ApiParam("主键ID") @PathVariable KeyType id, @Valid T domain, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<String> postMod(@ApiParam("主键ID") @PathVariable KeyType id, @Valid T domain, @ApiParam(hidden = true)  Model model, @ApiParam(hidden = true)  HttpServletRequest request, @ApiParam(hidden = true)  HttpSession session) throws SkException {
         if (!beforePostMod(domain, model, request, session)) {
             return SkJsonResult.fail("beforePostMod false;");
         }
         T oldDomain = getBaseService().getDetail(id);
-        org.springframework.beans.BeanUtils.copyProperties(domain, oldDomain, postModNoUpdate(oldDomain));
+        org.springframework.beans.BeanUtils.copyProperties(domain, oldDomain, postModNoUpdate(domain));
         getBaseService().update(oldDomain);
         afterPostMod(oldDomain, model, request, session);
         return SkJsonResult.ok();
@@ -369,7 +401,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
     @ApiOperation(value = "删除单个", httpMethod = "POST")
     @PostMapping("postDelete")
     @ResponseBody
-    public SkJsonResult<String> postDelete(@ApiParam("主键ID") @RequestParam("id") KeyType id, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<String> postDelete(@ApiParam("主键ID") @RequestParam("id") KeyType id, @ApiParam(hidden = true)  Model model, @ApiParam(hidden = true)  HttpServletRequest request, @ApiParam(hidden = true)  HttpSession session) throws SkException {
         if (!beforePostDelete(id, model, request, session)) {
             return SkJsonResult.fail("beforePostDelete false");
         }
@@ -415,7 +447,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
     @ApiOperation(value = "批量删除", httpMethod = "POST")
     @PostMapping(value = "postDeleteAll")
     @ResponseBody
-    public SkJsonResult<String> postDeleteAll(@ApiParam("ids") @RequestParam(name = "ids[]") List<KeyType> ids, @ApiParam(hidden = true) @RequestParam(required = false) Model model, @ApiParam(hidden = true) @RequestParam(required = false) HttpServletRequest request, @ApiParam(hidden = true) @RequestParam(required = false) HttpSession session) throws SkException {
+    public SkJsonResult<String> postDeleteAll(@ApiParam("ids") @RequestParam(name = "ids[]") List<KeyType> ids, @ApiParam(hidden = true)  Model model, @ApiParam(hidden = true)  HttpServletRequest request, @ApiParam(hidden = true)  HttpSession session) throws SkException {
 
         if (ids == null || ids.size() == 0)
             return SkJsonResult.fail("删除的条目为空");
@@ -437,7 +469,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
      * @throws SkException
      */
     public void listPageExtend(TS search, Model model, HttpServletRequest request, HttpSession session) throws SkException {
-
+        allPageExtend(model, request, session);
 
     }
 
@@ -548,7 +580,7 @@ public abstract class BackController<T extends BaseIdDoMain, TS extends BaseSear
 
         T domain = getBaseService().getDetail(id);
         model.addAttribute("domain", domain);
-        model.addAttribute("title", getDetailTitle());
+        model.addAttribute("detailTitle", getDetailTitle());
         detailPageExtend(domain, model, request, session);
         return getDetailPageView();
     }

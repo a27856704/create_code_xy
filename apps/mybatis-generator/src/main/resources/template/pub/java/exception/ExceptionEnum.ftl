@@ -1,12 +1,14 @@
 package ${pubPackage}.pubInter.exception;
 
+import java.lang.reflect.ParameterizedType;
+
 /**
 * @author ${author}
 * @Date ${createTime}
-* @description DAO异常枚举
+* @description
 */
 
-public interface ExceptionEnum<eEnum>{
+public interface ExceptionEnum<eEnum extends ExceptionEnum>{
 
 
     int getCode();
@@ -16,8 +18,17 @@ public interface ExceptionEnum<eEnum>{
     String getMessage();
 
 
-    eEnum getEnum(int code);
+    default Class<eEnum> getEnumClass() {
+        ParameterizedType type = (ParameterizedType) this.getClass().getGenericSuperclass();
+        return (Class) type.getActualTypeArguments()[0];
+    }
 
 
-
+    default eEnum getEnum(int code) {
+        for (eEnum exceptionEnum : getEnumClass().getEnumConstants()) {
+            if (exceptionEnum.getCode() == code)
+                return exceptionEnum;
+            }
+            return null;
+     }
 }

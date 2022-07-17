@@ -46,11 +46,46 @@ public class BeanName {
     }
 
     public static String getRoute() {
+        if ("/".equalsIgnoreCase(route)) {
+            route = "";
+        }
         return route;
     }
 
     public static void setRoute(String route) {
         BeanName.route = route;
+    }
+
+    public static String getRouteByEntityName(String entityName) {
+        String route = "/" + BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/";
+        return route.replaceAll("//", "/");
+    }
+
+
+    public static String getListPage(String entityName) {
+
+        if (StringUtil.isNullOrEmpty(BeanName.getRoute())) {
+
+            return "/" + BeanName.getFirstLowerCase(entityName) + "/list";
+        }
+
+        return "/" + BeanName.getRoute() + "/" + entityName + "/list";
+
+    }
+
+    public static String getBaseViewByEntityName(String entityName) {
+        String route = BeanName.getRoute() + "/" + BeanName.getFirstLowerCase(entityName) + "/";
+
+
+        route = route.replaceAll("//", "/");
+
+        if (route.startsWith("/")) {
+            return route.substring(1);
+        }
+
+        return route;
+
+
     }
 
     public static String getModelClass() {
@@ -276,6 +311,20 @@ public class BeanName {
         return templateDir + "/page";
     }
 
+    /**
+     * 返回文件后缀
+     *
+     * @return
+     */
+    public static String createPageSuffix() {
+
+        if (getTemplateDir().indexOf("/vue/") >= 0) {
+            return  ".js";
+        }
+
+        return ".html";
+    }
+
 
     public static FreeMarkerUtil getFreeMarkerUtil() {
 
@@ -317,6 +366,10 @@ public class BeanName {
         return getTargetProject() + File.separator + "website";
     }
 
+
+    public static String getTableObjectByDbTable(String tableName){
+        return getFirstUpperCase(camelCaseName(tableName));
+    }
     /**
      * 首字母大寫
      *
@@ -325,20 +378,24 @@ public class BeanName {
      */
     public static String getFirstUpperCase(String name) {
 
-        if (name == null || "".equals(name))
+        if (name == null || "".equals(name)) {
             return "";
-        if (name.length() == 1)
+        }
+        if (name.length() == 1) {
             return name.toUpperCase();
+        }
         return name.substring(0, 1).toUpperCase() + name.substring(1);
 
     }
 
     public static String getFirstLowerCase(String name) {
 
-        if (name == null || "".equals(name))
+        if (name == null || "".equals(name)) {
             return "";
-        if (name.length() == 1)
+        }
+        if (name.length() == 1){
             return name.toLowerCase();
+        }
         return name.substring(0, 1).toLowerCase() + name.substring(1);
 
     }
@@ -371,11 +428,26 @@ public class BeanName {
         return str.replace(".", "/");
     }
 
+    public static String getBaseControllerPackage() {
+        return getPackageProject() + ".controller";
+
+
+    }
+
     public static String getControllerPackage() {
+        if (StringUtil.isNullOrEmpty(BeanName.getRoute())) {
+            return getPackageAppProject() + ".controller";
+        }
+
         return getPackageAppProject() + ".controller." + StringUtil.replaceAll(BeanName.getRoute(), "/", ".");
     }
 
     public static String getApiControllerPackage() {
+
+        if (StringUtil.isNullOrEmpty(BeanName.getRoute())) {
+            return getPackageAppProject() + ".controller";
+        }
+
         return getPackageAppProject() + ".controller." + StringUtil.replaceAll(BeanName.getRoute(), "/", ".");
     }
 
@@ -408,6 +480,12 @@ public class BeanName {
 
     }
 
+    public static String getExceptionEnumPath() {
+
+        return getTargetProject() + "/" + getTargetDir(getPackageWebCommon() + "/exceptionEnums");
+
+    }
+
 
     public static String getMapperPath() {
 
@@ -416,13 +494,15 @@ public class BeanName {
 
 
     public static String getAddPageTemplateName() {
-
         return "add.ftl";
     }
 
     public static String getModPageTemplateName() {
-
         return "mod.ftl";
+    }
+
+    public static String getDetailPageTemplateName() {
+        return "detail.ftl";
     }
 
     public static String getListPageTemplateName() {
@@ -434,13 +514,23 @@ public class BeanName {
         return getPackageProject() + ".common";
     }
 
+    public static String getPackageCommonPath() {
+
+        return getTargetProject() + "/" + getTargetDir(getPackageProject() + ".common");
+    }
+
     public static String getPackageWebCommon() {
         return getPackageProject() + ".web.common";
+    }
+
+    public static String getExceptionPackage() {
+        return getPackageProject() + ".exception";
     }
 
     public static String getPubInterPackage() {
         return getPackageProject() + ".pubInter";
     }
+
 
     public static String getFullAbstractDaoClassName() {
         return getPubInterPackage() + "." + getShortAbstractDaoClassName();
@@ -497,6 +587,10 @@ public class BeanName {
         return getFirstUpperCase(modelName) + "MapperExt";
     }
 
+    public static String getExceptionMessage(String modelName) {
+        return getFirstUpperCase(modelName) + "ExceptionMessage";
+    }
+
     public static String getFullMapperExtClassName(String modelName) {
         return getDaoMapperExtPackage() + "." + getShortMapperExtClassName(modelName);
     }
@@ -505,6 +599,7 @@ public class BeanName {
     public static String getDaoMapperExtPackage() {
         return getDaoPackage() + ".mapperExt";
     }
+
 
     public static String getFullBaseMapperClassName() {
         return getPubInterPackage() + "." + getShortBaseMapperClassName();
@@ -560,12 +655,20 @@ public class BeanName {
         return getPackageAppProject() + ".search";
     }
 
+    public static String getSearchExtPackage() {
+        return getPackageAppProject() + ".searchExt";
+    }
+
     public static String getDOPackage() {
-        return getPackageAppProject() + ".domain";
+        return getPackageAppProject() + ".modelDo";
     }
 
     public static String getExtPackage() {
         return getPackageAppProject() + ".modelExt";
+    }
+
+    public static String getDescPackage() {
+        return getPackageAppProject() + ".modelDesc";
     }
 
     public static String getVOPackage() {
@@ -583,12 +686,17 @@ public class BeanName {
     }
 
     public static String getFullBaseDetailVOClass() {
-        return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile) || "remote".equalsIgnoreCase(activeProfile) ? ".baseVO." : ".") + getShortBaseDetailVOClass();
+        //return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile) || "remote".equalsIgnoreCase(activeProfile) ? ".baseVO." : ".") + getShortBaseDetailVOClass();
+        return getPubInterPackage() + ".baseVO." + getShortBaseDetailVOClass();
+        // return getPubInterPackage() + "." + getShortBaseDetailVOClass();
     }
 
     public static String getFullBaseListVOClass() {
-        return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile) || "remote".equalsIgnoreCase(activeProfile) ? ".baseVO." : ".") + getShortBaseListVOClass();
+        // return getPubInterPackage() + ("test".equalsIgnoreCase(activeProfile) || "remote".equalsIgnoreCase(activeProfile) ? ".baseVO." : ".") + getShortBaseListVOClass();
+        return getPubInterPackage() + ".baseVO." + getShortBaseListVOClass();
+        // return getPubInterPackage() + "." + getShortBaseListVOClass();
     }
+
 
     public static String getShortBaseListVOClass() {
         return "AbstractPageVO";
@@ -606,8 +714,19 @@ public class BeanName {
         return getPubInterPackage() + "." + getShortBaseDTOClass();
     }
 
+    public static String getFullBasePageDTOClass() {
+        return getPubInterPackage() + "." + getShortBasePageDTOClass();
+    }
+
+
+
+
     public static String getShortBaseDTOClass() {
         return "AbstractDTO";
+    }
+
+    public static String getShortBasePageDTOClass() {
+        return "AbstractPageDTO";
     }
 
 
@@ -615,7 +734,16 @@ public class BeanName {
         return getPackageAppProject() + ".model";
     }
 
+    public static String getModelDescPackage() {
+        return getPackageAppProject() + ".modelDesc";
+    }
+
     public static String getBackController() {
+
+        if (StringUtil.isNullOrEmpty(BeanName.getRoute()) || "/".equalsIgnoreCase(BeanName.getRoute())) {
+            return getPackageAppProject() + ".controller";
+        }
+
         return getPackageAppProject() + ".controller." + StringUtil.replaceAll(BeanName.getRoute(), "/", ".");
     }
 
@@ -648,12 +776,34 @@ public class BeanName {
         return getModelPackage() + "." + getShortModelClassName(modelName);
     }
 
+
     public static String getFullModelDOClassName(String modelName) {
         return getDOPackage() + "." + getShortDOClassName(modelName);
     }
 
     public static String getFullModelDTOClassName(String modelName) {
         return getDTOPackage() + "." + getShortDTOClassName(modelName);
+    }
+    public static String getFullModelDomainDTOClassName(String modelName) {
+        return getDTOPackage() + "." + getShortDomainDTOClassName(modelName);
+    }
+
+    /**
+     * model对应的page
+     * @param modelName
+     * @return
+     */
+    public static String getFullModelDomainPageDTOClassName(String modelName) {
+        return getDTOPackage() + "." + getShortDomainPageDTOClassName(modelName);
+    }
+
+    /**
+     * model 对应扩展的page
+     * @param modelName
+     * @return
+     */
+    public static String getFullModelPageDTOClassName(String modelName) {
+        return getDTOPackage() + "." + getShortPageDTOClassName(modelName);
     }
 
     public static String getFullModelVOClassName(String modelName) {
@@ -677,6 +827,10 @@ public class BeanName {
         return getExtPackage() + "." + getShortModelExtClassName(modelName);
     }
 
+    public static String getFullModelDescClassName(String modelName) {
+        return getDescPackage() + "." + getShortModelDescClassName(modelName);
+    }
+
     public static String getModelObjectName(String modelName) {
         return getFirstLowerCase(modelName);
     }
@@ -684,6 +838,11 @@ public class BeanName {
     public static String getShortSearchClassName(String modelName) {
 
         return getFirstUpperCase(modelName) + "Search";
+    }
+
+    public static String getShortSearchExtClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "SearchExt";
     }
 
     public static String getShortDOClassName(String modelName) {
@@ -694,6 +853,10 @@ public class BeanName {
 
     public static String getShortModelExtClassName(String modelName) {
         return getFirstUpperCase(modelName) + "Ext";
+    }
+
+    public static String getShortModelDescClassName(String modelName) {
+        return getFirstUpperCase(modelName) + "Desc";
     }
 
 
@@ -725,6 +888,23 @@ public class BeanName {
         return getFirstUpperCase(modelName) + "DTO";
     }
 
+    public static String getShortDomainDTOClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "DomainDTO";
+    }
+
+    public static String getShortPageDTOClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "PageDTO";
+    }
+
+    public static String getShortDomainPageDTOClassName(String modelName) {
+
+        return getFirstUpperCase(modelName) + "DomainPageDTO";
+    }
+
+
+
     public static String getShortControllerClassName(String modelName) {
 
         return getFirstUpperCase(modelName) + "Controller";
@@ -733,6 +913,11 @@ public class BeanName {
     public static String getFullSearchClassName(String modelName) {
 
         return getSearchPackage() + "." + getShortSearchClassName(modelName);
+    }
+
+    public static String getFullSearchExtClassName(String modelName) {
+
+        return getSearchExtPackage() + "." + getShortSearchExtClassName(modelName);
     }
 
     public static String getSearchObjectName(String modelName) {
@@ -802,6 +987,10 @@ public class BeanName {
         return getTargetProject() + "/" + getTargetDir(getSearchPackage());
     }
 
+    public static String getSearchExtPath() {
+        return getTargetProject() + "/" + getTargetDir(getSearchExtPackage());
+    }
+
     public static String getDOPath() {
         return getTargetProject() + "/" + getTargetDir(getDOPackage());
     }
@@ -810,8 +999,16 @@ public class BeanName {
         return getTargetProject() + "/" + getTargetDir(getExtPackage());
     }
 
+    public static String getDescPath() {
+        return getTargetProject() + "/" + getTargetDir(getDescPackage());
+    }
+
     public static String getMapperExtPath() {
         return getTargetProject() + "/" + getTargetDir(getDaoMapperExtPackage());
+    }
+
+    public static String getExceptionMessagePath() {
+        return getTargetProject() + "/" + getTargetDir(getExceptionPackage());
     }
 
     public static String getMapperExtXmlPath() {

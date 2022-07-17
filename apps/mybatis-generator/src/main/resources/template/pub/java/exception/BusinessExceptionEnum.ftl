@@ -54,12 +54,4 @@ public enum BusinessExceptionEnum implements ExceptionEnum<BusinessExceptionEnum
         this.message = message;
     }
 
-    @Override
-    public BusinessExceptionEnum getEnum(int code) {
-        for (BusinessExceptionEnum business : BusinessExceptionEnum.values()) {
-            if (code == business.getCode())
-                return business;
-        }
-        return null;
-    }
 }

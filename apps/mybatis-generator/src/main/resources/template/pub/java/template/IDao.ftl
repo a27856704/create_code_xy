@@ -1,7 +1,7 @@
 package ${package};
 
 import ${modelExtClass};
-import ${modelSearchClass};
+import ${modelSearchExtClass};
 import ${iBaseDaoClass};
 
 
@@ -10,7 +10,7 @@ import ${iBaseDaoClass};
  *    @Date ${date}
  *    @description ${description}
  */
-public interface ${iDao} extends ${iBaseDao}<${modelExt}, ${modelSearch},String> {
+public interface ${iDao} extends ${iBaseDao}<${modelExt}, ${modelSearchExt},${keyType}> {
 
 
 }

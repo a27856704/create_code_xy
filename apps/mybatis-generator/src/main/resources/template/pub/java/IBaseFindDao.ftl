@@ -10,7 +10,7 @@ import java.util.List;
 * @description
 */
 
-public interface IBaseFindDao<T extends AbstractBaseDoMain, TS extends BaseSearch, KeyType> {
+public interface IBaseFindDao<T extends  BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> {
 
     T getDetail(KeyType id) throws SkException;
 

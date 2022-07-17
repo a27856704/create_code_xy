@@ -14,7 +14,8 @@ import ${baseListVOClass};
 */
 
 @Data
-@Accessors(chain = true)
-public class ${listVO} extends ${baseListVO}<${modelVO}> {
+
+@ApiModel("${remark}")
+public class ${listVO} extends ${baseListVO}<${detailModelVO}> {
 
 }

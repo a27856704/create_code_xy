@@ -1,0 +1,58 @@
+server:
+  port: 8089
+spring:
+  datasource:
+    url: jdbc:mysql://192.168.31.39:3306/mysql?serverTimezone=UTC&useSSL=false&useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: blue@123
+    driver-class-name:  com.mysql.jdbc.Driver
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML5
+    encoding: utf-8
+    cache: false
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/
+  mvc:
+    static-path-pattern: /**
+file:
+  upload:
+    root:  /upload
+    tempRoot: /upload/temp
+    website:  http://localhost:${server.port}/files
+xmlDir: /Users/upload/createdb
+datasource:
+  url:  #192.168.31.39:3306
+  username: #root
+  password: #blue@123
+  driver: /opt/mysql-connector-java-5.1.21.jar
+controllerTemplate: BackController.ftl
+searchTemplate: Search.ftl
+modelRootClass: BaseTimeDoMain
+
+
+
+
+
+
+
+debug: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -12,7 +12,7 @@ import java.util.List;
 * @description
 */
 
-public abstract class AbstractBaseFindDao<T extends AbstractBaseDoMain, TS extends BaseSearch, KeyType> {
+public abstract class AbstractBaseFindDao<T extends  BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> {
     public abstract IBaseFindMapper<T, TS, KeyType> getMapper();
 
     public T getDetail(KeyType id) throws SkException {

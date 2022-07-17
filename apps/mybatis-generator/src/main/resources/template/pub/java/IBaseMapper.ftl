@@ -4,6 +4,7 @@ package ${pubPackage}.pubInter;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
 * @author ${author}
@@ -11,7 +12,7 @@ import java.util.List;
 * @description
 */
 
-public interface IBaseMapper<T extends AbstractBaseDoMain, TS extends BaseSearch, KeyType> extends SearchMapper<T, TS, KeyType> {
+public interface IBaseMapper<T extends BaseIdDoMain<KeyType>, TS extends BaseSearch, KeyType> extends SearchMapper<T, TS, KeyType> {
 
     /**
      * 添加
@@ -55,6 +56,22 @@ public interface IBaseMapper<T extends AbstractBaseDoMain, TS extends BaseSearch
      * @return
      */
     int batchDelete(@Param("list") List<KeyType> list);
+
+    /**
+    * 按map里的数据更新
+    * @param dataMap ，key 是字段名 value 要更新的数据
+    * @return
+    */
+    int updateDataBySearch(@Param("dataMap") Map<String,Object>dataMap,@Param("search") TS search );
+
+    /**
+    * 按map里的数据更新
+    * @param dataMap ，key 是字段名 value 要更新的数据
+    * @return
+    */
+    int updateDataById(@Param("dataMap") Map<String,Object>dataMap,@Param("id") KeyType id );
+
+
 
 
 }

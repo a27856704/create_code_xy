@@ -6,9 +6,10 @@
     <link rel="stylesheet" type="text/css" href="/style/form.css" th:href="@{/style/form.css}">
     <link rel="stylesheet" type="text/css" href="/js/lib/webupload/webuploader.css"
           th:href="@{/js/lib/webupload/webuploader.css}">
+
     <script src="/js/lib/jquery/jquery.min.js" th:src="@{/js/lib/jquery/jquery.min.js}"></script>
     <script src="/js/lib/layer/2.4/layer.js" th:src="@{/js/lib/layer/2.4/layer.js}"></script>
-    <script src="/js/config.js" th:src="@{/js/config.js}"></script>
+    <script src="/js/config.js" th:src="${r'${T('+manageController+').getUpFileConfig()}'}"></script>
     <script src="/js/main.js" th:src="@{/js/main.js}"></script>
     <script src="/js/lib/My97DatePicker/4.8/WdatePicker.js"
             th:src="@{/js/lib/My97DatePicker/4.8/WdatePicker.js}"></script>
@@ -18,7 +19,7 @@
     <script src="/js/lib/validation/validate-methods.js" th:src="@{/js/lib/validation/validate-methods.js}"></script>
     <script src="/js/lib/validation/messages_zh.js" th:src="@{/js/lib/validation/messages_zh.js}"></script>
     <script src="/js/lib/webupload/webuploader.min.js" th:src="@{/js/lib/webupload/webuploader.min.js}"></script>
-    <script src="/js/lib/wangEditor/wangEditor.min.js" th:src="@{/js/lib/wangEditor/wangEditor.min.js}"></script>
+    <script src="/js/lib/ck-editor/ckeditor.js" th:src="@{/js/lib/ckeditor/ckeditor.js}"></script>
     <script src="/js/post_form.js" th:src="@{/js/post_form.js}"></script>
 </head>
 

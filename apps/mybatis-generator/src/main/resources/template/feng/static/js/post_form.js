@@ -3,12 +3,10 @@ $(function () {
     checkRightsAll();
 
 
-    function checkRightsAll(){
+    function checkRightsAll() {
 
-        $("#allRights").prop("checked",$(":input[name='rightsIds']:checked").size()==$(":input[name='rightsIds']").size());
+        $("#allRights").prop("checked", $(":input[name='rightsIds']:checked").size() == $(":input[name='rightsIds']").size());
     }
-
-
 
 
     $("#allRights").click(function () {
@@ -20,22 +18,21 @@ $(function () {
     });
 
     $(":input[moduleId]").click(function () {
-        var id=$(this).val();
+        var id = $(this).val();
         $(":input[parentId=" + id + "]").prop("checked", $(this).prop("checked"));
         checkRightsAll();
 
     });
 
     $(":input[parentId]").click(function () {
-        var parentId=$(this).attr("parentId");
+        var parentId = $(this).attr("parentId");
 
-        $(":input[moduleId='"+parentId+"']").prop("checked",$(":input[parentId='"+parentId+"']:checked").size()>0);
+        $(":input[moduleId='" + parentId + "']").prop("checked", $(":input[parentId='" + parentId + "']:checked").size() > 0);
 
         checkRightsAll();
 
 
     });
-
 
 
     $("#allRights").click(function () {
@@ -51,12 +48,59 @@ $(function () {
         history.back();
     });
 
+    var editorList = [];
 
+    $(".ckEditor").each(function (i) {
+        var item = $(this);
+
+        var editor=CKEDITOR.replace(item.attr("id"));
+
+        editorList.push({
+            "data-editorname": item.attr("data-editorname"),
+            "editor": editor
+        })
+    });
+    function postBefore() {
+
+
+
+        if (editorList.length > 0) {
+            for (var i = 0; i < editorList.length; i++) {
+                var item = editorList[i];
+                $("#" + item["data-editorname"]).val(item["editor"].getData());
+
+            }
+
+        }
+
+
+    }
 
     $("#postBtn").click(function () {
 
+        try {
+            postBefore();
+        } catch (e) {
+
+        }
+
+        try {
+
+            $(".ckEditor").each(function () {
+
+                var id = $(this).attr("id");
+                var editor = CKEDITOR.replace(id);
+                editor.on('change', function () {
+                    $("#" + $("#" + id).attr("data-editorname")).val(editor.getData());
+                });
 
 
+            });
+
+
+        } catch (e) {
+
+        }
 
 
         var _this = $(this);
@@ -64,12 +108,10 @@ $(function () {
         var _msgText = _this.attr("data-msg-text") || "提交成功";
         var confirmMsg = _this.attr("data-msg-confirm") || "";
 
-        var show_layer=_this.attr("data-success-show-layer")||"";
+        var show_layer = _this.attr("data-success-show-layer") || "";
 
 
-
-
-        if(confirmMsg!=""){
+        if (confirmMsg != "") {
 
 
             layer.confirm(confirmMsg, {icon: 3, title: '提示'}, function (index) {
@@ -82,20 +124,20 @@ $(function () {
                     callback: function (backdata) {
                         if (backdata.success) {
                             layer.msg(_msgText, {icon: 1, title: "提示"}, function () {
-                                if(show_layer=="1" && _link != ""){
+                                if (show_layer == "1" && _link != "") {
 
                                     layer.open({
 
-                                        area: ['200px',  '200px'],
+                                        area: ['200px', '200px'],
                                         fix: false, //不固定
                                         maxmin: true,
                                         shade: 0.4,
-                                        
+
                                         content: _link
                                     });
 
 
-                                }else{
+                                } else {
                                     if (_link == "") {
                                         location.reload()
                                         return
@@ -112,7 +154,6 @@ $(function () {
                 }
                 validatePost(config)
                 _this.parents("form").submit();
-
 
 
             });

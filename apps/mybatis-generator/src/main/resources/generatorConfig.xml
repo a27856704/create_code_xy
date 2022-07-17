@@ -6,10 +6,10 @@
 <!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
         "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
 <generatorConfiguration>
-    <classPathEntry location="/sk/lib/mysql-connector-java-5.1.20-bin.jar"/>
-    <!--
-         <classPathEntry location="/sk/lib/sqljdbc4.jar"/>
-    -->
+    <!--<classPathEntry location="/sk/lib/mysql-connector-java-5.1.20-bin.jar"/>-->
+
+         <classPathEntry location="/Users/upload/createdb/lib/sqljdbc4-4.0.jar"/>
+
 
     <!--
             <locationclassPathEntry location="/Users/sunke/.m2/repository/com/oracle/ojdbc14/10.2.0.4.0/ojdbc14-10.2.0.4.0.jar"/>
@@ -17,34 +17,58 @@
 
 
     <context id="default" defaultModelType="flat" targetRuntime="MyBatis3">
-
+        <property name="autoDelimitKeywords" value="true"/>
+        <property name="beginningDelimiter" value="["/>
+        <property name="endingDelimiter" value="]"/>
         <plugin type="vip.sunke.mybatis.SkPlugin">
-            <property name="projectName" value="微智能工场管理软件"></property>
+        <!--    <property name="projectName" value="Win"></property>-->
+            <property name="projectName" value="考试报名系统"></property>
             <property name="copyright" value="vip.sunke"></property>
-            <property name="packageProject" value="vip.sunke"></property>
-            <property name="packageAppProject" value="vip.sunke.template"></property>
-            <property name="targetProject" value="/work/levo-lee.com/create"></property>
-            <property name="dbType" value="mysql"></property>
+            <property name="packageProject" value="cn.nbohrs"></property>
+           <!-- <property name="packageAppProject" value="cn.nbohrs.win"></property>-->
+            <property name="packageAppProject" value="cn.nbohrs"></property>
+            <property name="targetProject" value="/Users/sunke/Desktop/create"></property>
+            <property name="dbType" value="msserver"></property>
             <property name="author" value="sunke"></property>
-            <property name="templateRoot"
-                      value="/work/vip-sunke/apps/mybatis-generator/src/main/resources/template"></property>
+
+       <!--     <property name="templateRoot"
+                      value="/Users/work/create-code/apps/mybatis-generator/src/main/resources/template"></property>
             <property name="templateDir"
-                      value="/work/vip-sunke/apps/mybatis-generator/src/main/resources/template/layui/templates"></property>
-            <!--
-                        <property name="dbType" value="msserver"></property>
-            -->
+                      value="/Users/work/create-code/apps/mybatis-generator/src/main/resources/template/feng/templates"></property>
+-->
+
+
+
+
+            <property name="templateRoot"
+                      value="/template"></property>
+
+            <property name="templateDir"
+                      value="/template/feng/templates"></property>
+
+            <property name="searchTemplate" value="SearchNoTime.ftl"></property>
+            <property name="controllerTemplate" value="RestfulController.ftl"></property>
+            <property name="modelClass" value="BaseIdDoMain"></property>
+       <!--     <property name="route" value="/win/"></property>-->
+            <property name="route" value="/"></property>
+            <property name="mapperTargetProject" value="/Users/sunke/Desktop/create"></property>
+
         </plugin>
 
 
         <commentGenerator>
             <property name="suppressAllComments" value="true"/>
         </commentGenerator>
-        <!--
-                <jdbcConnection driverClass="com.microsoft.sqlserver.jdbc.SQLServerDriver" connectionURL="jdbc:sqlserver://www.levo-lee.com:1433;databasename=ynkzb"
-                                userId="sa" password="Sunke118"></jdbcConnection>-->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+
+           <!--     <jdbcConnection driverClass="com.microsoft.sqlserver.jdbc.SQLServerDriver" connectionURL="jdbc:sqlserver://172.30.1.195:1433;databasename=SYHRNBDF"
+                                userId="tax" password="66p3ZadpG6CbPlKS"></jdbcConnection>-->
+
+                <jdbcConnection driverClass="com.microsoft.sqlserver.jdbc.SQLServerDriver" connectionURL="jdbc:sqlserver://172.30.1.195:1433;databasename=NbrcSignupOnline"
+                                userId="sa" password="dfrl@123"></jdbcConnection>
+
+<!--        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
                         connectionURL="jdbc:mysql://127.0.0.1:3306/test_template" userId="root"
-                        password="123456"></jdbcConnection>
+                        password="123456"></jdbcConnection>-->
         <!--        <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver"
                                 connectionURL="jdbc:oracle:thin:@192.168.68.220:1521:rcwdb" userId="rcw" password="sysrcw"/>-->
 
@@ -53,15 +77,21 @@
         </javaTypeResolver>
 
         <!--生成model-->
-        <javaModelGenerator targetPackage="vip.sunke.template.model" targetProject="/work/levo-lee.com/create">
+   <!--     <javaModelGenerator targetPackage="cn.nbohrs.win.model" targetProject="/Users/sunke/Desktop/create">
             <property name="enableSubPackages" value="false"/>
             <property name="trimStrings" value="true"/>
-            <property name="rootClass" value="vip.sunke.pubInter.BaseTimeDoMain"></property>
+            <property name="rootClass" value="cn.nbohrs.pubInter.BaseIdDoMain"></property>
+
+        </javaModelGenerator>-->
+        <javaModelGenerator targetPackage="cn.nbohrs.model" targetProject="/Users/sunke/Desktop/create">
+            <property name="enableSubPackages" value="false"/>
+            <property name="trimStrings" value="true"/>
+            <property name="rootClass" value="cn.nbohrs.pubInter.BaseIdDoMain"></property>
 
         </javaModelGenerator>
 
         <!--生成mapper xml-->
-        <sqlMapGenerator targetPackage="resources/mapper" targetProject="/work/levo-lee.com/create">
+        <sqlMapGenerator targetPackage="resources/mapper" targetProject="/Users/sunke/Desktop/create">
             <property name="enableSubPackages" value="false"/>
         </sqlMapGenerator>
         <!--1，ANNOTATEDMAPPER：会生成使用Mapper接口+Annotation的方式创建（SQL生成在annotation中），不会生成对应的XML；-->
@@ -69,136 +99,321 @@
         <!--3，XMLMAPPER：会生成Mapper接口，接口完全依赖XML；-->
 
         <!--生成mapper 接口-->
-        <javaClientGenerator targetPackage="vip.sunke.template.dao.mapper" targetProject="/work/levo-lee.com/create"
+   <!--     <javaClientGenerator targetPackage="cn.nbohrs.win.dao.mapper" targetProject="/Users/sunke/Desktop/create"
+                             type="XMLMAPPER">
+            <property name="enableSubPackages" value="false"/>
+        </javaClientGenerator>-->
+        <javaClientGenerator targetPackage="cn.nbohrs.dao.mapper" targetProject="/Users/sunke/Desktop/create"
                              type="XMLMAPPER">
             <property name="enableSubPackages" value="false"/>
         </javaClientGenerator>
-
-
-        <table tableName="news" domainObjectName="News">
-            <generatedKey column="n_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^n_" replaceString=""/>
-        </table>
-        <!--<table tableName="activity_apply" domainObjectName="ActivityApply">
-            <generatedKey column="aa_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^aa_" replaceString=""/>
-        </table>
-        <table tableName="activity_apply_log" domainObjectName="ActivityApplyLog">
-            <generatedKey column="aal_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^aal_" replaceString=""/>
-        </table>
-        <table tableName="activity_faq" domainObjectName="ActivityFaq">
-            <generatedKey column="af_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^af_" replaceString=""/>
-        </table>
-        <table tableName="activity_member" domainObjectName="ActivityMember">
-            <generatedKey column="am_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^am_" replaceString=""/>
-        </table>
-        <table tableName="admin" domainObjectName="Admin">
-            <generatedKey column="a_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^a_" replaceString=""/>
-        </table>
-        <table tableName="community" domainObjectName="Community">
-            <generatedKey column="c_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^c_" replaceString=""/>
-        </table>
-        <table tableName="community_person" domainObjectName="CommunityPerson">
-            <generatedKey column="cp_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cp_" replaceString=""/>
-        </table>
-        <table tableName="community_section" domainObjectName="CommunitySection">
-            <generatedKey column="cs_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cs_" replaceString=""/>
-        </table>
-        <table tableName="company" domainObjectName="Company">
-            <generatedKey column="c_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^c_" replaceString=""/>
-        </table>
-        <table tableName="company_member" domainObjectName="CompanyMember">
-            <generatedKey column="cm_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cm_" replaceString=""/>
-        </table>
-        <table tableName="company_staff_type" domainObjectName="CompanyStaffType">
-            <generatedKey column="cst_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cst_" replaceString=""/>
-        </table>
-        <table tableName="company_type" domainObjectName="CompanyType">
-            <generatedKey column="ct_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^ct_" replaceString=""/>
-        </table>
-        <table tableName="course" domainObjectName="Course">
-            <generatedKey column="c_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^c_" replaceString=""/>
-        </table>
-        <table tableName="course_faq" domainObjectName="CourseFaq">
-            <generatedKey column="cf_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cf_" replaceString=""/>
-        </table>
-        <table tableName="course_feedback" domainObjectName="CourseFeedback">
-            <generatedKey column="cf_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cf_" replaceString=""/>
-        </table>
-        <table tableName="course_member" domainObjectName="CourseMember">
-            <generatedKey column="cm_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^cm_" replaceString=""/>
-        </table>
-        <table tableName="dept" domainObjectName="Dept">
-            <generatedKey column="dept_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^dept_" replaceString=""/>
-        </table>
-        <table tableName="dept_rigths" domainObjectName="DeptRigths">
-            <generatedKey column="dr_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^dr_" replaceString=""/>
-        </table>
-        <table tableName="lecturer" domainObjectName="Lecturer">
-            <generatedKey column="l_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^l_" replaceString=""/>
-        </table>
-        <table tableName="lecturer_good_type" domainObjectName="LecturerGoodType">
-            <generatedKey column="lgt_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^lgt_" replaceString=""/>
-        </table>
-        <table tableName="lecturer_type" domainObjectName="LecturerType">
-            <generatedKey column="lt_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^lt_" replaceString=""/>
-        </table>
-        <table tableName="member" domainObjectName="Member">
-            <generatedKey column="m_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^m_" replaceString=""/>
-        </table>
-        <table tableName="member_course_keep" domainObjectName="MemberCourseKeep">
-            <generatedKey column="mck_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^mck_" replaceString=""/>
-        </table>
-        <table tableName="member_lecturer_keep" domainObjectName="MemberLecturerKeep">
-            <generatedKey column="mlk_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^mlk_" replaceString=""/>
-        </table>
-        <table tableName="member_love" domainObjectName="MemberLove">
-            <generatedKey column="ml_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^ml_" replaceString=""/>
-        </table>
-        <table tableName="notification" domainObjectName="Notification">
-            <generatedKey column="n_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^n_" replaceString=""/>
-        </table>
-        <table tableName="notification_send_log" domainObjectName="NotificationSendLog">
-            <generatedKey column="nsl_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^nsl_" replaceString=""/>
-        </table>
-        <table tableName="organization" domainObjectName="Organization">
-            <generatedKey column="o_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^o_" replaceString=""/>
-        </table>
-        <table tableName="organization_case" domainObjectName="OrganizationCase">
-            <generatedKey column="oc_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^oc_" replaceString=""/>
-        </table>
-        <table tableName="rights" domainObjectName="Rights">
-            <generatedKey column="r_id" sqlStatement="JDBC" identity="true"/>
-            <columnRenamingRule searchString="^r_" replaceString=""/>
+<!--
+        <table tableName="examinee" domainObjectName="Examinee">
+            <generatedKey column="e_id" sqlStatement="JDBC" identity="true"/>
+            <columnRenamingRule searchString="^e_" replaceString=""/>
         </table>-->
+
+        <table tableName="Candid" domainObjectName="Candid">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+       <!-- <table tableName="CandidValue" domainObjectName="CandidValue">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>-->
+       <!-- <table tableName="Candid" domainObjectName="Candid">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="CandidTicket" domainObjectName="CandidTicket">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="PaymentOrder" domainObjectName="PaymentOrder">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="OuterUserExamUnit" domainObjectName="OuterUserExamUnit">
+            <generatedKey column="ExamUnit_Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+
+        <table tableName="OuterOperationOuterUser" domainObjectName="OuterOperationOuterUser">
+            <generatedKey column="OuterOperation_Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamUnit" domainObjectName="ExamUnit">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="CandidField" domainObjectName="CandidField">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="OuterUser" domainObjectName="OuterUser">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamMenuExamPhase" domainObjectName="ExamMenuExamPhase">
+            <generatedKey column="ExamMenu_Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamFile" domainObjectName="ExamFile">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamPhase" domainObjectName="ExamPhase">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="RoleExam" domainObjectName="RoleExam">
+            <generatedKey column="Role_Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="Exam" domainObjectName="Exam">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="Operation" domainObjectName="Operation">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="OperationRole" domainObjectName="OperationRole">
+            <generatedKey column="Operation_Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="OuterOperation" domainObjectName="OuterOperation">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="CandidFieldType" domainObjectName="CandidFieldType">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="CandidScore" domainObjectName="CandidScore">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamMenu" domainObjectName="ExamMenu">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamPhaseType" domainObjectName="ExamPhaseType">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="User" domainObjectName="User">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="UserRole" domainObjectName="UserRole">
+            <generatedKey column="Role_Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="Role" domainObjectName="Role">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="ExamFileType" domainObjectName="ExamFileType">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="SystemConfiguration" domainObjectName="SystemConfiguration">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>
+        <table tableName="TradeBank" domainObjectName="TradeBank">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+        </table>-->
+
+
+
+
+<!--
+
+        <table tableName="DWInfo" domainObjectName="DWInfo">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+          &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenInfo" domainObjectName="MenInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+          &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="DWMenGL" domainObjectName="DWMenGL">
+            <generatedKey column="Id" sqlStatement="JDBC" identity="true"/>
+          &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="Salary" domainObjectName="Salary">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+          &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="BillFactSB" domainObjectName="BillFactSB">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactFWFeeCBJSK" domainObjectName="BillFactFWFeeCBJSK">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactSBHP" domainObjectName="BillFactSBHP">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactSBSK" domainObjectName="BillFactSBSK">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactGJJ" domainObjectName="BillFactGJJ">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactGJJHP" domainObjectName="BillFactGJJHP">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactGJJSK" domainObjectName="BillFactGJJSK">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="SalaryColInfo" domainObjectName="SalaryColInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="CWAccItem" domainObjectName="CWAccItem">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="DWFPInfoPZ" domainObjectName="DWFPInfoPZ">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="DWFPInfoSub" domainObjectName="DWFPInfoSub">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenJSTZSB" domainObjectName="MenJSTZSB">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="CWAcc" domainObjectName="CWAcc">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="RepDWFW" domainObjectName="RepDWFW">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="RepSBHD" domainObjectName="RepSBHD">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="NBankCash" domainObjectName="NBankCash">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="MenJSTZGJJ" domainObjectName="MenJSTZGJJ">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillsGS" domainObjectName="BillsGS">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenHTInfo" domainObjectName="MenHTInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+
+
+        <table tableName="BillFactSBZF" domainObjectName="BillFactSBZF">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="DWFeeTJInfo" domainObjectName="DWFeeTJInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="DWFPInfo" domainObjectName="DWFPInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="SalaryMain" domainObjectName="SalaryMain">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="BillFactGJJZF" domainObjectName="BillFactGJJZF">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="MenSBInfo" domainObjectName="MenSBInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenGJJInfo" domainObjectName="MenGJJInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenTGInfo" domainObjectName="MenTGInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="MenSBInfoBJ" domainObjectName="MenSBInfoBJ">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenGJJInfoBJ" domainObjectName="MenGJJInfoBJ">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="MenCBJInfo" domainObjectName="MenCBJInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenSBInfoFK" domainObjectName="MenSBInfoFK">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+
+        <table tableName="MenGJJBGInfo" domainObjectName="MenGJJBGInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="CBJFee" domainObjectName="CBJFee">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="SBTypeEnd" domainObjectName="SBTypeEnd">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenGJJInfoFK" domainObjectName="MenGJJInfoFK">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="SBTypeRun" domainObjectName="SBTypeRun">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="CWZFInfo" domainObjectName="CWZFInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenSYuInfo" domainObjectName="MenSYuInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="GJJTypeRun" domainObjectName="GJJTypeRun">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="CWZFInfoGJJ" domainObjectName="CWZFInfoGJJ">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="MenSBBGInfo" domainObjectName="MenSBBGInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="DWHTInfo" domainObjectName="DWHTInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+        <table tableName="DWLXRInfo" domainObjectName="DWLXRInfo">
+            <generatedKey column="id" sqlStatement="JDBC" identity="true"/>
+            &lt;!&ndash;  <columnRenamingRule searchString="^_" replaceString=""/>&ndash;&gt;
+        </table>
+-->
+
+
+
+
+
+
+
+
 
 
     </context>
