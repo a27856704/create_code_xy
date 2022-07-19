@@ -700,9 +700,6 @@ public class SkPlugin extends PluginAdapter {
         }
 
 
-
-
-
         try {
             Map<String, Object> dataMap = new HashMap<>();
             setComment(dataMap, entityName, "DomainPageDTO", remark);
@@ -2376,13 +2373,13 @@ public class SkPlugin extends PluginAdapter {
             selectStr.append(") b\n");
             selectStr.append(" where b.row_num between #{start} and #{end}");
 
-        } else if(dbType.equalsIgnoreCase(DB_TYPE_PGSQL)){
+        } else if (dbType.equalsIgnoreCase(DB_TYPE_PGSQL)) {
             /**
              * pgsql的逻辑  可以跟mysql通用
              */
             selectStr = new StringBuffer("");
             selectStr.append("<include refid=\"" + namespace + ".getListSql\"></include>\n");
-            selectStr.append("\t\tlimit #{limit} OFFSET #{start}");
+            selectStr.append("\t\tlimit #{search.limit} OFFSET #{search.start}");
         }
 
 
