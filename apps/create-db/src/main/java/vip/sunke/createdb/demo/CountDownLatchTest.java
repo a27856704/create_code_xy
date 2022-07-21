@@ -30,4 +30,5 @@ public class CountDownLatchTest {
 
         System.out.println("玩家准备完毕，开始游戏");
     }
+
 }
