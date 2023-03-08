@@ -2,11 +2,13 @@ server:
   port: 8089
 spring:
   datasource:
-#    url: jdbc:postgresql://172.30.1.221:5432/sophon_sharing_video?currentSchema=dictory,public,geo
-    url: jdbc:postgresql://192.168.110.9:5432/sophon_sharing_video?currentSchema=dictory,public,geo
+    #    url: jdbc:postgresql://172.30.1.221:5432/sophon_sharing_video?currentSchema=dictory,public,geo
+    #    url: jdbc:postgresql://192.168.110.9:5432/sophon_sharing_video?currentSchema=dictory,public,geo
+    url: jdbc:postgresql://192.168.110.137:5432/tianyan_server?currentSchema=tianyan_server,public
     username: postgres
-#    password: blue@123
-    password: skzz@123
+    #    password: blue@123
+    #    password: skzz@123
+    password: V5vibm1dTWRtfI&&
     driver-class-name: org.postgresql.Driver
 
   thymeleaf:
@@ -28,12 +30,13 @@ file:
     tempRoot: /Users/upload/temp
 xmlDir: /Users/upload/createdb
 datasource:
-#  url: jdbc:postgresql://172.30.1.221:5432
-  url: jdbc:postgresql://192.168.110.9:5432
+  #  url: jdbc:postgresql://172.30.1.221:5432
+  url: jdbc:postgresql://192.168.110.137:5432
   username: postgres
-#  password: blue@123
-  password: skzz@123
-#  driver: D:\project\.m2\repository\org\postgresql\postgresql\42.2.12\postgresql-42.2.12.jar
+  #  password: blue@123
+  #  password: skzz@123
+  password: V5vibm1dTWRtfI&&
+  #  driver: D:\project\.m2\repository\org\postgresql\postgresql\42.2.12\postgresql-42.2.12.jar
   driver: D:\mavenStorage\.m2\repository\org\postgresql\postgresql\42.2.12\postgresql-42.2.12.jar
 controllerTemplate: BackController.ftl
 searchTemplate: Search.ftl
@@ -63,7 +66,10 @@ logging:
   file.max-size: 200MB
 
 
-
+pgsql:
+  schemaList:
+  - tianyan_server
+  - public
 
 
 

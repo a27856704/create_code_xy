@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import vip.sunke.CreateDbApplication;
 import vip.sunke.common.*;
+import vip.sunke.createdb.config.SchemaListConfiguration;
 import vip.sunke.createdb.config.SkDatasource;
 import vip.sunke.createdb.dto.FieldDto;
 import vip.sunke.createdb.dto.FieldValueDto;
@@ -23,6 +24,7 @@ import vip.sunke.domain.TableField;
 import vip.sunke.domain.TableKeyColumn;
 import vip.sunke.mybatis.*;
 import vip.sunke.pubInter.exception.BusinessException;
+import vip.sunke.pubInter.exception.SkException;
 import vip.sunke.web.common.SkJsonResult;
 import vip.sunke.web.common.SkMap;
 
@@ -79,9 +81,42 @@ public class CreateController {
     @Value("${modelRootClass}")
     private String modelRootClass;
 
+    @Resource
+    private SchemaListConfiguration schemaListConfiguration;
+
 
     public static void emptyConnection() {
         connection = null;
+    }
+
+    public static String concatSchemaSql(boolean andFlag, String tableAlias, List<String> schemaList) throws SkException {
+        if (StringUtil.isObjEmpty(schemaList)) {
+            throw new BusinessException("没指定pgsql的模式");
+        }
+        StringBuffer schemaSql;
+        if (andFlag) {
+            schemaSql = new StringBuffer(" and ( ");
+        } else {
+            schemaSql = new StringBuffer(" (");
+        }
+        for (String s : schemaList) {
+            //拼接多个table_schema
+
+            if (StringUtil.isEmpty(tableAlias)) {
+                schemaSql.append("table_schema = '" + s + "' OR ");
+
+            } else {
+                schemaSql.append(" " + tableAlias + ".table_schema = '" + s + "' OR ");
+            }
+        }
+        schemaSql.delete(schemaSql.length() - 3, schemaSql.length());
+        schemaSql.append(" )\n");
+        return schemaSql.toString();
+    }
+
+
+    public static String concatSchemaSql(String tableAlias, List<String> schemaList) throws SkException {
+        return concatSchemaSql(true, tableAlias, schemaList);
     }
 
     public Connection getCreateConnection() throws Exception {
@@ -206,7 +241,6 @@ public class CreateController {
 
     }
 
-
     //权限相关
     private void createRightsRelevance() throws Exception {
 
@@ -217,7 +251,6 @@ public class CreateController {
 
 
     }
-
 
     /**
      * 生成权限
@@ -276,7 +309,6 @@ public class CreateController {
 
     }
 
-
     /**
      * 生成权限组和权限关系表
      *
@@ -329,7 +361,6 @@ public class CreateController {
 
     }
 
-
     /**
      * 生成日志
      *
@@ -368,7 +399,6 @@ public class CreateController {
 
     }
 
-
     @PostMapping("/postCreateDB")
     @ResponseBody
     public SkMap postCreateDB(String dbName) throws Exception {
@@ -404,7 +434,6 @@ public class CreateController {
 
 
     }
-
 
     /**
      * 创建表页面
@@ -481,7 +510,6 @@ public class CreateController {
 
     }
 
-
     /**
      * 数据表字段列表页面
      *
@@ -507,7 +535,6 @@ public class CreateController {
         return getBaseView() + "fieldList";
     }
 
-
     /**
      * 删除字段
      *
@@ -531,7 +558,6 @@ public class CreateController {
 
 
     }
-
 
     /**
      * 生成类文件
@@ -708,7 +734,6 @@ public class CreateController {
 
     }
 
-
     /**
      * 生成文档页面
      *
@@ -797,6 +822,54 @@ public class CreateController {
 
     }
 
+    /*@PostMapping("postDoc")
+    public void postDoc(String db, HttpServletResponse response) throws Exception {
+
+        String fileName = URLDecoder.decode(db + "数据库设计.doc", "UTF-8");
+        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        response.setContentType("application/msword");
+
+
+        response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+        response.setCharacterEncoding("utf-8");
+
+
+        CreateDbApplication.setDB(db);
+
+        List<TableComment> tableCommentList = getTableCommentList(db);
+        Map<String, Object> dataMap = new HashMap<>();
+
+
+        if (tableCommentList != null) {
+
+
+            for (TableComment tableComment : tableCommentList) {
+
+                tableComment.setFieldList(getTableFieldList(db, tableComment.getName()));
+
+            }
+
+
+            dataMap.put("list", tableCommentList);
+
+
+        }
+        String path = ClassUtils.getDefaultClassLoader().getResource("").getPath();
+
+        path = "/";
+
+
+        FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil(path);
+
+
+        //  freeMarkerUtil.printFile("database.ftl", dataMap, "数据库.doc", "/sk/upload", "/");
+
+        OutputStream out = response.getOutputStream();
+
+        freeMarkerUtil.print("database.ftl", dataMap, path, out);
+
+
+    }*/
 
     @PostMapping("postDoc")
     public void postDoc(@RequestParam String db, HttpServletResponse response) throws Exception {
@@ -866,56 +939,6 @@ public class CreateController {
 
 
     }
-
-    /*@PostMapping("postDoc")
-    public void postDoc(String db, HttpServletResponse response) throws Exception {
-
-        String fileName = URLDecoder.decode(db + "数据库设计.doc", "UTF-8");
-        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-        response.setContentType("application/msword");
-
-
-        response.setHeader("Content-disposition", "attachment; filename=" + fileName);
-        response.setCharacterEncoding("utf-8");
-
-
-        CreateDbApplication.setDB(db);
-
-        List<TableComment> tableCommentList = getTableCommentList(db);
-        Map<String, Object> dataMap = new HashMap<>();
-
-
-        if (tableCommentList != null) {
-
-
-            for (TableComment tableComment : tableCommentList) {
-
-                tableComment.setFieldList(getTableFieldList(db, tableComment.getName()));
-
-            }
-
-
-            dataMap.put("list", tableCommentList);
-
-
-        }
-        String path = ClassUtils.getDefaultClassLoader().getResource("").getPath();
-
-        path = "/";
-
-
-        FreeMarkerUtil freeMarkerUtil = BeanName.getFreeMarkerUtil(path);
-
-
-        //  freeMarkerUtil.printFile("database.ftl", dataMap, "数据库.doc", "/sk/upload", "/");
-
-        OutputStream out = response.getOutputStream();
-
-        freeMarkerUtil.print("database.ftl", dataMap, path, out);
-
-
-    }*/
-
 
     /**
      * 生成文档
@@ -1073,7 +1096,6 @@ public class CreateController {
 
     }
 
-
     /**
      * word换行
      *
@@ -1142,7 +1164,6 @@ public class CreateController {
 
     }
 
-
     @PostMapping("getTables")
     @ResponseBody
     public SkMap getTables(String db) {
@@ -1152,7 +1173,6 @@ public class CreateController {
 
 
     }
-
 
     /**
      * 返回数据库的所有表内字段和注释
@@ -1223,7 +1243,6 @@ public class CreateController {
 
     }
 
-
     /**
      * 返回数据库的所有表名和注释
      *
@@ -1240,6 +1259,7 @@ public class CreateController {
             conn = getCreateConnection();
             stat = conn.createStatement();
 
+
 //            String sql = "select  table_name,column_name from  INFORMATION_SCHEMA.KEY_COLUMN_USAGE  t where t.table_schema = '" + db + "'and constraint_name='PRIMARY';";
             String sql = "\t\tselect \n" +
                     "       kcu.table_name,\n" +
@@ -1250,7 +1270,8 @@ public class CreateController {
                     "     and kcu.constraint_schema = tco.constraint_schema\n" +
                     "     and kcu.constraint_name = tco.constraint_name\n" +
                     "where tco.constraint_type = 'PRIMARY KEY'\n" +
-                    "and ( kcu.table_schema = 'geo' OR kcu.table_schema = 'dictory' )\n" +
+//                    "and ( kcu.table_schema = 'geo' OR kcu.table_schema = 'dictory' )\n" +
+                    concatSchemaSql("kcu", schemaListConfiguration.getSchemaList()) +
                     "and kcu.ordinal_position=1 and kcu.table_catalog= '" + db + "';";
             resultSet = stat.executeQuery(sql);
 
@@ -1306,7 +1327,8 @@ public class CreateController {
                     "\tJOIN pg_class ON pg_description.objoid = pg_class.oid\n" +
                     "\tLEFT JOIN information_schema.COLUMNS B ON pg_class.relname = B.TABLE_NAME \n" +
                     "WHERE\n" +
-                    "\t( B.table_schema = 'geo' OR B.table_schema = 'dictory' ) \n" +
+//                    "\t( B.table_schema = 'geo' OR B.table_schema = 'dictory' ) \n" +
+                    concatSchemaSql(false, "B", schemaListConfiguration.getSchemaList()) +
                     "\tAND pg_description.objsubid =0 and B.table_catalog ='" + db + "';";
 
             log.debug("sql:{}", sql);
@@ -1344,7 +1366,9 @@ public class CreateController {
             stat = conn.createStatement();
 //            resultSet = stat.executeQuery("show tables;");
 //            resultSet = stat.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'dictory';");
-            resultSet = stat.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'geo';");
+//            resultSet = stat.executeQuery("SELECT table_name FROM information_schema.tables WHERE table_schema = 'geo';");
+
+            resultSet = stat.executeQuery("SELECT table_name FROM information_schema.tables WHERE " + concatSchemaSql(false,"", schemaListConfiguration.getSchemaList()));
 
             List<String> tableList = new ArrayList<String>();
             while (resultSet.next()) {
